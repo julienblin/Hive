@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CE0B71EA-36C2-4937-835A-915E1A042067}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive", "src\Hive\Hive.xproj", "{9FEE3FBD-FCB5-4396-ABB8-BC010D8DB43E}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.Tests", "src\Hive.Tests\Hive.Tests.xproj", "{199D569A-24C9-4D2A-87C2-1A9F5DC024C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{97DB85EA-B0DC-443E-A270-58C4C94A53CE}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.SampleApp", "sample\Hive.SampleApp\Hive.SampleApp.xproj", "{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.WebApi", "src\Hive.WebApi\Hive.WebApi.xproj", "{61D470B4-153E-47A2-9CB3-70D977FF5D4B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9FEE3FBD-FCB5-4396-ABB8-BC010D8DB43E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FEE3FBD-FCB5-4396-ABB8-BC010D8DB43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FEE3FBD-FCB5-4396-ABB8-BC010D8DB43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FEE3FBD-FCB5-4396-ABB8-BC010D8DB43E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{199D569A-24C9-4D2A-87C2-1A9F5DC024C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{199D569A-24C9-4D2A-87C2-1A9F5DC024C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{199D569A-24C9-4D2A-87C2-1A9F5DC024C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{199D569A-24C9-4D2A-87C2-1A9F5DC024C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61D470B4-153E-47A2-9CB3-70D977FF5D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61D470B4-153E-47A2-9CB3-70D977FF5D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61D470B4-153E-47A2-9CB3-70D977FF5D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61D470B4-153E-47A2-9CB3-70D977FF5D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9FEE3FBD-FCB5-4396-ABB8-BC010D8DB43E} = {CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}
+		{199D569A-24C9-4D2A-87C2-1A9F5DC024C4} = {CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}
+		{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0} = {97DB85EA-B0DC-443E-A270-58C4C94A53CE}
+		{61D470B4-153E-47A2-9CB3-70D977FF5D4B} = {CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}
+	EndGlobalSection
+EndGlobal

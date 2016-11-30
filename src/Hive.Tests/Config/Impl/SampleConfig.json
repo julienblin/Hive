@@ -1,0 +1,10 @@
+﻿{
+  "EnvironmentName": "Tests",
+  "Mode": "Debug",
+  "DefaultTimeout": "00:01:00",
+  "AdditionalString": "Foo",
+  "AdditionalDict": {
+    "Foo": "Bar",
+    "Bar": "Foo" 
+  }     
+}

@@ -1,0 +1,5 @@
+﻿{
+  "singleName": "patientType",
+  "pluralName": "patientTypes",
+  "type": "reference"
+}
