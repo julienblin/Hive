@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{97DB85
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.SampleApp", "sample\Hive.SampleApp\Hive.SampleApp.xproj", "{0C1FB7B7-5D30-4142-901C-ECCADBFA2AC0}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.WebApi", "src\Hive.WebApi\Hive.WebApi.xproj", "{61D470B4-153E-47A2-9CB3-70D977FF5D4B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.Web", "src\Hive.Web\Hive.Web.xproj", "{61D470B4-153E-47A2-9CB3-70D977FF5D4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
