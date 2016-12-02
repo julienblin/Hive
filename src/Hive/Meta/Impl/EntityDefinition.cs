@@ -9,6 +9,8 @@ namespace Hive.Meta.Impl
 	{
 		public string Name => SingleName;
 
+		public IModel Model { get; set; }
+
 		public string SingleName { get; set; }
 
 		public string PluralName { get; set; }
@@ -19,18 +21,18 @@ namespace Hive.Meta.Impl
 
 		public EntityDefinitionData OriginalData { get; set; }
 
-		internal void FinishLoading(IValueTypeFactory valueTypeFactory, Model model)
+		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{
 			foreach (var propertyDefinition in Properties?.Values)
 			{
 				var pf = propertyDefinition as PropertyDefinition;
 				if (pf != null)
 				{
-					pf.FinishLoading(valueTypeFactory, model, this);
+					pf.FinishLoading(valueTypeFactory);
 				}
 			}
 		}
 
-		public override string ToString() => Name;
+		public override string ToString() => $"{Model}.{Name}";
 	}
 }

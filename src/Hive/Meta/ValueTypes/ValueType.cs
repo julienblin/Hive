@@ -14,11 +14,7 @@ namespace Hive.Meta.ValueTypes
 
 		public string Name { get; }
 
-		public virtual void FinishLoading(
-			IValueTypeFactory valueTypeFactory,
-			IModel model,
-			IEntityDefinition entityDefinition,
-			IPropertyDefinition propertyDefinition)
+		public virtual void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition)
 		{	
 		}
 	}

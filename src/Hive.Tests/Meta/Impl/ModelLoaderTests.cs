@@ -71,6 +71,7 @@ namespace Hive.Tests.Meta.Impl
 					model.EntitiesBySingleName["foo"].Should().BeSameAs(model.EntitiesByPluralName["foos"]);
 
 					var fooEntity = model.EntitiesBySingleName["foo"];
+					fooEntity.Model.Should().BeSameAs(model);
 					fooEntity.SingleName.Should().Be("foo");
 					fooEntity.PluralName.Should().Be("foos");
 					fooEntity.EntityType.Should().Be(EntityType.MasterData);
@@ -113,6 +114,7 @@ namespace Hive.Tests.Meta.Impl
 					var emailEntity = model.EntitiesBySingleName["email"];
 					var typePropertyDefinition = emailEntity.Properties.SafeGet("type");
 					typePropertyDefinition.Should().NotBeNull();
+					typePropertyDefinition.EntityDefinition.Should().BeSameAs(emailEntity);
 					typePropertyDefinition.Name.Should().Be("type");
 					typePropertyDefinition.PropertyType.Should().BeOfType<StringValueType>();
 

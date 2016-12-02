@@ -9,6 +9,8 @@ namespace Hive.Meta.Impl
 	{
 		private IDictionary<string, object> _properties = new Dictionary<string, object>();
 
+		public IEntityDefinition EntityDefinition { get; set; }
+
 		public string Name { get; set; }
 
 		public IDataType PropertyType { get; set; }
@@ -26,24 +28,24 @@ namespace Hive.Meta.Impl
 
 		public PropertyDefinitionData OriginalData { get; set; }
 
-		internal void FinishLoading(IValueTypeFactory valueTypeFactory, Model model, EntityDefinition entityDefinition)
+		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{
 			if (PropertyType == null)
 			{
-				PropertyType = model.EntitiesBySingleName.SafeGet(OriginalData.Type);
+				PropertyType = EntityDefinition.Model.EntitiesBySingleName.SafeGet(OriginalData.Type);
 			}
 
 			if (PropertyType == null)
 			{
-				throw new ModelLoadingException($"Unable to resolve property type {OriginalData.Type} for {model}.{entityDefinition}.{this}.");
+				throw new ModelLoadingException($"Unable to resolve property type {OriginalData.Type} for {this}.");
 			}
 
 			if (PropertyType is IValueType)
 			{
-				((IValueType) PropertyType).FinishLoading(valueTypeFactory, model, entityDefinition, this);
+				((IValueType) PropertyType).FinishLoading(valueTypeFactory, this);
 			}
 		}
 
-		public override string ToString() => Name;
+		public override string ToString() => $"{EntityDefinition}.{Name}";
 	}
 }

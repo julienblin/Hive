@@ -7,6 +7,6 @@ namespace Hive.Meta
 {
 	public interface IValueType : IDataType
 	{
-		void FinishLoading(IValueTypeFactory valueTypeFactory, IModel model, IEntityDefinition entityDefinition, IPropertyDefinition propertyDefinition);
+		void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition);
 	}
 }

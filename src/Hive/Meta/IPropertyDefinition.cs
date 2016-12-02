@@ -4,6 +4,8 @@ namespace Hive.Meta
 {
 	public interface IPropertyDefinition
 	{
+		IEntityDefinition EntityDefinition { get; }
+
 		string Name { get; }
 
 		IDataType PropertyType { get; }

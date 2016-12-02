@@ -23,7 +23,7 @@ namespace Hive.Meta.Impl
 				var ef = entityDefinition as EntityDefinition;
 				if (ef != null)
 				{
-					ef.FinishLoading(valueTypeFactory, this);
+					ef.FinishLoading(valueTypeFactory);
 				}
 			}
 		}

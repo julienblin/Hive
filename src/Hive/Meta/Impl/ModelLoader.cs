@@ -25,9 +25,10 @@ namespace Hive.Meta.Impl
 				{
 					OriginalData = modelData,
 					Name = modelData.Name,
-					Version = SemVer.Parse(modelData.Version),
-					EntitiesBySingleName = modelData.Entities.Safe().ToDictionary(x => x.SingleName, MapEntityDefinition)
+					Version = SemVer.Parse(modelData.Version)
 				};
+				model.EntitiesBySingleName = modelData.Entities.Safe()
+					.ToDictionary(x => x.SingleName, x => MapEntityDefinition(model, x));
 				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToDictionary(x => x.PluralName);
 				model.FinishLoading(_valueTypeFactory);
 
@@ -40,22 +41,27 @@ namespace Hive.Meta.Impl
 			}
 		}
 
-		private IEntityDefinition MapEntityDefinition(EntityDefinitionData entityDefinitionData)
+		private IEntityDefinition MapEntityDefinition(IModel model, EntityDefinitionData entityDefinitionData)
 		{
-			return new EntityDefinition
+			var entityDefinition = new EntityDefinition
 			{
+				Model = model,
 				OriginalData = entityDefinitionData,
 				SingleName = entityDefinitionData.SingleName,
 				PluralName = entityDefinitionData.PluralName,
-				EntityType = entityDefinitionData.Type.ToEnum<EntityType>(),
-				Properties = MapProperties(entityDefinitionData.Properties).ToDictionary(x => x.Name)
+				EntityType = entityDefinitionData.Type.ToEnum<EntityType>()
 			};
+			entityDefinition.Properties =
+				MapProperties(entityDefinition, entityDefinitionData.Properties).ToDictionary(x => x.Name);
+
+			return entityDefinition;
 		}
 
-		private IEnumerable<IPropertyDefinition> MapProperties(IEnumerable<PropertyDefinitionData> properties)
+		private IEnumerable<IPropertyDefinition> MapProperties(IEntityDefinition entityDefinition, IEnumerable<PropertyDefinitionData> properties)
 		{
 			return properties.Safe().Select(property => new PropertyDefinition
 			{
+				EntityDefinition = entityDefinition,
 				OriginalData = property,
 				Name = property.Name,
 				PropertyType = _valueTypeFactory.GetValueType(property.Type)

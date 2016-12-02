@@ -5,6 +5,8 @@ namespace Hive.Meta
 {
 	public interface IEntityDefinition : IDataType
 	{
+		IModel Model { get; }
+
 		string SingleName { get;  }
 
 		string PluralName { get; }
