@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Hive.Config;
 
-namespace Hive.Tests
+namespace Hive.Tests.Mocks
 {
 	public class HiveConfigMock : IHiveConfig
 	{

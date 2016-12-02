@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hive.Meta.Data;
 
 namespace Hive.Meta
 {

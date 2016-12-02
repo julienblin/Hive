@@ -14,9 +14,12 @@ namespace Hive.Meta.ValueTypes
 
 		public string Name { get; }
 
-		public virtual IDictionary<string, object> LoadAdditionalProperties(IValueTypeFactory valueTypeFactory, IModel model, PropertyDefinitionData propertyDefinitionData)
-		{
-			return null;
+		public virtual void FinishLoading(
+			IValueTypeFactory valueTypeFactory,
+			IModel model,
+			IEntityDefinition entityDefinition,
+			IPropertyDefinition propertyDefinition)
+		{	
 		}
 	}
 }

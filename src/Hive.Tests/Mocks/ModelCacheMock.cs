@@ -1,7 +1,7 @@
 ﻿using Hive.Cache;
 using Hive.Meta;
 
-namespace Hive.Tests.Meta.Impl
+namespace Hive.Tests.Mocks
 {
 	public class ModelCacheMock : IModelCache
 	{

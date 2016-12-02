@@ -2,7 +2,7 @@
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
 
-namespace Hive.Tests.Meta.Impl
+namespace Hive.Tests.Mocks
 {
 	public class PropertyDefinitionDataMock : PropertyDefinitionData
 	{

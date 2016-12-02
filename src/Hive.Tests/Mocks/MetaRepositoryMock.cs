@@ -2,11 +2,15 @@
 using System.Threading.Tasks;
 using Hive.Meta.Data;
 
-namespace Hive.Tests.Meta.Impl
+namespace Hive.Tests.Mocks
 {
 	public class MetaRepositoryMock : IMetaRepository
 	{
 		private readonly ModelData _modelData;
+
+		public MetaRepositoryMock()
+		{
+		}
 
 		public MetaRepositoryMock(ModelData modelData)
 		{

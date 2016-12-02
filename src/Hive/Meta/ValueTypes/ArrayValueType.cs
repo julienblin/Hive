@@ -15,25 +15,31 @@ namespace Hive.Meta.ValueTypes
 		{
 		}
 
-		public override IDictionary<string, object> LoadAdditionalProperties(IValueTypeFactory valueTypeFactory, IModel model, PropertyDefinitionData propertyDefinitionData)
+		public override void FinishLoading(
+			IValueTypeFactory valueTypeFactory,
+			IModel model,
+			IEntityDefinition entityDefinition,
+			IPropertyDefinition propertyDefinition)
 		{
-			var result = new Dictionary<string, object>();
+			var propertyOriginalData = propertyDefinition as IOriginalDataHolder<PropertyDefinitionData>;
+			if (propertyOriginalData == null)
+			{
+				throw new ModelLoadingException($"Unable to finish the loading of property {model}.{entityDefinition}.{propertyDefinition} because it does not implement {nameof(IOriginalDataHolder<PropertyDefinitionData>)}.");
+			}
 
-			var itemsData = propertyDefinitionData.GetValue<string>("items");
+			var itemsData = propertyOriginalData.OriginalData.GetValue<string>("items");
 			if (itemsData == null)
 			{
-				throw new ModelLoadingException($"An array must have an item property that points to either a value type or an entity (for property {propertyDefinitionData.Name}).");
+				throw new ModelLoadingException($"An array must have an item property that points to either a value type or an entity (on {model}.{entityDefinition}.{propertyDefinition}).");
 			}
 
-			var itemsType = (IDataType) valueTypeFactory.GetValueType(itemsData) ?? model.EntitiesBySingleName.SafeGet(itemsData);
+			var itemsType = (IDataType)valueTypeFactory.GetValueType(itemsData) ?? model.EntitiesBySingleName.SafeGet(itemsData);
 			if (itemsType == null)
 			{
-				throw new ModelLoadingException($"Unable to find an entity or a value type named {itemsData} (for property {propertyDefinitionData.Name}).");
+				throw new ModelLoadingException($"Unable to find an entity or a value type named {itemsData} (on {model}.{entityDefinition}.{propertyDefinition}).");
 			}
 
-			result[PropertyItems] = itemsType;
-
-			return result;
+			propertyDefinition.SetProperty(PropertyItems, itemsType);
 		}
 	}
 }

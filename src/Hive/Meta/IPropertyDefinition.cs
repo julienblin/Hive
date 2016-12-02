@@ -1,4 +1,6 @@
-﻿namespace Hive.Meta
+﻿using Hive.Meta.Data;
+
+namespace Hive.Meta
 {
 	public interface IPropertyDefinition
 	{
@@ -7,5 +9,7 @@
 		IDataType PropertyType { get; }
 
 		T GetProperty<T>(string propertyName);
+
+		void SetProperty(string propertyName, object value);
 	}
 }

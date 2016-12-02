@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Hive.Foundation.Exceptions;
 using Hive.Meta.Data.Impl;
 using Xunit;
 using System.Reflection;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using System.Linq;
 using Hive.Foundation.Extensions;
+using Hive.Tests.Mocks;
 
 namespace Hive.Tests.Meta.Data.Impl
 {

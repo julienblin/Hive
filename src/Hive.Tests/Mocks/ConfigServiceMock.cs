@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Hive.Config;
 using Hive.Foundation.Extensions;
 
-namespace Hive.Tests
+namespace Hive.Tests.Mocks
 {
 	public class ConfigServiceMock : IConfigService
 	{

@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Hive.Foundation.Extensions;
+using Hive.Meta.Data;
 
 namespace Hive.Meta.Impl
 {
-	internal class EntityDefinition : IEntityDefinition
+	internal class EntityDefinition : IEntityDefinition, IOriginalDataHolder<EntityDefinitionData>
 	{
 		public string Name => SingleName;
 
@@ -15,18 +17,20 @@ namespace Hive.Meta.Impl
 
 		public IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; set; }
 
-		internal void ResolveReferences(IValueTypeFactory valueTypeFactory, Model model)
-		{
-			foreach (PropertyDefinition propertyDefinition in Properties.Values)
-			{
-				if (propertyDefinition.PropertyType == null)
-				{
-					propertyDefinition.PropertyType = model.EntitiesBySingleName.SafeGet(propertyDefinition.PropertyDefinitionData.Type);
-				}
+		public EntityDefinitionData OriginalData { get; set; }
 
-				propertyDefinition.Properties =
-					((IValueType) propertyDefinition.PropertyType).LoadAdditionalProperties(valueTypeFactory, model, propertyDefinition.PropertyDefinitionData);
+		internal void FinishLoading(IValueTypeFactory valueTypeFactory, Model model)
+		{
+			foreach (var propertyDefinition in Properties?.Values)
+			{
+				var pf = propertyDefinition as PropertyDefinition;
+				if (pf != null)
+				{
+					pf.FinishLoading(valueTypeFactory, model, this);
+				}
 			}
 		}
+
+		public override string ToString() => Name;
 	}
 }
