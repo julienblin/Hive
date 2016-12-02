@@ -98,8 +98,8 @@ namespace Hive.Foundation.Entities
 				var result = Major.GetHashCode();
 				result = result * 31 + Minor.GetHashCode();
 				result = result * 31 + Patch.GetHashCode();
-				result = result * 31 + Prerelease.GetHashCode();
-				result = result * 31 + Build.GetHashCode();
+				result = result * 31 + (Prerelease?.GetHashCode() ?? string.Empty.GetHashCode());
+				result = result*31 + (Build?.GetHashCode() ?? string.Empty.GetHashCode());
 				return result;
 			}
 		}
