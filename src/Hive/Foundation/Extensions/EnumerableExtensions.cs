@@ -38,5 +38,21 @@ namespace Hive.Foundation.Extensions
 			await Task.WhenAll(entityTasks);
 			return entityTasks.Select(x => x.Result);
 		}
+
+		public static TValue SafeGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+		{
+			if (dictionary == null) return default(TValue);
+
+			TValue value;
+			return dictionary.TryGetValue(key, out value) ? value : default(TValue);
+		}
+
+		public static TValue SafeGet<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+		{
+			if (dictionary == null) return default(TValue);
+
+			TValue value;
+			return dictionary.TryGetValue(key, out value) ? value : default(TValue);
+		}
 	}
 }

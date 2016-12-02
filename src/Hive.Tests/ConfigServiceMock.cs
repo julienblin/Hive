@@ -6,21 +6,21 @@ using Hive.Foundation.Extensions;
 
 namespace Hive.Tests
 {
-	public class TestConfigService : IConfigService
+	public class ConfigServiceMock : IConfigService
 	{
 		private readonly IHiveConfig _config;
 
-		public TestConfigService(string key, string value)
-			: this(new TestHiveConfig(key, value))
+		public ConfigServiceMock(string key, string value)
+			: this(new HiveConfigMock(key, value))
 		{
 		}
 
-		public TestConfigService(IReadOnlyDictionary<string, object> values = null)
-			: this(new TestHiveConfig(values))
+		public ConfigServiceMock(IReadOnlyDictionary<string, object> values = null)
+			: this(new HiveConfigMock(values))
 		{
 		}
 
-		public TestConfigService(IHiveConfig config)
+		public ConfigServiceMock(IHiveConfig config)
 		{
 			_config = config.NotNull(nameof(config));
 		}

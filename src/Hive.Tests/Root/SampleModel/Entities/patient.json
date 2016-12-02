@@ -1,5 +1,12 @@
 ﻿{
   "singleName": "patient",
   "pluralName": "patients",
-  "type": "masterdata"
+  "type": "masterdata",
+  "properties": [
+    {
+      "name": "type",
+      "type": "enum",
+      "values": [ "internal", "external" ] 
+    }
+  ] 
 }

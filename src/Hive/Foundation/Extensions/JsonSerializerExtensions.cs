@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -39,6 +40,28 @@ namespace Hive.Foundation.Extensions
 			{
 				return serializer.Deserialize<T>(stream);
 			}
+		}
+
+		public static Task<T> DeserializeAsync<T>(this JsonSerializer serializer, Stream stream, CancellationToken ct)
+		{
+			serializer.NotNull(nameof(serializer));
+			stream.NotNull(nameof(stream));
+
+			return Task.Run(
+				() => serializer.Deserialize<T>(stream),
+				ct
+			);
+		}
+
+		public static Task<T> DeserializeAsync<T>(this JsonSerializer serializer, string path, CancellationToken ct)
+		{
+			serializer.NotNull(nameof(serializer));
+			path.NotNullOrEmpty(nameof(path));
+
+			return Task.Run(
+				() => serializer.Deserialize<T>(path),
+				ct
+			);
 		}
 	}
 }

@@ -7,5 +7,7 @@
 		public string PluralName { get; set; }
 
 		public string Type { get; set; }
+
+		public PropertyDefinitionData[] Properties { get; set; }
 	}
 }

@@ -4,6 +4,8 @@
 	{
 		string Name { get; }
 
-		IPropertyType PropertyType { get; }
+		IDataType PropertyType { get; }
+
+		T GetProperty<T>(string propertyName);
 	}
 }

@@ -7,6 +7,7 @@ using Hive.Config;
 using Hive.Foundation;
 using Hive.Foundation.Exceptions;
 using Hive.Foundation.Extensions;
+using Newtonsoft.Json;
 
 namespace Hive.Meta.Data.Impl
 {
@@ -18,10 +19,12 @@ namespace Hive.Meta.Data.Impl
 		private const string EntitiesFolderName = "Entities";
 
 		private readonly IConfigService _configService;
+		private readonly JsonSerializer _serializer;
 
 		public JsonStructureMetaRepository(IConfigService configService)
 		{
 			_configService = configService.NotNull(nameof(configService));
+			_serializer = new HiveJsonSerializer(new PropertyDefinitionDataConverter());
 		}
 
 		public async Task<ModelData> GetModel(string modelName, CancellationToken ct)
@@ -54,7 +57,7 @@ namespace Hive.Meta.Data.Impl
 			return baseDirectory;
 		}
 
-		private static ModelData LoadModelManifest(DirectoryInfo baseDirectory)
+		private ModelData LoadModelManifest(DirectoryInfo baseDirectory)
 		{
 			var manifestFile = baseDirectory.GetFiles(ManifestFilename).FirstOrDefault();
 			if (manifestFile == null)
@@ -65,7 +68,7 @@ namespace Hive.Meta.Data.Impl
 
 			try
 			{
-				return HiveJsonSerializer.Instance.Deserialize<ModelData>(manifestFile.FullName);
+				return _serializer.Deserialize<ModelData>(manifestFile.FullName);
 			}
 			catch (Exception ex)
 			{
@@ -74,7 +77,7 @@ namespace Hive.Meta.Data.Impl
 			}
 		}
 
-		private static async Task LoadEntities(DirectoryInfo baseDirectory, ModelData modelData, CancellationToken ct)
+		private async Task LoadEntities(DirectoryInfo baseDirectory, ModelData modelData, CancellationToken ct)
 		{
 			var entitiesDirectory = baseDirectory.GetDirectories(EntitiesFolderName).FirstOrDefault();
 			if (entitiesDirectory == null) return;
@@ -83,20 +86,14 @@ namespace Hive.Meta.Data.Impl
 
 			try
 			{
-				modelData.Entities = (await entityFiles.SafeForEachParallel(LoadFile<EntityDefinitionData>, ct)).ToArray();
+				modelData.Entities = (await entityFiles
+					.SafeForEachParallel((x, token) => _serializer.DeserializeAsync<EntityDefinitionData>(x.FullName, token), ct)
+					).ToArray();
 			}
 			catch (Exception ex)
 			{
 				throw new ModelLoadingException($"There has been an error while loading entities from the {entitiesDirectory.FullName} directory.", ex);
 			}
-		}
-
-		private static Task<T> LoadFile<T>(FileInfo fileInfo, CancellationToken ct)
-		{
-			return Task.Run(
-				() => HiveJsonSerializer.Instance.Deserialize<T>(fileInfo.FullName),
-				ct
-			);
 		}
 	}
 }

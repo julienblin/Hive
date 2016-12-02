@@ -9,6 +9,8 @@ namespace Hive.Meta
 
 		SemVer Version { get; }
 
-		IReadOnlyDictionary<string, IEntityDefinition> Entities { get; }
+		IReadOnlyDictionary<string, IEntityDefinition> EntitiesBySingleName { get; }
+
+		IReadOnlyDictionary<string, IEntityDefinition> EntitiesByPluralName { get; }
 	}
 }

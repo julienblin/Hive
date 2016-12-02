@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Hive.Foundation.Extensions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace Hive.Foundation
 {
-	public class HiveJsonSerializer : JsonSerializer
+	public sealed class HiveJsonSerializer : JsonSerializer
 	{
 		static HiveJsonSerializer()
 		{
@@ -13,10 +14,19 @@ namespace Hive.Foundation
 
 		public static HiveJsonSerializer Instance { get; }
 
-		private HiveJsonSerializer()
+		public HiveJsonSerializer()
 		{
 			Converters.Add(new StringEnumConverter());
 			ContractResolver = new CamelCasePropertyNamesContractResolver();
+		}
+
+		public HiveJsonSerializer(params JsonConverter[] converters)
+			: this()
+		{
+			foreach (var jsonConverter in converters.Safe())
+			{
+				Converters.Add(jsonConverter);
+			}
 		}
 	}
 }

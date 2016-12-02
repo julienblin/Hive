@@ -1,0 +1,16 @@
+﻿{
+  "singleName": "email",
+  "pluralName": "emails",
+  "type": "none",
+  "properties": [
+    {
+      "name": "emailType",
+      "type": "enum",
+      "values": ["home", "work"] 
+    },
+    {
+      "name": "email",
+      "type": "string"
+    }
+  ]
+}

@@ -27,5 +27,12 @@ namespace Hive.Foundation.Extensions
 				? result
 				: (int?)null;
 		}
+
+	    public static T ToEnum<T>(this string value, bool ignoreCase = true)
+	    {
+		    value.NotNullOrEmpty(nameof(value));
+
+		    return (T) Enum.Parse(typeof(T), value, ignoreCase);
+	    }
 	}
 }

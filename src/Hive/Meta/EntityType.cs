@@ -1,4 +1,6 @@
-﻿namespace Hive.Meta
+﻿using System.Runtime.Serialization;
+
+namespace Hive.Meta
 {
 	public enum EntityType
     {

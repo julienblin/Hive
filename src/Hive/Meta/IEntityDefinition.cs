@@ -2,7 +2,7 @@
 
 namespace Hive.Meta
 {
-	public interface IEntityDefinition
+	public interface IEntityDefinition : IDataType
 	{
 		string SingleName { get;  }
 
@@ -10,6 +10,6 @@ namespace Hive.Meta
 
 		EntityType EntityType { get; }
 
-		IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; set; }
+		IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; }
 	}
 }

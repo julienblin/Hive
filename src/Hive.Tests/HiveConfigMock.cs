@@ -4,16 +4,16 @@ using Hive.Config;
 
 namespace Hive.Tests
 {
-	public class TestHiveConfig : IHiveConfig
+	public class HiveConfigMock : IHiveConfig
 	{
 		private readonly IReadOnlyDictionary<string, object> _values;
 
-		public TestHiveConfig(string key, string value)
+		public HiveConfigMock(string key, string value)
 			: this (new Dictionary<string, object> { { key, value } })
 		{
 		}
 
-		public TestHiveConfig(IReadOnlyDictionary<string, object> values = null)
+		public HiveConfigMock(IReadOnlyDictionary<string, object> values = null)
 		{
 			EnvironmentName = "Tests";
 			Mode = EnvironmentMode.Debug;

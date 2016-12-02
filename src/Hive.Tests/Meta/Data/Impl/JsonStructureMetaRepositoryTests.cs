@@ -16,7 +16,7 @@ namespace Hive.Tests.Meta.Data.Impl
 		[Fact]
 		public async Task ItShouldLoadAStructure()
 		{
-			var configService = new TestConfigService(JsonStructureMetaRepository.ModelsRootConfigValue, GetSampleStructureFilePath());
+			var configService = new ConfigServiceMock(JsonStructureMetaRepository.ModelsRootConfigValue, GetSampleStructureFilePath());
 			var metaRepository = new JsonStructureMetaRepository(configService);
 
 			var modelData = await metaRepository.GetModel("SampleModel", CancellationToken.None);
@@ -27,6 +27,18 @@ namespace Hive.Tests.Meta.Data.Impl
 			var clientEntity = modelData.Entities.First(x => x.SingleName.SafeOrdinalEquals("client"));
 			clientEntity.PluralName.Should().Be("clients");
 			clientEntity.Type.Should().Be("masterdata");
+			var firstNameProperty = clientEntity.Properties.FirstOrDefault(x => x.Name.SafeOrdinalEquals("firstName"));
+			firstNameProperty.Should().NotBeNull();
+			firstNameProperty.Type.Should().Be("string");
+
+			var patientEntity = modelData.Entities.First(x => x.SingleName.SafeOrdinalEquals("patient"));
+			patientEntity.PluralName.Should().Be("patients");
+			var typeProperty = patientEntity.Properties.FirstOrDefault(x => x.Name.SafeOrdinalEquals("type"));
+			typeProperty.Should().NotBeNull();
+			typeProperty.Type.Should().Be("enum");
+			var values = typeProperty.GetValue<string[]>("values");
+			values.Should().NotBeNull();
+			values.Should().Contain(new[] {"internal", "external"});
 		}
 
 		private string GetSampleStructureFilePath()
