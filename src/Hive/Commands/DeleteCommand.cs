@@ -20,7 +20,7 @@ namespace Hive.Commands
 			: base(context)
 		{
 			_entityDefinition = entityDefinition.NotNull(nameof(entityDefinition));
-			// _id = entityDefinition.
+			_id = id.NotNull(nameof(id));
 		}
 	}
 }

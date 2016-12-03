@@ -1,0 +1,19 @@
+﻿{
+  "singleName": "client",
+  "pluralName": "clients",
+  "type": "masterdata",
+  "properties": [
+    {
+      "name": "firstName",
+      "type": "string"
+    },
+    {
+      "name": "lastName",
+      "type": "string"
+    },
+    {
+      "name": "dateOfBirth",
+      "type": "date"
+    }
+  ]
+}

@@ -7,12 +7,12 @@ namespace Hive.Queries
 	public class Query
 	{
 		private readonly IContext _context;
-		private readonly IDataType _dataType;
 
-		public Query(IContext context, IDataType dataType)
+		public Query(IContext context)
 		{
 			_context = context.NotNull(nameof(context));
-			_dataType = dataType.NotNull(nameof(dataType));
 		}
+
+		public IDataType ResultType { get; }
 	}
 }

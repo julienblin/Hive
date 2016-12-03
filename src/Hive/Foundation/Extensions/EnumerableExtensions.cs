@@ -23,6 +23,15 @@ namespace Hive.Foundation.Extensions
 			return entityTasks.Select(x => x.Result);
 		}
 
+		public static Task SafeForEachParallel<TIn>(this IEnumerable<TIn> value,
+			Func<TIn, CancellationToken, Task> func, CancellationToken ct)
+		{
+			if (value == null) return Task.CompletedTask;
+
+			var entityTasks = value.Select(x => func(x, ct)).ToList();
+			return Task.WhenAll(entityTasks);
+		}
+
 		public static TValue SafeGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
 		{
 			if (dictionary == null) return default(TValue);
