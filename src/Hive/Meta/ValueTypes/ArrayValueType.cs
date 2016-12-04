@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Hive.Foundation.Exceptions;
+using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
 using Hive.Meta.Impl;

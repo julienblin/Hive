@@ -1,7 +1,7 @@
 ﻿using Hive.Foundation.Extensions;
 using Hive.Foundation.Validation;
 
-namespace Hive.Foundation.Exceptions
+namespace Hive.Exceptions
 {
 	public class ValidationException : HiveException
 	{

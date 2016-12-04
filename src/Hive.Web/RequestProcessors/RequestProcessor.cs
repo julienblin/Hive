@@ -10,7 +10,7 @@ using Hive.Serialization;
 using Hive.Telemetry;
 using Microsoft.AspNetCore.Http;
 
-namespace Hive.Web.RequestProcessors.Impl
+namespace Hive.Web.RequestProcessors
 {
 	public abstract class RequestProcessor : IRequestProcessor
 	{

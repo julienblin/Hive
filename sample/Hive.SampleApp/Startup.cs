@@ -14,7 +14,6 @@ using Hive.Meta.Data.Impl;
 using Hive.Meta.Impl;
 using Hive.Serialization;
 using Hive.Serialization.Impl;
-using Hive.Web.RequestProcessors.Impl;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Hive.Foundation.Extensions;
 using Hive.Telemetry;
 using Hive.Web.Middlewares;
+using Hive.Web.Rest;
 
 namespace Hive.SampleApp
 {

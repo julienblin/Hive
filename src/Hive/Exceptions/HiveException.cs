@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Hive.Foundation.Exceptions
+namespace Hive.Exceptions
 {
 	/// <summary>
 	/// Base class for Hive exceptions.

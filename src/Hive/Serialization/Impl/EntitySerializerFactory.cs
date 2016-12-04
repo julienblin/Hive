@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using Hive.Foundation.Exceptions;
+using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 
 namespace Hive.Serialization.Impl

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
 using Hive.Config;
-using Hive.Foundation.Exceptions;
+using Hive.Exceptions;
 
 namespace Hive.Tests.Config.Impl
 {

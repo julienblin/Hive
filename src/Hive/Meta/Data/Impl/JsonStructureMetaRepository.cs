@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Config;
+using Hive.Exceptions;
 using Hive.Foundation;
-using Hive.Foundation.Exceptions;
 using Hive.Foundation.Extensions;
 using Newtonsoft.Json;
 

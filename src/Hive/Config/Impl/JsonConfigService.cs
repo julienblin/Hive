@@ -2,8 +2,8 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Exceptions;
 using Hive.Foundation;
-using Hive.Foundation.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Foundation.Lifecycle;
 

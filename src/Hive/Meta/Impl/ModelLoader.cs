@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hive.Exceptions;
 using Hive.Foundation.Entities;
-using Hive.Foundation.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
 

@@ -4,15 +4,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hive.Config;
 using Hive.Entities;
-using Hive.Foundation.Exceptions;
+using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Queries;
 using Hive.Serialization;
 using Hive.Telemetry;
+using Hive.Web.RequestProcessors;
 using Microsoft.AspNetCore.Http;
 
-namespace Hive.Web.RequestProcessors.Impl
+namespace Hive.Web.Rest
 {
 	public class RestRequestProcessor : RequestProcessor
 	{

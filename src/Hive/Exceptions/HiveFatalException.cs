@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Hive.Foundation.Exceptions
+namespace Hive.Exceptions
 {
 	public class HiveFatalException : HiveException
 	{

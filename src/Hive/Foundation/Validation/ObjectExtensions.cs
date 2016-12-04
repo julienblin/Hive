@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Hive.Foundation.Extensions;
-using HiveValidationException = Hive.Foundation.Exceptions.ValidationException;
+using HiveValidationException = Hive.Exceptions.ValidationException;
 
 namespace Hive.Foundation.Validation
 {

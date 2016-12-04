@@ -5,6 +5,7 @@ using Hive.Foundation.Validation;
 using Xunit;
 using System.Linq;
 using Hive.Foundation.Extensions;
+using ValidationException = Hive.Exceptions.ValidationException;
 
 namespace Hive.Tests.Foundation.Validation
 {
@@ -29,7 +30,7 @@ namespace Hive.Tests.Foundation.Validation
 		public void Validate()
 		{
 			var test = new ClassToTest();
-			test.Invoking(x => x.Validate()).ShouldThrow<Hive.Foundation.Exceptions.ValidationException>()
+			test.Invoking(x => x.Validate()).ShouldThrow<ValidationException>()
 				.Which.Results.Errors.First().Target.Should().Be(nameof(ClassToTest.Name));
 		}
 

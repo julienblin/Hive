@@ -1,4 +1,4 @@
-﻿namespace Hive.Foundation.Exceptions
+﻿namespace Hive.Exceptions
 {
 	public class NotFoundException : HiveException
 	{
