@@ -9,6 +9,7 @@ using Hive.Meta;
 using Hive.Queries;
 using Hive.Telemetry;
 using Hive.Web.RequestProcessors;
+using Hive.Web.Rest.Responses;
 using Hive.Web.Rest.Serializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
@@ -57,13 +58,9 @@ namespace Hive.Web.Rest
 				return true;
 			}
 
-			if (HttpMethods.IsPost(request.Method)
-				|| HttpMethods.IsPut(request.Method)
-				|| HttpMethods.IsPatch(request.Method)
-				|| HttpMethods.IsDelete(request.Method)
-			)
+			if (HttpMethods.IsPost(request.Method))
 			{
-				await ProcessCommand(context, pathSegments, model, ct);
+				await ProcessPostCommand(processParams, ct);
 				return true;
 			}
 
@@ -97,7 +94,7 @@ namespace Hive.Web.Rest
 			return query;
 		}
 
-		private Task ProcessCommand(HttpContext context, string[] pathSegments, IModel model, CancellationToken ct)
+		private Task ProcessPostCommand(RestProcessParameters processParams, CancellationToken ct)
 		{
 			throw new NotImplementedException();
 		}

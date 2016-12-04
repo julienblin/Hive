@@ -1,4 +1,4 @@
-﻿namespace Hive.Web.Rest
+﻿namespace Hive.Web.Rest.Responses
 {
 	public class ErrorResponse
 	{

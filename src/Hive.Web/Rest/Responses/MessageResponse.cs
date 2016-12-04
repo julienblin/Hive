@@ -1,6 +1,6 @@
 ﻿using Hive.Foundation.Extensions;
 
-namespace Hive.Web.Rest
+namespace Hive.Web.Rest.Responses
 {
 	public class MessageResponse
 	{
