@@ -12,20 +12,23 @@ using Hive.Serialization;
 using Hive.Telemetry;
 using Hive.Web.RequestProcessors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Hive.Web.Rest
 {
 	public class RestRequestProcessor : RequestProcessor
 	{
+		private readonly IOptions<RestOptions> _options;
+
 		public RestRequestProcessor(
-			IHiveConfig config,
+			IOptions<RestOptions> options,
 			ITelemetry telemetry,
 			IMetaService metaService,
 			IEntityService entityService,
-			IEntitySerializerFactory entitySerializerFactory,
-			PathString mountPoint)
-			: base(config, telemetry, metaService, entityService, entitySerializerFactory, mountPoint)
+			IEntitySerializerFactory entitySerializerFactory)
+			: base(telemetry, metaService, entityService, entitySerializerFactory)
 		{
+			_options = options.NotNull(nameof(options));
 		}
 
 		protected override async Task<bool> ProcessInternal(HttpContext context, CancellationToken ct)
@@ -33,7 +36,7 @@ namespace Hive.Web.Rest
 			var request = context.Request;
 
 			PathString partialPath;
-			if (!request.Path.StartsWithSegments(MountPoint, out partialPath)) return false;
+			if (!request.Path.StartsWithSegments(_options.Value.MountPoint, out partialPath)) return false;
 
 			var pathSegments = partialPath.Value?.Split('/').Where(x => !x.Trim().IsNullOrEmpty()).ToArray();
 			if (pathSegments?.Length < 2) return false;

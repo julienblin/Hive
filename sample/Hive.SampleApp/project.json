@@ -8,9 +8,11 @@
     "NETStandard.Library": "1.6.1",
     "Microsoft.AspNetCore.Http": "1.1.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.1.0",
+    "Microsoft.Extensions.Configuration.Json": "1.1.0",
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
     "Hive": "*",
-    "Hive.Web": "*",
-    "microsoft.extensions.configuration.fileextensions": "1.1.0"
+    "Hive.Web": "*"
   },
 
   "frameworks": {

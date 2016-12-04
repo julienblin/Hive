@@ -8,6 +8,7 @@ using FluentAssertions;
 using System.Linq;
 using Hive.Foundation.Extensions;
 using Hive.Tests.Mocks;
+using Microsoft.Extensions.Options;
 
 namespace Hive.Tests.Meta.Data.Impl
 {
@@ -16,8 +17,11 @@ namespace Hive.Tests.Meta.Data.Impl
 		[Fact]
 		public async Task ItShouldLoadAStructure()
 		{
-			var configService = new ConfigServiceMock(JsonStructureMetaRepository.ModelsRootConfigValue, GetSampleStructureFilePath());
-			var metaRepository = new JsonStructureMetaRepository(configService);
+			var options = new JsonStructureMetaRepositoryOptions
+			{
+				ModelsPath = GetSampleStructureFilePath()
+			};
+			var metaRepository = new JsonStructureMetaRepository(new OptionsWrapper<JsonStructureMetaRepositoryOptions>(options));
 
 			var modelData = await metaRepository.GetModel("SampleModel", CancellationToken.None);
 			modelData.Name.Should().Be("SampleModel");

@@ -4,7 +4,6 @@ using System.Threading;
 using Hive.Cache;
 using Hive.Cache.Impl;
 using Hive.Config;
-using Hive.Config.Impl;
 using Hive.Entities;
 using Hive.Entities.Impl;
 using Hive.Foundation.Lifecycle;
@@ -32,7 +31,8 @@ namespace Hive.SampleApp
 		{
 			HostingEnvironment = env;
 			var builder = new ConfigurationBuilder()
-				.SetBasePath(env.ContentRootPath);
+				.SetBasePath(env.ContentRootPath)
+				.AddJsonFile("appsettings.json");
 			Configuration = builder.Build();
 		}
 
@@ -42,8 +42,11 @@ namespace Hive.SampleApp
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var configService = new JsonConfigService(Path.Combine(HostingEnvironment.ContentRootPath, "hiveconfig.json"));
-			services.AddSingleton<IConfigService>(x => configService);
+			services.AddOptions();
+			services.Configure<HiveOptions>(Configuration.GetSection("hive"));
+			services.Configure<JsonStructureMetaRepositoryOptions>(Configuration.GetSection("meta"));
+			services.Configure<RestOptions>(Configuration.GetSection("rest"));
+
 			services.AddSingleton<ITelemetry, DebugTelemetry>();
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();
 			services.AddSingleton<IValueTypeFactory>(x => new ValueTypeFactory());
@@ -52,20 +55,12 @@ namespace Hive.SampleApp
 			services.AddSingleton<IMetaService, MetaService>();
 			services.AddSingleton<IEntityService, EntityService>();
 			services.AddSingleton<IEntitySerializerFactory, EntitySerializerFactory>();
-			services.AddSingleton(x => new RestRequestProcessor(
-				configService.GetConfig(CancellationToken.None).GetAwaiter().GetResult(),
-				x.GetRequiredService<ITelemetry>(),
-				x.GetRequiredService<IMetaService>(),
-				x.GetRequiredService<IEntityService>(),
-				x.GetRequiredService<IEntitySerializerFactory>(),
-				"/api")
-			);
+			services.AddSingleton<RestRequestProcessor>();
 		}
 
 		public void Configure(
 			IApplicationBuilder app,
 			IHostingEnvironment env,
-			ILoggerFactory loggerFactory,
 			IServiceProvider serviceProvider)
 		{
 			serviceProvider.GetServices<IStartable>().SafeForEachParallel((x, ct) => x.Start(ct), CancellationToken.None).Wait();

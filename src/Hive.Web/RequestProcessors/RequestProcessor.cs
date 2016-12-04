@@ -14,27 +14,21 @@ namespace Hive.Web.RequestProcessors
 {
 	public abstract class RequestProcessor : IRequestProcessor
 	{
-		private readonly IHiveConfig _config;
 		private readonly ITelemetry _telemetry;
 		private readonly IMetaService _metaService;
 		private readonly IEntityService _entityService;
 		private readonly IEntitySerializerFactory _entitySerializerFactory;
-		private readonly PathString _mountPoint;
 
 		protected RequestProcessor(
-			IHiveConfig config,
 			ITelemetry telemetry,
 			IMetaService metaService,
 			IEntityService entityService,
-			IEntitySerializerFactory entitySerializerFactory,
-			PathString mountPoint)
+			IEntitySerializerFactory entitySerializerFactory)
 		{
-			_config = config.NotNull(nameof(config));
 			_telemetry = telemetry.NotNull(nameof(telemetry));
 			_metaService = metaService.NotNull(nameof(metaService));
 			_entityService = entityService.NotNull(nameof(entityService));
 			_entitySerializerFactory = entitySerializerFactory.NotNull(nameof(entitySerializerFactory));
-			_mountPoint = mountPoint;
 		}
 
 		public virtual async Task<bool> Process(HttpContext context, CancellationToken ct)
@@ -70,7 +64,5 @@ namespace Hive.Web.RequestProcessors
 		protected IEntityService EntityService => _entityService;
 
 		protected IEntitySerializerFactory EntitySerializerFactory => _entitySerializerFactory;
-
-		protected PathString MountPoint => _mountPoint;
 	}
 }

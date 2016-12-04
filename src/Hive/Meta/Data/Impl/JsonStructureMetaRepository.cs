@@ -7,29 +7,28 @@ using Hive.Config;
 using Hive.Exceptions;
 using Hive.Foundation;
 using Hive.Foundation.Extensions;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Hive.Meta.Data.Impl
 {
 	public class JsonStructureMetaRepository : IMetaRepository
 	{
-		public const string ModelsRootConfigValue = "modelsRoot";
-
 		private const string ManifestFilename = "manifest.json";
 		private const string EntitiesFolderName = "Entities";
 
-		private readonly IConfigService _configService;
+		private readonly IOptions<JsonStructureMetaRepositoryOptions> _options;
 		private readonly JsonSerializer _serializer;
 
-		public JsonStructureMetaRepository(IConfigService configService)
+		public JsonStructureMetaRepository(IOptions<JsonStructureMetaRepositoryOptions> options)
 		{
-			_configService = configService.NotNull(nameof(configService));
+			_options = options.NotNull(nameof(options));
 			_serializer = new HiveJsonSerializer(new PropertyDefinitionDataConverter());
 		}
 
 		public async Task<ModelData> GetModel(string modelName, CancellationToken ct)
 		{
-			var baseDirectory = await GetBaseDirectory(modelName, ct);
+			var baseDirectory = GetBaseDirectory(modelName, ct);
 			var modelData = LoadModelManifest(baseDirectory);
 			modelData.Name = baseDirectory.Name;
 			await LoadEntities(baseDirectory, modelData, ct);
@@ -37,17 +36,15 @@ namespace Hive.Meta.Data.Impl
 			return modelData;
 		}
 
-		private async Task<DirectoryInfo> GetBaseDirectory(string modelName, CancellationToken ct)
+		private DirectoryInfo GetBaseDirectory(string modelName, CancellationToken ct)
 		{
-			var config = await _configService.GetConfig(ct);
-			var folderValue = config.GetValue<string>(ModelsRootConfigValue);
-			if (folderValue.IsNullOrEmpty())
+			if (_options.Value.ModelsPath.IsNullOrEmpty())
 			{
 				throw new HiveConfigException(
-					$"No value was provided in the configuration for the property {ModelsRootConfigValue}, which should point to a base folder for models definitions.");
+					$"No value was provided in the options for {nameof(_options.Value.ModelsPath)}, which should point to a base folder for models definitions.");
 			}
 
-			var baseDirectory = new DirectoryInfo(Path.Combine(folderValue, modelName));
+			var baseDirectory = new DirectoryInfo(Path.Combine(_options.Value.ModelsPath, modelName));
 			if (!baseDirectory.Exists)
 			{
 				throw new HiveConfigException(
