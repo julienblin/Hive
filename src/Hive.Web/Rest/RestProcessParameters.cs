@@ -7,23 +7,26 @@ namespace Hive.Web.Rest
 {
 	public class RestProcessParameters
 	{
-		public RestProcessParameters(HttpContext context, RequestHeaders headers, string[] pathSegments, IModel model, IRestSerializer serializer)
+		public RestProcessParameters(HttpContext context, RequestHeaders headers, string[] pathSegments, IModel model, IRestSerializer requestSerializer, IRestSerializer responseSerializer)
 		{
 			Context = context;
 			Headers = headers;
 			PathSegments = pathSegments;
 			Model = model;
-			Serializer = serializer;
+			RequestSerializer = requestSerializer;
+			ResponseSerializer = responseSerializer;
 		}
 
-		public HttpContext Context { get; set; }
+		public HttpContext Context { get; }
 
-		public RequestHeaders Headers { get; set; }
+		public RequestHeaders Headers { get; }
 
-		public string[] PathSegments { get; set; }
+		public string[] PathSegments { get; }
 
-		public IModel Model { get; set; }
+		public IModel Model { get; }
 
-		public IRestSerializer Serializer { get; set; }
+		public IRestSerializer RequestSerializer { get; set; }
+
+		public IRestSerializer ResponseSerializer { get; set; }
 	}
 }

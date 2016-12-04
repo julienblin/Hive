@@ -11,7 +11,7 @@ namespace Hive.Web.Rest
 	{
 		public RestQueryString(RestProcessParameters param)
 		{
-			RootEntityDefinition = param.PathSegments.Length.IsOdd() ? param.PathSegments.Last() : param.PathSegments.ElementAtOrDefault(param.PathSegments.Length - 2);
+			Root = param.PathSegments.Length.IsOdd() ? param.PathSegments.Last() : param.PathSegments.ElementAtOrDefault(param.PathSegments.Length - 2);
 			AdditionalQualifier = param.PathSegments.Length.IsEven() ? param.PathSegments.Last() : null;
 
 			var pathValues = new Dictionary<string, string>();
@@ -36,15 +36,15 @@ namespace Hive.Web.Rest
 			QueryStringValues = param.Context.Request.Query.ToImmutableDictionary();
 		}
 
-		public RestQueryString(string rootEntityDefinition, string additionalQualifier, IImmutableDictionary<string, string> pathValues, IImmutableDictionary<string, StringValues> queryStringValues)
+		public RestQueryString(string root, string additionalQualifier, IImmutableDictionary<string, string> pathValues, IImmutableDictionary<string, StringValues> queryStringValues)
 		{
-			RootEntityDefinition = rootEntityDefinition;
+			Root = root;
 			AdditionalQualifier = additionalQualifier;
 			PathValues = pathValues;
 			QueryStringValues = queryStringValues;
 		}
 
-		public string RootEntityDefinition { get; }
+		public string Root { get; }
 
 		public string AdditionalQualifier { get; }
 

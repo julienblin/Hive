@@ -30,6 +30,7 @@ namespace Hive.Meta.Impl
 				model.EntitiesBySingleName = modelData.Entities.Safe()
 					.ToDictionary(x => x.SingleName, x => MapEntityDefinition(model, x));
 				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToDictionary(x => x.PluralName);
+
 				model.FinishLoading(_valueTypeFactory);
 
 				return model;
@@ -59,13 +60,25 @@ namespace Hive.Meta.Impl
 
 		private IEnumerable<IPropertyDefinition> MapProperties(IEntityDefinition entityDefinition, IEnumerable<PropertyDefinitionData> properties)
 		{
-			return properties.Safe().Select(property => new PropertyDefinition
+			var propertyDefinitions = properties.Safe().Select(property => new PropertyDefinition
 			{
 				EntityDefinition = entityDefinition,
 				OriginalData = property,
 				Name = property.Name,
 				PropertyType = _valueTypeFactory.GetValueType(property.Type)
-			});
+			}).ToList();
+
+			if (!propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))
+			{
+				propertyDefinitions.Add(new PropertyDefinition
+				{
+					Name = MetaConstants.IdProperty,
+					EntityDefinition = entityDefinition,
+					PropertyType = _valueTypeFactory.GetValueType("uuid")
+				});
+			}
+
+			return propertyDefinitions;
 		}
 	}
 }

@@ -112,7 +112,8 @@ namespace Hive.Web.Tests.Rest
 				new RequestHeaders(new HeaderDictionary()),
 				pathSegments.Split('/').Where(x => !x.Trim().IsNullOrEmpty()).ToArray(),
 				new ModelMock(),
-				new JsonRestSerializer() 
+				new JsonRestSerializer(),
+				new JsonRestSerializer()
 			);
 		}
 	}

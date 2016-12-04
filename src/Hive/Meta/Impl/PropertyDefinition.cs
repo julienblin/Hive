@@ -15,6 +15,8 @@ namespace Hive.Meta.Impl
 
 		public IDataType PropertyType { get; set; }
 
+		public object DefaultValue { get; set; }
+
 		public T GetProperty<T>(string propertyName)
 		{
 			var result = _properties.SafeGet(propertyName);

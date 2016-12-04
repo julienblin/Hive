@@ -1,6 +1,8 @@
-﻿namespace Hive.Meta.ValueTypes
+﻿using NodaTime;
+
+namespace Hive.Meta.ValueTypes
 {
-	public class DateTimeValueType : ValueType
+	public class DateTimeValueType : ValueType<Instant>
 	{
 		public DateTimeValueType()
 			: base("datetime")

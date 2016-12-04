@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 
@@ -8,6 +9,7 @@ namespace Hive.Web.Rest.Serializers.Impl
 	public class RestSerializerFactory : IRestSerializerFactory
 	{
 		private readonly IReadOnlyDictionary<string, IRestSerializer> _serializersByMediaTypes;
+		private readonly IRestSerializer _defaultSerializer;
 
 		public RestSerializerFactory(IEnumerable<IRestSerializer> serializers = null)
 		{
@@ -15,10 +17,14 @@ namespace Hive.Web.Rest.Serializers.Impl
 				? new[] {new JsonRestSerializer()}
 				: serializers;
 			_serializersByMediaTypes = LoadSerializers(realSerializers);
+			_defaultSerializer = realSerializers.FirstOrDefault();
 		}
 
 		public IRestSerializer GetByMediaType(string mediaType)
 		{
+			if(mediaType.IsNullOrEmpty())
+				return _defaultSerializer;
+
 			var result = _serializersByMediaTypes.SafeGet(mediaType);
 			if (result == null)
 				throw new SerializationException($"Unable to find a suitable serializer for media type {mediaType}.");
@@ -28,14 +34,15 @@ namespace Hive.Web.Rest.Serializers.Impl
 		public IRestSerializer GetByMediaType(IEnumerable<string> mediaTypes)
 		{
 			if(mediaTypes.IsNullOrEmpty())
-				throw new SerializationException($"Unable to find a suitable serializer because no media type was provided.");
+				return _defaultSerializer;
 
 			foreach (var mediaType in mediaTypes)
 			{
 				var result = _serializersByMediaTypes.SafeGet(mediaType);
 				if (result != null) return result;
 			}
-			throw new SerializationException($"Unable to find a suitable serializer for media types {string.Join(",", mediaTypes)}.");
+
+			return _defaultSerializer;
 		}
 
 		private static IReadOnlyDictionary<string, IRestSerializer> LoadSerializers(IEnumerable<IRestSerializer> serializers)

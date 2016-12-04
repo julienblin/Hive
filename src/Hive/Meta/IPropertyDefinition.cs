@@ -13,5 +13,7 @@ namespace Hive.Meta
 		T GetProperty<T>(string propertyName);
 
 		void SetProperty(string propertyName, object value);
+
+		object DefaultValue { get; }
 	}
 }

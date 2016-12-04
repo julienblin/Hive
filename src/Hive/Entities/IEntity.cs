@@ -7,5 +7,11 @@ namespace Hive.Entities
 		IEntityDefinition Definition { get; }
 
 		object Id { get; }
+
+		void SetPropertyValue(string propertyName, object value);
+
+		T GetPropertyValue<T>(string propertyName);
+
+		bool HasPropertyValue(string propertyName);
 	}
 }

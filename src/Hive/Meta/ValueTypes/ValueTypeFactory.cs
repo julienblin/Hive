@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Hive.Foundation.Extensions;
-using Hive.Meta.ValueTypes;
 
-namespace Hive.Meta.Impl
+namespace Hive.Meta.ValueTypes
 {
 	public class ValueTypeFactory : IValueTypeFactory
 	{
@@ -19,6 +17,7 @@ namespace Hive.Meta.Impl
 						new DateTimeValueType(),
 						new DateValueType(),
 						new EnumValueType(),
+						new GuidValueType(),
 						new IntValueType(),
 						new StringValueType()
 					}

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Hive.Foundation.Extensions;
+using Hive.Meta.ValueTypes;
 using Hive.Telemetry;
 using Hive.Web.Middlewares;
 using Hive.Web.Rest;

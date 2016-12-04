@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
@@ -31,6 +33,8 @@ namespace Hive.Web.Rest.Serializers.Impl
 
 			SerializeMessage(@object, stream);
 		}
+
+		public abstract Task<IEntity> Deserialize(IEntityDefinition entityDefinition, Stream stream, CancellationToken ct);
 
 		protected abstract void SerializeEntity(IEntity entity, Stream stream);
 

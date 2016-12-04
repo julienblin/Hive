@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
 
@@ -8,6 +9,8 @@ namespace Hive.Meta.Impl
 	internal class EntityDefinition : IEntityDefinition, IOriginalDataHolder<EntityDefinitionData>
 	{
 		public string Name => SingleName;
+
+		public Type InternalNetType => typeof(IEntityDefinition);
 
 		public IModel Model { get; set; }
 
@@ -31,6 +34,11 @@ namespace Hive.Meta.Impl
 					pf.FinishLoading(valueTypeFactory);
 				}
 			}
+		}
+
+		object IDataType.ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		{
+			throw new NotImplementedException();
 		}
 
 		public override string ToString() => $"{Model}.{Name}";

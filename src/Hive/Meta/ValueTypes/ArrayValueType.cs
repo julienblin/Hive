@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
@@ -6,7 +7,7 @@ using Hive.Meta.Impl;
 
 namespace Hive.Meta.ValueTypes
 {
-	public class ArrayValueType : ValueType
+	public class ArrayValueType : ValueType<Array>
 	{
 		private const string PropertyItems = "items";
 
@@ -17,6 +18,8 @@ namespace Hive.Meta.ValueTypes
 
 		public override void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition)
 		{
+			base.FinishLoading(valueTypeFactory, propertyDefinition);
+
 			var propertyOriginalData = propertyDefinition as IOriginalDataHolder<PropertyDefinitionData>;
 			if (propertyOriginalData == null)
 			{
