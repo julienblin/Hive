@@ -1,25 +1,37 @@
-﻿using Hive.Cache;
-using Hive.Meta;
+﻿using System;
+using Hive.Cache;
 
 namespace Hive.Tests.Mocks
 {
-	public class ModelCacheMock : IModelCache
+	public class CacheMock<T> : ICache<T>
 	{
-		private readonly IModel _returnedModel;
+		private T _returnedValue;
+		private readonly Action<string, T> _putAsserts;
 
-		public ModelCacheMock(IModel returnedModel = null)
+		public CacheMock(T returnedValue = default(T), Action<string, T> putAsserts = null)
 		{
-			_returnedModel = returnedModel;
+			_returnedValue = returnedValue;
+			_putAsserts = putAsserts;
 		}
 
-		public IModel Get(string modelName)
+		public T Get(string modelName)
 		{
-			return _returnedModel;
+			return _returnedValue;
 		}
 
-		public void Put(IModel model)
+		public void Put(string key, T value)
 		{
-			//
+			_putAsserts?.Invoke(key, value);
+		}
+
+		public void Clear(string key)
+		{
+			_returnedValue = default(T);
+		}
+
+		public void Clear()
+		{
+			_returnedValue = default(T);
 		}
 	}
 }

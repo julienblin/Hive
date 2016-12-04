@@ -49,7 +49,7 @@ namespace Hive.SampleApp
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();
 			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
 			services.AddSingleton<IModelLoader, ModelLoader>();
-			services.AddSingleton<IModelCache, InMemoryModelCache>();
+			services.AddSingleton<ICache<IModel>, NullCache<IModel>>();
 			services.AddSingleton<IMetaService, MetaService>();
 			services.AddSingleton<IEntityService, EntityService>();
 			services.AddSingleton<IRestSerializerFactory, RestSerializerFactory>();

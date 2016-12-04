@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Hive.Meta;
 using Hive.Meta.Data;
 using Hive.Meta.Impl;
 using Hive.Tests.Mocks;
@@ -18,7 +20,7 @@ namespace Hive.Tests.Meta.Impl
 			var metaService = new MetaService(
 				new MetaRepositoryMock(),
 				new ModelLoaderMock(),
-				new ModelCacheMock(cachedModel)
+				new CacheMock<IModel>(cachedModel)
 			);
 
 			var result = await metaService.GetModel(cachedModel.Name, CancellationToken.None);
@@ -33,7 +35,11 @@ namespace Hive.Tests.Meta.Impl
 			var metaService = new MetaService(
 				new MetaRepositoryMock(new ModelData()),
 				new ModelLoaderMock(model),
-				new ModelCacheMock()
+				new CacheMock<IModel>(putAsserts: (k, v) =>
+				{
+					k.Should().Be(model.Name);
+					v.Should().BeSameAs(model);
+				})
 			);
 
 			var result = await metaService.GetModel(model.Name, CancellationToken.None);

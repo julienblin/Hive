@@ -2,10 +2,14 @@
 
 namespace Hive.Cache
 {
-	public interface IModelCache
+	public interface ICache<T>
 	{
-		IModel Get(string modelName);
+		T Get(string key);
 
-		void Put(IModel model);
+		void Put(string key, T value);
+
+		void Clear(string key);
+
+		void Clear();
 	}
 }
