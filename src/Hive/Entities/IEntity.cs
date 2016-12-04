@@ -5,5 +5,7 @@ namespace Hive.Entities
 	public interface IEntity
 	{
 		IEntityDefinition Definition { get; }
+
+		object Id { get; }
 	}
 }

@@ -1,15 +1,13 @@
-﻿using Hive.Context;
-using Hive.Entities;
+﻿using Hive.Entities;
 using Hive.Foundation.Extensions;
 
 namespace Hive.Commands
 {
-	public class UpdateCommand : Command
+	public class UpdateCommand : Command<IEntity>
 	{
 		private readonly IEntity _entity;
 
-		public UpdateCommand(IContext context, IEntity entity)
-			: base(context)
+		public UpdateCommand(IEntity entity)
 		{
 			_entity = entity.NotNull(nameof(entity));
 		}

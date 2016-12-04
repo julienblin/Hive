@@ -13,6 +13,12 @@ namespace Hive.Foundation.Extensions
 			return value ?? Enumerable.Empty<T>();
 		}
 
+		public static bool IsNullOrEmpty<T>(this IEnumerable<T> value)
+		{
+			if (value == null) return true;
+			return !value.Any();
+		}
+
 		public static async Task<IEnumerable<TOut>> SafeForEachParallel<TIn, TOut>(this IEnumerable<TIn> value,
 			Func<TIn, CancellationToken, Task<TOut>> func, CancellationToken ct)
 		{

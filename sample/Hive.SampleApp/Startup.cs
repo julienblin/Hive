@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using Hive.Cache;
 using Hive.Cache.Impl;
@@ -11,17 +10,16 @@ using Hive.Meta;
 using Hive.Meta.Data;
 using Hive.Meta.Data.Impl;
 using Hive.Meta.Impl;
-using Hive.Serialization;
-using Hive.Serialization.Impl;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Hive.Foundation.Extensions;
 using Hive.Telemetry;
 using Hive.Web.Middlewares;
 using Hive.Web.Rest;
+using Hive.Web.Rest.Serializers;
+using Hive.Web.Rest.Serializers.Impl;
 
 namespace Hive.SampleApp
 {
@@ -49,12 +47,12 @@ namespace Hive.SampleApp
 
 			services.AddSingleton<ITelemetry, DebugTelemetry>();
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();
-			services.AddSingleton<IValueTypeFactory>(x => new ValueTypeFactory());
+			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
 			services.AddSingleton<IModelLoader, ModelLoader>();
 			services.AddSingleton<IModelCache, InMemoryModelCache>();
 			services.AddSingleton<IMetaService, MetaService>();
 			services.AddSingleton<IEntityService, EntityService>();
-			services.AddSingleton<IEntitySerializerFactory, EntitySerializerFactory>();
+			services.AddSingleton<IRestSerializerFactory, RestSerializerFactory>();
 			services.AddSingleton<RestRequestProcessor>();
 		}
 

@@ -9,10 +9,8 @@ namespace Hive.Entities
 {
 	public interface IEntityRepository
 	{
-		Task<IEntity> Get(IEntityDefinition entityDefinition, object id, CancellationToken ct);
+		Task<T> Execute<T>(Query<T> query, CancellationToken ct);
 
-		Task<IEnumerable<IDataType>> Execute(Query query, CancellationToken ct);
-
-		Task Execute(Command command, CancellationToken ct);
+		Task<T> Execute<T>(Command<T> command, CancellationToken ct);
 	}
 }

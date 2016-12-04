@@ -1,19 +1,16 @@
 ﻿using System;
-using Hive.Context;
-using Hive.Foundation.Extensions;
 
 namespace Hive.Commands
 {
-	public abstract class Command
+	public abstract class Command<T>
 	{
-		protected Command(IContext context)
+		protected Command()
 		{
 			Id = Guid.NewGuid();
-			Context = context.NotNull(nameof(context));
 		}
 
 		public Guid Id { get; }
 
-		public IContext Context { get; }
+		public Type ResultType => typeof(T);
 	}
 }

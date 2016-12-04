@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Hive.Config;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
-using Hive.Serialization;
 using Hive.Telemetry;
 using Microsoft.AspNetCore.Http;
 
@@ -14,21 +12,14 @@ namespace Hive.Web.RequestProcessors
 {
 	public abstract class RequestProcessor : IRequestProcessor
 	{
-		private readonly ITelemetry _telemetry;
-		private readonly IMetaService _metaService;
-		private readonly IEntityService _entityService;
-		private readonly IEntitySerializerFactory _entitySerializerFactory;
-
 		protected RequestProcessor(
 			ITelemetry telemetry,
 			IMetaService metaService,
-			IEntityService entityService,
-			IEntitySerializerFactory entitySerializerFactory)
+			IEntityService entityService)
 		{
-			_telemetry = telemetry.NotNull(nameof(telemetry));
-			_metaService = metaService.NotNull(nameof(metaService));
-			_entityService = entityService.NotNull(nameof(entityService));
-			_entitySerializerFactory = entitySerializerFactory.NotNull(nameof(entitySerializerFactory));
+			Telemetry = telemetry.NotNull(nameof(telemetry));
+			MetaService = metaService.NotNull(nameof(metaService));
+			EntityService = entityService.NotNull(nameof(entityService));
 		}
 
 		public virtual async Task<bool> Process(HttpContext context, CancellationToken ct)
@@ -39,7 +30,7 @@ namespace Hive.Web.RequestProcessors
 			}
 			catch (Exception ex)
 			{
-				_telemetry.TrackException(ex, new Dictionary<string, string>
+				Telemetry.TrackException(ex, new Dictionary<string, string>
 				{
 					{ "Method", context.Request.Method },
 					{ "Path", context.Request.Path },
@@ -59,10 +50,10 @@ namespace Hive.Web.RequestProcessors
 			return context.Response.WriteAsync(exception.ToString(), ct);
 		}
 
-		protected IMetaService MetaService => _metaService;
+		protected ITelemetry Telemetry { get; }
 
-		protected IEntityService EntityService => _entityService;
+		protected IMetaService MetaService { get; }
 
-		protected IEntitySerializerFactory EntitySerializerFactory => _entitySerializerFactory;
+		protected IEntityService EntityService { get; }
 	}
 }

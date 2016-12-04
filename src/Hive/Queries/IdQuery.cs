@@ -1,11 +1,12 @@
-﻿using Hive.Context;
+﻿using Hive.Entities;
+using Hive.Meta;
 
 namespace Hive.Queries
 {
-	public class IdQuery : Query
+	public sealed class IdQuery : EntityDefinitionQuery<IEntity>
 	{
-		public IdQuery(IContext context, object id)
-			: base(context)
+		public IdQuery(IEntityDefinition entityDefinition, object id)
+			: base(entityDefinition)
 		{
 			Id = id;
 		}

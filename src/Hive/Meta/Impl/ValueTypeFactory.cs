@@ -10,22 +10,21 @@ namespace Hive.Meta.Impl
 	{
 		private readonly IReadOnlyDictionary<string, IValueType> _valueTypes;
 
-		public ValueTypeFactory()
-			: this(new IValueType[]
-			{
-				new ArrayValueType(),
-				new DateTimeValueType(),
-				new DateValueType(),
-				new EnumValueType(),
-				new IntValueType(),
-				new StringValueType()
-			})
+		public ValueTypeFactory(IEnumerable<IValueType> valueTypes = null)
 		{
-		}
+			var realValueTypes = valueTypes.IsNullOrEmpty()
+				? new IValueType[]
+					{
+						new ArrayValueType(),
+						new DateTimeValueType(),
+						new DateValueType(),
+						new EnumValueType(),
+						new IntValueType(),
+						new StringValueType()
+					}
+				: valueTypes;
 
-		public ValueTypeFactory(IEnumerable<IValueType> valueTypes)
-		{
-			_valueTypes = valueTypes.NotNull(nameof(valueTypes)).ToDictionary(x => x.Name);
+			_valueTypes = realValueTypes.ToDictionary(x => x.Name);
 		}
 
 		public IValueType GetValueType(string name)

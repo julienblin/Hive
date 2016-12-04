@@ -1,34 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Hive.Config;
 using Hive.Entities;
-using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Queries;
-using Hive.Serialization;
 using Hive.Telemetry;
 using Hive.Web.RequestProcessors;
+using Hive.Web.Rest.Serializers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Hive.Web.Rest
 {
 	public class RestRequestProcessor : RequestProcessor
 	{
 		private readonly IOptions<RestOptions> _options;
+		private readonly IRestSerializerFactory _serializerFactory;
 
 		public RestRequestProcessor(
 			IOptions<RestOptions> options,
 			ITelemetry telemetry,
 			IMetaService metaService,
 			IEntityService entityService,
-			IEntitySerializerFactory entitySerializerFactory)
-			: base(telemetry, metaService, entityService, entitySerializerFactory)
+			IRestSerializerFactory serializerFactory)
+			: base(telemetry, metaService, entityService)
 		{
 			_options = options.NotNull(nameof(options));
+			_serializerFactory = serializerFactory.NotNull(nameof(serializerFactory));
 		}
 
 		protected override async Task<bool> ProcessInternal(HttpContext context, CancellationToken ct)
@@ -44,16 +47,20 @@ namespace Hive.Web.Rest
 			var model = await MetaService.GetModel(pathSegments[0], ct);
 			pathSegments = pathSegments.Skip(1).ToArray();
 
+			var headers = context.Request.GetTypedHeaders();
+			var serializer = _serializerFactory.GetByMediaType(headers.Accept.Select(x => x.MediaType));
+			var processParams = new RestProcessParameters(context, headers, pathSegments, model, serializer);
+
 			if (HttpMethods.IsGet(request.Method))
 			{
-				await ProcessQuery(context, pathSegments, model, ct);
+				await ProcessQuery(processParams, ct);
 				return true;
 			}
 
 			if (HttpMethods.IsPost(request.Method)
-			    || HttpMethods.IsPut(request.Method)
-			    || HttpMethods.IsPatch(request.Method)
-			    || HttpMethods.IsDelete(request.Method)
+				|| HttpMethods.IsPut(request.Method)
+				|| HttpMethods.IsPatch(request.Method)
+				|| HttpMethods.IsDelete(request.Method)
 			)
 			{
 				await ProcessCommand(context, pathSegments, model, ct);
@@ -63,33 +70,47 @@ namespace Hive.Web.Rest
 			throw new NotSupportedException();
 		}
 
-		private async Task ProcessQuery(HttpContext context, string[] pathSegments, IModel model, CancellationToken ct)
+		private async Task ProcessQuery(RestProcessParameters param, CancellationToken ct)
 		{
-			var query = BuildQuery(context.Request, pathSegments, model);
-			var result = await EntityService.Execute(query, ct);
+			var query = BuildQuery(param);
+
 			if (query is IdQuery)
 			{
-				var firstResult = result.FirstOrDefault();
-				if (firstResult == null)
+				var idQuery = (IdQuery)query;
+				var result = await EntityService.Execute(idQuery, ct);
+				if (result == null)
 				{
-					throw new NotFoundException($"Unable to find a {query.ResultType} with Id {((IdQuery)query).Id}.");
+					Respond(param, new MessageResponse($"Unable to find a {idQuery.EntityDefinition.SingleName} with id {idQuery.Id}"), StatusCodes.Status404NotFound);
+					return;
 				}
 
-				// Process response;
+				Respond(param, result, StatusCodes.Status200OK);
+				return;
 			}
 
-			// Process response;
+			throw new NotImplementedException();
 		}
 
-		private Query BuildQuery(HttpRequest request, string[] pathSegments, IModel model)
+		private IQuery BuildQuery(RestProcessParameters param)
 		{
-			var query = new Query(new Context.Context());
+			var query = new IdQuery(null, null);
 			return query;
 		}
 
 		private Task ProcessCommand(HttpContext context, string[] pathSegments, IModel model, CancellationToken ct)
 		{
 			throw new NotImplementedException();
+		}
+
+		private void Respond(RestProcessParameters param, object message, int statusCode, IDictionary<string, string> responseHeaders = null)
+		{
+			param.Context.Response.StatusCode = statusCode;
+			foreach (var responseHeader in responseHeaders.Safe())
+			{
+				param.Context.Response.Headers.Add(responseHeader.Key, new StringValues(responseHeader.Value));
+			}
+
+			param.Serializer.Serialize(message, param.Context.Response.Body);
 		}
 	}
 }
