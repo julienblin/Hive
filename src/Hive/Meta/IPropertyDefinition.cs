@@ -1,4 +1,7 @@
-﻿using Hive.Meta.Data;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Hive.Entities;
+using Hive.Meta.Data;
 
 namespace Hive.Meta
 {
@@ -15,5 +18,7 @@ namespace Hive.Meta
 		void SetProperty(string propertyName, object value);
 
 		object DefaultValue { get; }
+
+		Task SetDefaultValue(IEntity entity, CancellationToken ct);
 	}
 }

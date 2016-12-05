@@ -1,4 +1,5 @@
-﻿using Hive.Meta;
+﻿using System.Threading.Tasks;
+using Hive.Meta;
 
 namespace Hive.Entities
 {

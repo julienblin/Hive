@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
@@ -37,6 +39,11 @@ namespace Hive.Meta.Impl
 		}
 
 		object IDataType.ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
 		{
 			throw new NotImplementedException();
 		}

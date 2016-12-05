@@ -5,6 +5,7 @@ using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
+using Hive.Meta.ValueTypes;
 
 namespace Hive.Meta.Impl
 {
@@ -74,7 +75,8 @@ namespace Hive.Meta.Impl
 				{
 					Name = MetaConstants.IdProperty,
 					EntityDefinition = entityDefinition,
-					PropertyType = _valueTypeFactory.GetValueType("uuid")
+					PropertyType = _valueTypeFactory.GetValueType("uuid"),
+					DefaultValue = GuidValueType.NewGuidDefaultValue
 				});
 			}
 

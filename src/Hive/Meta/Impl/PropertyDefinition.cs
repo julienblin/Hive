@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
@@ -16,6 +19,11 @@ namespace Hive.Meta.Impl
 		public IDataType PropertyType { get; set; }
 
 		public object DefaultValue { get; set; }
+
+		public Task SetDefaultValue(IEntity entity, CancellationToken ct)
+		{
+			return PropertyType.SetDefaultValue(this, entity, ct);
+		}
 
 		public T GetProperty<T>(string propertyName)
 		{

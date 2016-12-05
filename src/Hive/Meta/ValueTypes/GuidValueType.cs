@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Hive.Entities;
 using Hive.Exceptions;
+using Hive.Foundation.Extensions;
 
 namespace Hive.Meta.ValueTypes
 {
 	public class GuidValueType : ValueType<Guid>
 	{
+		internal const string NewGuidDefaultValue = "new()";
+
 		public GuidValueType()
 			: base("uuid")
 		{
@@ -23,6 +29,23 @@ namespace Hive.Meta.ValueTypes
 			}
 
 			throw new ValueTypeException(this, $"Unable to parse value {value} as a valid UUID.");
+		}
+
+		public override Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
+		{
+			var defaultValue = propertyDefinition.DefaultValue as string;
+			if (defaultValue.IsNullOrEmpty()) return Task.CompletedTask;
+
+			if (defaultValue.SafeOrdinalEquals(NewGuidDefaultValue))
+			{
+				entity.SetPropertyValue(propertyDefinition.Name, Guid.NewGuid());
+			}
+			else
+			{
+				entity.SetPropertyValue(propertyDefinition.Name, defaultValue);
+			}
+
+			return Task.CompletedTask;
 		}
 	}
 }
