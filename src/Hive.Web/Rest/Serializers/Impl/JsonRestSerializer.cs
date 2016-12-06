@@ -47,6 +47,8 @@ namespace Hive.Web.Rest.Serializers.Impl
 				}
 			}
 
+			await entity.InitDefaultValues(ct);
+
 			return entity;
 		}
 	}

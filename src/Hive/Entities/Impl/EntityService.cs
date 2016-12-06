@@ -20,22 +20,10 @@ namespace Hive.Entities.Impl
 			if (command is CreateCommand)
 			{
 				var createCommand = command as CreateCommand;
-				await InitDefaultValues(createCommand.Entity, ct);
 				return (T)createCommand.Entity;
 			}
 
 			throw new NotImplementedException();
-		}
-
-		private async Task InitDefaultValues(IEntity entity, CancellationToken ct)
-		{
-			foreach (var propertyDefinition in entity.Definition.Properties.Values)
-			{
-				if ((propertyDefinition.DefaultValue != null) && !entity.HasPropertyValue(propertyDefinition.Name))
-				{
-					await propertyDefinition.SetDefaultValue(entity, ct);
-				}
-			}
 		}
 	}
 }

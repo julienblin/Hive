@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Hive.Meta;
 
 namespace Hive.Entities
@@ -14,5 +15,7 @@ namespace Hive.Entities
 		T GetPropertyValue<T>(string propertyName);
 
 		bool HasPropertyValue(string propertyName);
+
+		Task InitDefaultValues(CancellationToken ct);
 	}
 }

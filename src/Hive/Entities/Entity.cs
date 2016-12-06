@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 
@@ -40,6 +42,17 @@ namespace Hive.Entities
 		{
 			var value = _propertyValues.SafeGet(propertyName);
 			return value != null;
+		}
+
+		public async Task InitDefaultValues(CancellationToken ct)
+		{
+			foreach (var propertyDefinition in Definition.Properties.Values)
+			{
+				if ((propertyDefinition.DefaultValue != null) && !HasPropertyValue(propertyDefinition.Name))
+				{
+					await propertyDefinition.SetDefaultValue(this, ct);
+				}
+			}
 		}
 
 		public override string ToString() => $"{Definition} ({Id})";
