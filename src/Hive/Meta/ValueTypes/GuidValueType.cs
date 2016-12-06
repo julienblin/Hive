@@ -22,6 +22,8 @@ namespace Hive.Meta.ValueTypes
 
 			if (value is Guid) return value;
 
+			if ((value is string) && string.IsNullOrEmpty((string) value)) return null;
+
 			Guid result;
 			if (Guid.TryParse(value.ToString(), out result))
 			{

@@ -3,13 +3,11 @@ using Hive.Foundation.Extensions;
 
 namespace Hive.Commands
 {
-	public class UpdateCommand : Command<IEntity>
+	public class UpdateCommand : EntityCommand
 	{
-		private readonly IEntity _entity;
-
 		public UpdateCommand(IEntity entity)
+			: base(entity)
 		{
-			_entity = entity.NotNull(nameof(entity));
 		}
 	}
 }

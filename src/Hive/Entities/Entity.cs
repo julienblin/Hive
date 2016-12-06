@@ -15,6 +15,12 @@ namespace Hive.Entities
 			Definition = definition.NotNull(nameof(definition));
 		}
 
+		public Entity(IEntityDefinition definition, object id)
+			: this(definition)
+		{
+			Id = id;
+		}
+
 		public IEntityDefinition Definition { get; }
 
 		public object Id
@@ -44,7 +50,7 @@ namespace Hive.Entities
 			return value != null;
 		}
 
-		public async Task InitDefaultValues(CancellationToken ct)
+		public async Task Init(CancellationToken ct)
 		{
 			foreach (var propertyDefinition in Definition.Properties.Values)
 			{

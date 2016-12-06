@@ -3,13 +3,11 @@ using Hive.Foundation.Extensions;
 
 namespace Hive.Commands
 {
-	public class CreateCommand : Command<IEntity>
+	public class CreateCommand : EntityCommand
 	{
 		public CreateCommand(IEntity entity)
+			: base(entity)
 		{
-			Entity = entity.NotNull(nameof(entity));
 		}
-
-		public IEntity Entity { get; }
 	}
 }

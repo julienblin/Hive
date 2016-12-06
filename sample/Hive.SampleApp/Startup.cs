@@ -17,6 +17,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Hive.Foundation.Extensions;
 using Hive.Meta.ValueTypes;
 using Hive.Telemetry;
+using Hive.Validation;
+using Hive.Validation.Impl;
 using Hive.Web.Middlewares;
 using Hive.Web.Rest;
 using Hive.Web.Rest.Serializers;
@@ -52,6 +54,7 @@ namespace Hive.SampleApp
 			services.AddSingleton<IModelLoader, ModelLoader>();
 			services.AddSingleton<ICache<IModel>, NullCache<IModel>>();
 			services.AddSingleton<IMetaService, MetaService>();
+			services.AddSingleton<IEntityValidationService, EntityValidationService>();
 			services.AddSingleton<IEntityService, EntityService>();
 			services.AddSingleton<IRestSerializerFactory, RestSerializerFactory>();
 			services.AddSingleton<RestRequestProcessor>();

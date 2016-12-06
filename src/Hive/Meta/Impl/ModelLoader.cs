@@ -69,7 +69,7 @@ namespace Hive.Meta.Impl
 				PropertyType = _valueTypeFactory.GetValueType(property.Type)
 			}).ToList();
 
-			if (!propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))
+			if ((entityDefinition.EntityType != EntityType.None) && !propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))
 			{
 				propertyDefinitions.Add(new PropertyDefinition
 				{

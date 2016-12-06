@@ -16,6 +16,6 @@ namespace Hive.Entities
 
 		bool HasPropertyValue(string propertyName);
 
-		Task InitDefaultValues(CancellationToken ct);
+		Task Init(CancellationToken ct);
 	}
 }

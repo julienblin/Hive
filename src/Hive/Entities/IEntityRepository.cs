@@ -11,6 +11,8 @@ namespace Hive.Entities
 	{
 		Task<T> Execute<T>(Query<T> query, CancellationToken ct);
 
-		Task<T> Execute<T>(Command<T> command, CancellationToken ct);
+		Task<IEntity> Create(IEntity entity, CancellationToken ct);
+			
+		Task<IEntity> Update(IEntity entity, CancellationToken ct);
 	}
 }
