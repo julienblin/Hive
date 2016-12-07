@@ -35,7 +35,7 @@ namespace Hive.Tests.Meta.Impl
 				new Action<IModel>(model =>
 				{
 					model.Name.Should().Be("TestModel");
-					model.Version.Should().Be(new SemVer(1,2,3));
+					model.Version.Should().Be(new SemVer(1, 2, 3));
 				})
 			};
 
@@ -89,17 +89,17 @@ namespace Hive.Tests.Meta.Impl
 							["singlename"] = "email",
 							["pluralname"] = "emails",
 							["type"] = "none",
-							["properties"] = new []
+							["properties"] = new[]
 							{
 								new PropertyBag
 								{
 									["name"] = "type",
-									["type"] = "string",
+									["type"] = "string"
 								},
 								new PropertyBag
 								{
 									["name"] = "email",
-									["type"] = "string",
+									["type"] = "string"
 								}
 							}
 						},
@@ -108,7 +108,7 @@ namespace Hive.Tests.Meta.Impl
 							["singlename"] = "foo",
 							["pluralname"] = "foos",
 							["type"] = "masterdata",
-							["properties"] = new []
+							["properties"] = new[]
 							{
 								new PropertyBag
 								{

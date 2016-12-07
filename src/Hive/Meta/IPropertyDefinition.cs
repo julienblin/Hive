@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Entities;
-using Hive.Meta.Impl;
 
 namespace Hive.Meta
 {
@@ -20,8 +18,8 @@ namespace Hive.Meta
 
 		IDictionary<string, object> AdditionalProperties { get; }
 
-		Task SetDefaultValue(IEntity entity, CancellationToken ct);
-
 		PropertyBag PropertyBag { get; set; }
+
+		Task SetDefaultValue(IEntity entity, CancellationToken ct);
 	}
 }

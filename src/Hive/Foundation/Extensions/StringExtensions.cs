@@ -4,16 +4,16 @@ using System.Globalization;
 namespace Hive.Foundation.Extensions
 {
 	public static class StringExtensions
-    {
+	{
 		public static bool IsNullOrEmpty(this string value)
 		{
 			return string.IsNullOrEmpty(value);
 		}
 
-	    public static bool SafeOrdinalEquals(this string value, string other)
-	    {
-		    return string.Equals(value, other, StringComparison.Ordinal);
-	    }
+		public static bool SafeOrdinalEquals(this string value, string other)
+		{
+			return string.Equals(value, other, StringComparison.Ordinal);
+		}
 
 		public static string SafeInvariantFormat(this string value, string format)
 		{
@@ -25,15 +25,15 @@ namespace Hive.Foundation.Extensions
 			int result;
 			return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out result)
 				? result
-				: (int?)null;
+				: (int?) null;
 		}
 
-	    public static T ToEnum<T>(this string value, bool ignoreCase = true)
-	    {
-		    if (value.IsNullOrEmpty())
-			    return default(T);
+		public static T ToEnum<T>(this string value, bool ignoreCase = true)
+		{
+			if (value.IsNullOrEmpty())
+				return default(T);
 
-		    return (T) Enum.Parse(typeof(T), value, ignoreCase);
-	    }
+			return (T) Enum.Parse(typeof(T), value, ignoreCase);
+		}
 	}
 }

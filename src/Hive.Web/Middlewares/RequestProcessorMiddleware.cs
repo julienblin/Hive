@@ -19,11 +19,9 @@ namespace Hive.Web.Middlewares
 		public async Task Invoke(HttpContext context)
 		{
 			context.NotNull(nameof(context));
-			
+
 			if (!await _requestProcessor.Process(context, context.RequestAborted))
-			{
 				await _next.Invoke(context);
-			}
 		}
 	}
 }

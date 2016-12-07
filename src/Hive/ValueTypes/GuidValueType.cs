@@ -23,13 +23,11 @@ namespace Hive.ValueTypes
 
 			if (value is Guid) return value;
 
-			if ((value is string) && string.IsNullOrEmpty((string) value)) return null;
+			if (value is string && string.IsNullOrEmpty((string) value)) return null;
 
 			Guid result;
 			if (Guid.TryParse(value.ToString(), out result))
-			{
 				return result;
-			}
 
 			throw new ValueTypeException(this, $"Unable to parse value {value} as a valid UUID.");
 		}
@@ -40,13 +38,9 @@ namespace Hive.ValueTypes
 			if (defaultValue.IsNullOrEmpty()) return Task.CompletedTask;
 
 			if (defaultValue.SafeOrdinalEquals(NewGuidDefaultValue))
-			{
 				entity[propertyDefinition.Name] = Guid.NewGuid();
-			}
 			else
-			{
 				entity[propertyDefinition.Name] = defaultValue;
-			}
 
 			return Task.CompletedTask;
 		}

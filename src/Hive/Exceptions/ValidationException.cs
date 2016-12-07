@@ -11,7 +11,7 @@ namespace Hive.Exceptions
 		}
 
 		public ValidationException(ValidationError error)
-			: this(new ValidationResults(new[] { error }))
+			: this(new ValidationResults(new[] {error}))
 		{
 		}
 

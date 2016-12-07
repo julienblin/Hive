@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Hive.Foundation.Extensions;
-using Hive.Meta;
 using Microsoft.Extensions.Primitives;
 
 namespace Hive.Web.Rest
@@ -11,7 +10,9 @@ namespace Hive.Web.Rest
 	{
 		public RestQueryString(RestProcessParameters param)
 		{
-			Root = param.PathSegments.Length.IsOdd() ? param.PathSegments.Last() : param.PathSegments.ElementAtOrDefault(param.PathSegments.Length - 2);
+			Root = param.PathSegments.Length.IsOdd()
+				? param.PathSegments.Last()
+				: param.PathSegments.ElementAtOrDefault(param.PathSegments.Length - 2);
 			AdditionalQualifier = param.PathSegments.Length.IsEven() ? param.PathSegments.Last() : null;
 
 			var pathValues = new Dictionary<string, string>();
@@ -21,7 +22,6 @@ namespace Hive.Web.Rest
 
 			string currentKey = null;
 			foreach (var remainingPathSegment in remainingPathSegments)
-			{
 				if (currentKey == null)
 				{
 					currentKey = remainingPathSegment;
@@ -31,12 +31,12 @@ namespace Hive.Web.Rest
 					pathValues.Add(currentKey, remainingPathSegment);
 					currentKey = null;
 				}
-			}
 			PathValues = pathValues.ToImmutableDictionary();
 			QueryStringValues = param.Context.Request.Query.ToImmutableDictionary();
 		}
 
-		public RestQueryString(string root, string additionalQualifier, IImmutableDictionary<string, string> pathValues, IImmutableDictionary<string, StringValues> queryStringValues)
+		public RestQueryString(string root, string additionalQualifier, IImmutableDictionary<string, string> pathValues,
+			IImmutableDictionary<string, StringValues> queryStringValues)
 		{
 			Root = root;
 			AdditionalQualifier = additionalQualifier;

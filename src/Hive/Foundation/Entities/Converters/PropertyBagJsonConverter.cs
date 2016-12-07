@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Hive.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,9 +22,7 @@ namespace Hive.Foundation.Entities.Converters
 		{
 			var bag = new PropertyBag();
 			foreach (var property in jobject.Properties())
-			{
 				bag[property.Name] = GetWhiteListedObject(property.Value);
-			}
 
 			return bag;
 		}
@@ -44,9 +40,9 @@ namespace Hive.Foundation.Entities.Converters
 				case JTokenType.Raw:
 					return null;
 				case JTokenType.Object:
-					return GetPropertyBag((JObject)token);
+					return GetPropertyBag((JObject) token);
 				case JTokenType.Array:
-					var jArray = (JArray)token;
+					var jArray = (JArray) token;
 					if (!jArray.HasValues)
 						return null;
 
@@ -56,9 +52,7 @@ namespace Hive.Foundation.Entities.Converters
 
 					var firstResultType = innerValues[0].GetType();
 					if (innerValues.Any(x => x.GetType() != firstResultType))
-					{
 						throw new SerializationException($"Mixed type arrays are not supported ({string.Join(", ", innerValues)}).");
-					}
 					var result = Array.CreateInstance(firstResultType, innerValues.Length);
 					Array.Copy(innerValues, result, innerValues.Length);
 					return result;

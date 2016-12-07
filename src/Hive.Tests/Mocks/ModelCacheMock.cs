@@ -5,8 +5,8 @@ namespace Hive.Tests.Mocks
 {
 	public class CacheMock<T> : ICache<T>
 	{
-		private T _returnedValue;
 		private readonly Action<string, T> _putAsserts;
+		private T _returnedValue;
 
 		public CacheMock(T returnedValue = default(T), Action<string, T> putAsserts = null)
 		{

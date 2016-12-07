@@ -8,8 +8,8 @@ namespace Hive.Web.Rest.Serializers.Impl
 {
 	public class RestSerializerFactory : IRestSerializerFactory
 	{
-		private readonly IReadOnlyDictionary<string, IRestSerializer> _serializersByMediaTypes;
 		private readonly IRestSerializer _defaultSerializer;
+		private readonly IReadOnlyDictionary<string, IRestSerializer> _serializersByMediaTypes;
 
 		public RestSerializerFactory(IEnumerable<IRestSerializer> serializers = null)
 		{
@@ -22,7 +22,7 @@ namespace Hive.Web.Rest.Serializers.Impl
 
 		public IRestSerializer GetByMediaType(string mediaType)
 		{
-			if(mediaType.IsNullOrEmpty())
+			if (mediaType.IsNullOrEmpty())
 				return _defaultSerializer;
 
 			var result = _serializersByMediaTypes.SafeGet(mediaType);
@@ -33,7 +33,7 @@ namespace Hive.Web.Rest.Serializers.Impl
 
 		public IRestSerializer GetByMediaType(IEnumerable<string> mediaTypes)
 		{
-			if(mediaTypes.IsNullOrEmpty())
+			if (mediaTypes.IsNullOrEmpty())
 				return _defaultSerializer;
 
 			foreach (var mediaType in mediaTypes)
@@ -50,12 +50,8 @@ namespace Hive.Web.Rest.Serializers.Impl
 			var serializersByMediaTypes = new Dictionary<string, IRestSerializer>();
 
 			foreach (var serializer in serializers)
-			{
 				foreach (var mediaType in serializer.MediaTypes)
-				{
 					serializersByMediaTypes[mediaType] = serializer;
-				}
-			}
 
 			return serializersByMediaTypes.ToImmutableDictionary();
 		}

@@ -39,14 +39,12 @@ namespace Hive.Tests.Validation.Impl
 						["pluralname"] = "Nones",
 						["type"] = "none"
 					},
-
 					new PropertyBag
 					{
 						["singlename"] = "Ref",
 						["pluralname"] = "Refs",
 						["type"] = "reference"
 					},
-
 					new PropertyBag
 					{
 						["singlename"] = "RefIdString",
@@ -57,7 +55,7 @@ namespace Hive.Tests.Validation.Impl
 							new PropertyBag
 							{
 								["name"] = "id",
-								["type"] = "string",
+								["type"] = "string"
 							}
 						}
 					}

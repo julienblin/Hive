@@ -10,6 +10,99 @@ namespace Hive.Tests.Foundation.Entities
 {
 	public class PropertyBagTests
 	{
+		[Theory]
+		[MemberData(nameof(JsonDeserializationData))]
+		public void JsonDeserialization(string json, Action<PropertyBag> asserts)
+		{
+			var bag = JsonConvert.DeserializeObject<PropertyBag>(json);
+			asserts(bag);
+		}
+
+		public static IEnumerable<object[]> JsonDeserializationData()
+		{
+			yield return new object[]
+			{
+				"{}",
+				new Action<PropertyBag>(bag => bag.Should().NotBeNull())
+			};
+
+			yield return new object[]
+			{
+				"{ 'foo': 'bar', 'bar': 1 }",
+				new Action<PropertyBag>(bag =>
+				{
+					bag["foo"].Should().Be("bar");
+					bag["bar"].Should().Be(1);
+				})
+			};
+
+			yield return new object[]
+			{
+				"{ 'foo': ['bar', 'bar2'] }",
+				new Action<PropertyBag>(bag => { bag["foo"].ShouldBeEquivalentTo(new[] {"bar", "bar2"}); })
+			};
+
+			yield return new object[]
+			{
+				"{ 'foo': [['bar', 'bar2']] }",
+				new Action<PropertyBag>(bag => { bag["foo"].ShouldBeEquivalentTo(new[] {new[] {"bar", "bar2"}}); })
+			};
+
+			yield return new object[]
+			{
+				"{ 'foo': { 'bar': 'foobar' } }",
+				new Action<PropertyBag>(bag => { bag["foo"].ShouldBeEquivalentTo(new PropertyBag {["bar"] = "foobar"}); })
+			};
+		}
+
+		[Theory]
+		[MemberData(nameof(JsonSerializationData))]
+		public void JsonSerialization(PropertyBag bag, string expected)
+		{
+			var result = JsonConvert.SerializeObject(bag);
+			result.ShouldBeEquivalentTo(expected);
+		}
+
+		public static IEnumerable<object[]> JsonSerializationData()
+		{
+			yield return new object[]
+			{
+				new PropertyBag(),
+				"{}"
+			};
+
+			yield return new object[]
+			{
+				new PropertyBag
+				{
+					["foo"] = "bar",
+					["bar"] = 1
+				},
+				"{\"foo\":\"bar\",\"bar\":1}"
+			};
+
+			yield return new object[]
+			{
+				new PropertyBag
+				{
+					["foo"] = new[] {"bar"}
+				},
+				"{\"foo\":[\"bar\"]}"
+			};
+
+			yield return new object[]
+			{
+				new PropertyBag
+				{
+					["foo"] = new PropertyBag
+					{
+						["bar"] = 1
+					}
+				},
+				"{\"foo\":{\"bar\":1}}"
+			};
+		}
+
 		[Fact]
 		public void ItShouldBehaveLikeASafeDictionary()
 		{
@@ -42,121 +135,18 @@ namespace Hive.Tests.Foundation.Entities
 			act = () => bag["foo"] = new PropertyBag();
 			act.ShouldNotThrow<DebugException>();
 
-			act = () => bag["foo"] = new[] { "string" };
+			act = () => bag["foo"] = new[] {"string"};
 			act.ShouldNotThrow<DebugException>();
 
-			act = () => bag["foo"] = new[] { new[] { "string" } };
+			act = () => bag["foo"] = new[] {new[] {"string"}};
 			act.ShouldNotThrow<DebugException>();
 
 			act = () => bag["foo"] = DateTime.Now;
 			act.ShouldThrow<DebugException>();
 
-			act = () => bag["foo"] = new[] { DateTime.Now };
+			act = () => bag["foo"] = new[] {DateTime.Now};
 			act.ShouldThrow<DebugException>();
 		}
 #endif
-
-		[Theory]
-		[MemberData(nameof(JsonDeserializationData))]
-		public void JsonDeserialization(string json, Action<PropertyBag> asserts)
-		{
-			var bag = JsonConvert.DeserializeObject<PropertyBag>(json);
-			asserts(bag);
-		}
-
-		public static IEnumerable<object[]> JsonDeserializationData()
-		{
-			yield return new object[]
-			{
-				"{}",
-				new Action<PropertyBag>(bag => bag.Should().NotBeNull()), 
-			};
-
-			yield return new object[]
-			{
-				"{ 'foo': 'bar', 'bar': 1 }",
-				new Action<PropertyBag>(bag =>
-				{
-					bag["foo"].Should().Be("bar");
-					bag["bar"].Should().Be(1);
-				}),
-			};
-
-			yield return new object[]
-			{
-				"{ 'foo': ['bar', 'bar2'] }",
-				new Action<PropertyBag>(bag =>
-				{
-					bag["foo"].ShouldBeEquivalentTo(new[] { "bar", "bar2" });
-				}),
-			};
-
-			yield return new object[]
-			{
-				"{ 'foo': [['bar', 'bar2']] }",
-				new Action<PropertyBag>(bag =>
-				{
-					bag["foo"].ShouldBeEquivalentTo(new[] { new[] { "bar", "bar2" } });
-				}),
-			};
-
-			yield return new object[]
-			{
-				"{ 'foo': { 'bar': 'foobar' } }",
-				new Action<PropertyBag>(bag =>
-				{
-					bag["foo"].ShouldBeEquivalentTo(new PropertyBag { ["bar"] = "foobar" });
-				}),
-			};
-		}
-
-		[Theory]
-		[MemberData(nameof(JsonSerializationData))]
-		public void JsonSerialization(PropertyBag bag, string expected)
-		{
-			var result = JsonConvert.SerializeObject(bag);
-			result.ShouldBeEquivalentTo(expected);
-		}
-
-		public static IEnumerable<object[]> JsonSerializationData()
-		{
-			yield return new object[]
-			{
-				new PropertyBag(),
-				"{}" 
-			};
-
-			yield return new object[]
-			{
-				new PropertyBag
-				{
-					["foo"] = "bar",
-					["bar"] = 1
-				},
-				"{\"foo\":\"bar\",\"bar\":1}"
-			};
-
-			yield return new object[]
-			{
-				new PropertyBag
-				{
-					["foo"] = new[] { "bar" },
-				},
-				"{\"foo\":[\"bar\"]}"
-			};
-
-			yield return new object[]
-			{
-				new PropertyBag
-				{
-					["foo"] = new PropertyBag
-					{
-						["bar"] = 1
-					},
-				},
-				"{\"foo\":{\"bar\":1}}"
-			};
-		}
 	}
 }
- 

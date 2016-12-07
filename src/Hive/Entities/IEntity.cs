@@ -11,9 +11,9 @@ namespace Hive.Entities
 
 		object Id { get; }
 
-		PropertyBag ToPropertyBag();
-
 		object this[string propertyName] { get; set; }
+
+		PropertyBag ToPropertyBag();
 
 		Task Init(CancellationToken ct);
 	}

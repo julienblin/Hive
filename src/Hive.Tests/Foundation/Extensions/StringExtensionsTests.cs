@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Hive.Foundation.Extensions;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Hive.Tests.Foundation.Extensions
 {

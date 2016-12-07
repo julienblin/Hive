@@ -27,7 +27,7 @@ namespace Hive.Web.Rest.Serializers.Impl
 
 			if (@object is IEnumerable<IEntity>)
 			{
-				SerializeEntities((IEnumerable<IEntity>)@object, stream);
+				SerializeEntities((IEnumerable<IEntity>) @object, stream);
 				return;
 			}
 

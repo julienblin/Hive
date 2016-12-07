@@ -61,7 +61,8 @@ namespace Hive.Foundation.Entities
 							elementType = elementType.GetElementType();
 
 						if (!TypeWhitelist.Contains(elementType))
-							throw new DebugException($"Unable to set value {value} for key {key} of array type {valueType.GetElementType()} on PropertyBag.");
+							throw new DebugException(
+								$"Unable to set value {value} for key {key} of array type {valueType.GetElementType()} on PropertyBag.");
 					}
 					else
 					{
@@ -74,11 +75,6 @@ namespace Hive.Foundation.Entities
 			}
 		}
 
-		public void Clear()
-		{
-			_values.Clear();
-		}
-
 		IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
 		{
 			return _values.GetEnumerator();
@@ -87,6 +83,11 @@ namespace Hive.Foundation.Entities
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return _values.GetEnumerator();
+		}
+
+		public void Clear()
+		{
+			_values.Clear();
 		}
 	}
 }

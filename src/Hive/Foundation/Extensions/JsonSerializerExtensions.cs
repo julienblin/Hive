@@ -13,9 +13,11 @@ namespace Hive.Foundation.Extensions
 			stream.NotNull(nameof(stream));
 
 			using (var streamWriter = new StreamWriter(stream))
-			using (var jsonWriter = new JsonTextWriter(streamWriter))
 			{
-				serializer.Serialize(jsonWriter, value);
+				using (var jsonWriter = new JsonTextWriter(streamWriter))
+				{
+					serializer.Serialize(jsonWriter, value);
+				}
 			}
 		}
 
@@ -25,9 +27,11 @@ namespace Hive.Foundation.Extensions
 			stream.NotNull(nameof(stream));
 
 			using (var streamReader = new StreamReader(stream))
-			using (var jsonTextReader = new JsonTextReader(streamReader))
 			{
-				return serializer.Deserialize<T>(jsonTextReader);
+				using (var jsonTextReader = new JsonTextReader(streamReader))
+				{
+					return serializer.Deserialize<T>(jsonTextReader);
+				}
 			}
 		}
 
@@ -39,9 +43,11 @@ namespace Hive.Foundation.Extensions
 				return default(T);
 
 			using (var streamReader = new StringReader(json))
-			using (var jsonTextReader = new JsonTextReader(streamReader))
 			{
-				return serializer.Deserialize<T>(jsonTextReader);
+				using (var jsonTextReader = new JsonTextReader(streamReader))
+				{
+					return serializer.Deserialize<T>(jsonTextReader);
+				}
 			}
 		}
 

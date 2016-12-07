@@ -6,6 +6,7 @@ namespace Hive.Meta.Impl
 {
 	internal class Model : IModel
 	{
+		public PropertyBag PropertyBag { get; set; }
 		public string Name { get; set; }
 
 		public SemVer Version { get; set; }
@@ -14,17 +15,13 @@ namespace Hive.Meta.Impl
 
 		public IReadOnlyDictionary<string, IEntityDefinition> EntitiesByPluralName { get; set; }
 
-		public PropertyBag PropertyBag { get; set; }
-
 		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{
 			foreach (var entityDefinition in EntitiesBySingleName?.Values)
 			{
 				var ef = entityDefinition as EntityDefinition;
 				if (ef != null)
-				{
 					ef.FinishLoading(valueTypeFactory);
-				}
 			}
 		}
 

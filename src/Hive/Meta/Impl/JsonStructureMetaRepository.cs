@@ -3,13 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Hive.Config;
 using Hive.Exceptions;
 using Hive.Foundation;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace Hive.Meta.Impl
 {
@@ -39,17 +37,13 @@ namespace Hive.Meta.Impl
 		private DirectoryInfo GetBaseDirectory(string modelName, CancellationToken ct)
 		{
 			if (_options.Value.ModelsPath.IsNullOrEmpty())
-			{
 				throw new HiveConfigException(
 					$"No value was provided in the options for {nameof(_options.Value.ModelsPath)}, which should point to a base folder for models definitions.");
-			}
 
 			var baseDirectory = new DirectoryInfo(Path.Combine(_options.Value.ModelsPath, modelName));
 			if (!baseDirectory.Exists)
-			{
 				throw new HiveConfigException(
 					$"Unable to find the path for the folder {baseDirectory} that should reprensents the model {modelName}.");
-			}
 
 			return baseDirectory;
 		}
@@ -58,10 +52,8 @@ namespace Hive.Meta.Impl
 		{
 			var manifestFile = baseDirectory.GetFiles(ManifestFilename).FirstOrDefault();
 			if (manifestFile == null)
-			{
 				throw new ModelLoadingException(
 					$"Unable to find a manifest file named {ManifestFilename} in the {baseDirectory.FullName} directory.");
-			}
 
 			try
 			{
@@ -84,12 +76,14 @@ namespace Hive.Meta.Impl
 			try
 			{
 				modelPropertyBag["Entities"] = (await entityFiles
-					.SafeForEachParallel((x, token) => HiveJsonSerializer.Instance.DeserializeFileAsync<PropertyBag>(x.FullName, token), ct)
-					).ToArray();
+						.SafeForEachParallel(
+							(x, token) => HiveJsonSerializer.Instance.DeserializeFileAsync<PropertyBag>(x.FullName, token), ct)
+				).ToArray();
 			}
 			catch (Exception ex)
 			{
-				throw new ModelLoadingException($"There has been an error while loading entities from the {entitiesDirectory.FullName} directory.", ex);
+				throw new ModelLoadingException(
+					$"There has been an error while loading entities from the {entitiesDirectory.FullName} directory.", ex);
 			}
 		}
 	}

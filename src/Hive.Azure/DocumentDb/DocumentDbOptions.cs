@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security;
 
 namespace Hive.Azure.DocumentDb
 {

@@ -35,19 +35,13 @@ namespace Hive.Meta.Impl
 		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{
 			if (PropertyType == null)
-			{
 				PropertyType = EntityDefinition.Model.EntitiesBySingleName.SafeGet(PropertyBag["type"] as string);
-			}
 
 			if (PropertyType == null)
-			{
 				throw new ModelLoadingException($"Unable to resolve property type {PropertyBag["type"] as string} for {this}.");
-			}
 
 			if (PropertyType is IValueType)
-			{
 				((IValueType) PropertyType).FinishLoading(valueTypeFactory, this);
-			}
 		}
 
 		public override string ToString() => $"{EntityDefinition}.{Name}";

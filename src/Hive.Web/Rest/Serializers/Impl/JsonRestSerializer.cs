@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,26 +7,22 @@ using Hive.Foundation;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Hive.Web.Rest.Serializers.Impl
 {
 	public class JsonRestSerializer : RestSerializer
 	{
 		public JsonRestSerializer()
-			: base (new []{ "application/json" })
+			: base(new[] {"application/json"})
 		{
 		}
 
 		protected override void SerializeEntity(IEntity entity, Stream stream)
 		{
-			
 		}
 
 		protected override void SerializeEntities(IEnumerable<IEntity> enumerable, Stream stream)
 		{
-			
 		}
 
 		protected override void SerializeMessage(object message, Stream stream)

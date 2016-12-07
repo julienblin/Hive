@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Hive.Foundation.Entities;
-using Hive.Meta;
 using Hive.Foundation.Extensions;
+using Hive.Meta;
 
 namespace Hive.Tests.Mocks
 {
@@ -12,7 +11,7 @@ namespace Hive.Tests.Mocks
 		public ModelMock(IEnumerable<IEntityDefinition> entityDefinitions = null)
 		{
 			Name = "TestModel";
-			Version = new SemVer(1,0,0);
+			Version = new SemVer(1, 0, 0);
 			EntitiesBySingleName = entityDefinitions.Safe().ToDictionary(x => x.SingleName);
 			EntitiesByPluralName = entityDefinitions.Safe().ToDictionary(x => x.PluralName);
 		}

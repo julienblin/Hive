@@ -5,7 +5,7 @@ using Hive.Foundation.Extensions;
 namespace Hive.Foundation.Entities
 {
 	/// <summary>
-	/// A semantic version - conforms to SemVer 2.0.
+	///     A semantic version - conforms to SemVer 2.0.
 	/// </summary>
 	/// <remarks>http://semver.org</remarks>
 	public class SemVer : IComparable<SemVer>, IComparable
@@ -16,24 +16,8 @@ namespace Hive.Foundation.Entities
 		                                  @"(\-(?<pre>[0-9A-Za-z\-\.]+))?" +
 		                                  @"(\+(?<build>[0-9A-Za-z\-\.]+))?$";
 
-		private static readonly Regex ParseRegex = new Regex(SemVerRegex, RegexOptions.CultureInvariant | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
-
-		public static SemVer Parse(string version)
-		{
-			version.NotNullOrEmpty(nameof(version));
-
-			var match = ParseRegex.Match(version);
-			if (!match.Success)
-				throw new ArgumentException("Invalid version.", nameof(version));
-
-			var major = match.Groups["major"].Value.IntSafeInvariantParse();
-			var minor = match.Groups["minor"].Value.IntSafeInvariantParse();
-			var patch = match.Groups["patch"].Value.IntSafeInvariantParse();
-			var prerelease = match.Groups["pre"].Value.IsNullOrEmpty() ? null : match.Groups["pre"].Value;
-			var build = match.Groups["build"].Value.IsNullOrEmpty() ? null : match.Groups["build"].Value;
-
-			return new SemVer(major ?? 0, minor ?? 0, patch ?? 0, prerelease, build);
-		}
+		private static readonly Regex ParseRegex = new Regex(SemVerRegex,
+			RegexOptions.CultureInvariant | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 		public SemVer(int major, int minor, int patch, string prerelease = null, string build = null)
 		{
@@ -72,7 +56,25 @@ namespace Hive.Foundation.Entities
 			return r;
 		}
 
-		public override string ToString() => $"{Major}.{Minor}.{Patch}{Prerelease.SafeInvariantFormat("-{0}")}{Build.SafeInvariantFormat("+{0}")}";
+		public static SemVer Parse(string version)
+		{
+			version.NotNullOrEmpty(nameof(version));
+
+			var match = ParseRegex.Match(version);
+			if (!match.Success)
+				throw new ArgumentException("Invalid version.", nameof(version));
+
+			var major = match.Groups["major"].Value.IntSafeInvariantParse();
+			var minor = match.Groups["minor"].Value.IntSafeInvariantParse();
+			var patch = match.Groups["patch"].Value.IntSafeInvariantParse();
+			var prerelease = match.Groups["pre"].Value.IsNullOrEmpty() ? null : match.Groups["pre"].Value;
+			var build = match.Groups["build"].Value.IsNullOrEmpty() ? null : match.Groups["build"].Value;
+
+			return new SemVer(major ?? 0, minor ?? 0, patch ?? 0, prerelease, build);
+		}
+
+		public override string ToString()
+			=> $"{Major}.{Minor}.{Patch}{Prerelease.SafeInvariantFormat("-{0}")}{Build.SafeInvariantFormat("+{0}")}";
 
 		public override bool Equals(object obj)
 		{
@@ -84,11 +86,11 @@ namespace Hive.Foundation.Entities
 
 			var other = obj as SemVer;
 
-			return Major == other?.Major &&
-				Minor == other.Minor &&
-				Patch == other.Patch &&
-				Prerelease.SafeOrdinalEquals(other.Prerelease) &&
-				Build.SafeOrdinalEquals(other.Build);
+			return (Major == other?.Major) &&
+			       (Minor == other.Minor) &&
+			       (Patch == other.Patch) &&
+			       Prerelease.SafeOrdinalEquals(other.Prerelease) &&
+			       Build.SafeOrdinalEquals(other.Build);
 		}
 
 		public override int GetHashCode()
@@ -96,9 +98,9 @@ namespace Hive.Foundation.Entities
 			unchecked
 			{
 				var result = Major.GetHashCode();
-				result = result * 31 + Minor.GetHashCode();
-				result = result * 31 + Patch.GetHashCode();
-				result = result * 31 + (Prerelease?.GetHashCode() ?? string.Empty.GetHashCode());
+				result = result*31 + Minor.GetHashCode();
+				result = result*31 + Patch.GetHashCode();
+				result = result*31 + (Prerelease?.GetHashCode() ?? string.Empty.GetHashCode());
 				result = result*31 + (Build?.GetHashCode() ?? string.Empty.GetHashCode());
 				return result;
 			}

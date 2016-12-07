@@ -22,6 +22,12 @@ namespace Hive.Web.RequestProcessors
 			EntityService = entityService.NotNull(nameof(entityService));
 		}
 
+		protected ITelemetry Telemetry { get; }
+
+		protected IMetaService MetaService { get; }
+
+		protected IEntityService EntityService { get; }
+
 		public virtual async Task<bool> Process(HttpContext context, CancellationToken ct)
 		{
 			try
@@ -32,9 +38,9 @@ namespace Hive.Web.RequestProcessors
 			{
 				Telemetry.TrackException(ex, new Dictionary<string, string>
 				{
-					{ "Method", context.Request.Method },
-					{ "Path", context.Request.Path },
-					{ "QueryString", context.Request.QueryString.ToString() }
+					{"Method", context.Request.Method},
+					{"Path", context.Request.Path},
+					{"QueryString", context.Request.QueryString.ToString()}
 				});
 
 				await ProcessException(context, ex, ct);
@@ -49,11 +55,5 @@ namespace Hive.Web.RequestProcessors
 			context.Response.StatusCode = 500;
 			return context.Response.WriteAsync(exception.ToString(), ct);
 		}
-
-		protected ITelemetry Telemetry { get; }
-
-		protected IMetaService MetaService { get; }
-
-		protected IEntityService EntityService { get; }
 	}
 }

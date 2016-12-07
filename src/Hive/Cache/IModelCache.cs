@@ -1,6 +1,4 @@
-﻿using Hive.Meta;
-
-namespace Hive.Cache
+﻿namespace Hive.Cache
 {
 	public interface ICache<T>
 	{

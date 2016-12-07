@@ -1,19 +1,26 @@
 ﻿using System.IO;
-using Xunit;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using System.Linq;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Impl;
 using Microsoft.Extensions.Options;
+using Xunit;
 
 namespace Hive.Tests.Meta.Impl
 {
 	public class JsonStructureMetaRepositoryTests
 	{
+		private string GetSampleStructureFilePath()
+		{
+			var location = typeof(JsonStructureMetaRepositoryTests).GetTypeInfo().Assembly.Location;
+			var dirPath = Path.GetDirectoryName(location);
+			return Path.Combine(dirPath, @"..\..\..\Root");
+		}
+
 		[Fact]
 		public async Task ItShouldLoadAModelAsPropertyBag()
 		{
@@ -29,30 +36,24 @@ namespace Hive.Tests.Meta.Impl
 
 			var entities = modelData["entities"] as PropertyBag[];
 			entities.Should().HaveCount(3);
-			var clientEntity = entities.First(x => ((string)x["singlename"]).SafeOrdinalEquals("client"));
-			((string)clientEntity["pluralName"]).Should().Be("clients");
-			((string)clientEntity["type"]).Should().Be("masterdata");
+			var clientEntity = entities.First(x => ((string) x["singlename"]).SafeOrdinalEquals("client"));
+			((string) clientEntity["pluralName"]).Should().Be("clients");
+			((string) clientEntity["type"]).Should().Be("masterdata");
 			var clientEntityProperties = clientEntity["properties"] as PropertyBag[];
-			var firstNameProperty = clientEntityProperties.FirstOrDefault(x => ((string)x["name"]).SafeOrdinalEquals("firstName"));
+			var firstNameProperty =
+				clientEntityProperties.FirstOrDefault(x => ((string) x["name"]).SafeOrdinalEquals("firstName"));
 			firstNameProperty.Should().NotBeNull();
-			((string)firstNameProperty["type"]).Should().Be("string");
+			((string) firstNameProperty["type"]).Should().Be("string");
 
-			var patientEntity = entities.First(x => ((string)x["singlename"]).SafeOrdinalEquals("patient"));
-			((string)patientEntity["pluralName"]).Should().Be("patients");
+			var patientEntity = entities.First(x => ((string) x["singlename"]).SafeOrdinalEquals("patient"));
+			((string) patientEntity["pluralName"]).Should().Be("patients");
 			var patientEntityProperties = patientEntity["properties"] as PropertyBag[];
-			var typeProperty = patientEntityProperties.FirstOrDefault(x => ((string)x["name"]).SafeOrdinalEquals("type"));
+			var typeProperty = patientEntityProperties.FirstOrDefault(x => ((string) x["name"]).SafeOrdinalEquals("type"));
 			typeProperty.Should().NotBeNull();
-			((string)typeProperty["type"]).Should().Be("enum");
+			((string) typeProperty["type"]).Should().Be("enum");
 			var values = typeProperty["values"] as string[];
 			values.Should().NotBeNull();
-			values.Should().Contain(new[] { "internal", "external" });
-		}
-
-		private string GetSampleStructureFilePath()
-		{
-			var location = typeof(JsonStructureMetaRepositoryTests).GetTypeInfo().Assembly.Location;
-			var dirPath = Path.GetDirectoryName(location);
-			return Path.Combine(dirPath, @"..\..\..\Root");
+			values.Should().Contain(new[] {"internal", "external"});
 		}
 	}
 }

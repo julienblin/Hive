@@ -1,30 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
+using Hive.Foundation;
+using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Foundation.Lifecycle;
+using Hive.Meta;
 using Hive.Queries;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Options;
-using System.Linq;
-using Hive.Foundation;
-using Hive.Foundation.Entities;
-using Hive.Foundation.Lifecycle;
-using Hive.Meta;
 
 namespace Hive.Azure.DocumentDb
 {
 	public class DocumentDbEntityRepository : IEntityRepository, IStartable
 	{
-		private readonly IOptions<DocumentDbOptions> _options;
-		private readonly IMetaService _metaService;
 		private readonly Lazy<IDocumentClient> _lazyClient;
 		private readonly Lazy<Uri> _lazyCollectionUri;
+		private readonly IMetaService _metaService;
+		private readonly IOptions<DocumentDbOptions> _options;
 
 		public DocumentDbEntityRepository(IOptions<DocumentDbOptions> options, IMetaService metaService)
 		{
@@ -34,21 +30,32 @@ namespace Hive.Azure.DocumentDb
 			_lazyCollectionUri = new Lazy<Uri>(CreateCollectionUri);
 		}
 
+		private IDocumentClient Client => _lazyClient.Value;
+
+		private Uri CollectionUri => _lazyCollectionUri.Value;
+
 		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
 		{
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
-			var doc = await Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true);
+			var doc =
+				await Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true);
 			return await ConvertToEntity(doc.Resource, ct);
 		}
 
 		public Task<IEntity> Update(IEntity entity, CancellationToken ct)
 		{
 			throw new NotImplementedException();
+		}
+
+		public async Task Start(CancellationToken ct)
+		{
+			await CreateDatabaseIfNotExists();
+			await CreateCollectionIfNotExists();
 		}
 
 		private static object ConvertToDocument(IEntity entity)
@@ -73,10 +80,6 @@ namespace Hive.Azure.DocumentDb
 			return new Entity(entityDefinition, propertyBag);
 		}
 
-		private IDocumentClient Client => _lazyClient.Value;
-
-		private Uri CollectionUri => _lazyCollectionUri.Value;
-
 		private IDocumentClient CreateClient()
 		{
 			return new DocumentClient(_options.Value.ServiceEndpoint, _options.Value.AuthKey);
@@ -87,12 +90,6 @@ namespace Hive.Azure.DocumentDb
 			return UriFactory.CreateDocumentCollectionUri(_options.Value.Database, _options.Value.Collection);
 		}
 
-		public async Task Start(CancellationToken ct)
-		{
-			await CreateDatabaseIfNotExists();
-			await CreateCollectionIfNotExists();
-		}
-
 		private async Task CreateDatabaseIfNotExists()
 		{
 			try
@@ -101,14 +98,10 @@ namespace Hive.Azure.DocumentDb
 			}
 			catch (DocumentClientException e)
 			{
-				if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-				{
-					await Client.CreateDatabaseAsync(new Database { Id = _options.Value.Database });
-				}
+				if (e.StatusCode == HttpStatusCode.NotFound)
+					await Client.CreateDatabaseAsync(new Database {Id = _options.Value.Database});
 				else
-				{
 					throw;
-				}
 			}
 		}
 
@@ -120,17 +113,13 @@ namespace Hive.Azure.DocumentDb
 			}
 			catch (DocumentClientException e)
 			{
-				if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-				{
+				if (e.StatusCode == HttpStatusCode.NotFound)
 					await Client.CreateDocumentCollectionAsync(
 						UriFactory.CreateDatabaseUri(_options.Value.Database),
-						new DocumentCollection { Id = _options.Value.Collection },
-						new RequestOptions { OfferThroughput = 1000 });
-				}
+						new DocumentCollection {Id = _options.Value.Collection},
+						new RequestOptions {OfferThroughput = 1000});
 				else
-				{
 					throw;
-				}
 			}
 		}
 	}

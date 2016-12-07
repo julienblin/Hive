@@ -98,7 +98,7 @@ namespace Hive.Telemetry
 		public static async Task TrackAsyncDependency(
 			this ITelemetry telemetry,
 			CancellationToken ct,
-			Func<CancellationToken,Task> action,
+			Func<CancellationToken, Task> action,
 			DependencyKind dependencyKind,
 			string dependencyName,
 			IDictionary<string, string> properties = null,

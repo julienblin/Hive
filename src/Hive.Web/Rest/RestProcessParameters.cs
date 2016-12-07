@@ -7,7 +7,8 @@ namespace Hive.Web.Rest
 {
 	public class RestProcessParameters
 	{
-		public RestProcessParameters(HttpContext context, RequestHeaders headers, string[] pathSegments, IModel model, IRestSerializer requestSerializer, IRestSerializer responseSerializer)
+		public RestProcessParameters(HttpContext context, RequestHeaders headers, string[] pathSegments, IModel model,
+			IRestSerializer requestSerializer, IRestSerializer responseSerializer)
 		{
 			Context = context;
 			Headers = headers;

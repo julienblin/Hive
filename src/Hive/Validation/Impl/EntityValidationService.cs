@@ -15,9 +15,7 @@ namespace Hive.Validation.Impl
 		{
 			var validationResults = await TryValidate(entity, ct);
 			if (!validationResults.IsValid)
-			{
 				throw new ValidationException(validationResults);
-			}
 		}
 
 		public Task<ValidationResults> TryValidate(IEntity entity, CancellationToken ct)
@@ -35,10 +33,8 @@ namespace Hive.Validation.Impl
 		{
 			if (entity.Definition.EntityType == EntityType.None) return;
 
-			if ((entity.Id == null) || (entity.Id is string && ((string)entity.Id).IsNullOrEmpty()))
-			{
+			if ((entity.Id == null) || (entity.Id is string && ((string) entity.Id).IsNullOrEmpty()))
 				validationErrors.Add(new ValidationError(nameof(entity.Id), "A valid entity must have an id."));
-			}
 		}
 	}
 }

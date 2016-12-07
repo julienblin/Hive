@@ -6,14 +6,10 @@ using Hive.Cache.Impl;
 using Hive.Config;
 using Hive.Entities;
 using Hive.Entities.Impl;
+using Hive.Foundation.Extensions;
 using Hive.Foundation.Lifecycle;
 using Hive.Meta;
 using Hive.Meta.Impl;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Hive.Foundation.Extensions;
 using Hive.Telemetry;
 using Hive.Validation;
 using Hive.Validation.Impl;
@@ -22,6 +18,10 @@ using Hive.Web.Middlewares;
 using Hive.Web.Rest;
 using Hive.Web.Rest.Serializers;
 using Hive.Web.Rest.Serializers.Impl;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Hive.SampleApp
 {

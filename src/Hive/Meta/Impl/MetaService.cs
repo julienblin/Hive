@@ -7,9 +7,9 @@ namespace Hive.Meta.Impl
 {
 	public class MetaService : IMetaService
 	{
+		private readonly ICache<IModel> _cache;
 		private readonly IMetaRepository _metaRepository;
 		private readonly IModelLoader _modelLoader;
-		private readonly ICache<IModel> _cache;
 
 		public MetaService(
 			IMetaRepository metaRepository,

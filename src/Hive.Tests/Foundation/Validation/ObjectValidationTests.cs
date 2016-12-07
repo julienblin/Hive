@@ -1,16 +1,21 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using FluentAssertions;
+using Hive.Foundation.Extensions;
 using Hive.Foundation.Validation;
 using Xunit;
-using System.Linq;
-using Hive.Foundation.Extensions;
 using ValidationException = Hive.Exceptions.ValidationException;
 
 namespace Hive.Tests.Foundation.Validation
 {
 	public class ObjectValidationTests
 	{
+		private class ClassToTest
+		{
+			[Required]
+			public string Name { get; set; }
+		}
+
 		[Fact]
 		public void TryValidate()
 		{
@@ -32,12 +37,6 @@ namespace Hive.Tests.Foundation.Validation
 			var test = new ClassToTest();
 			test.Invoking(x => x.Validate()).ShouldThrow<ValidationException>()
 				.Which.Results.Errors.First().Target.Should().Be(nameof(ClassToTest.Name));
-		}
-
-		private class ClassToTest
-		{
-			[Required]
-			public string Name { get; set; }
 		}
 	}
 }

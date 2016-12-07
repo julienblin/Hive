@@ -1,5 +1,4 @@
 ﻿using Hive.Entities;
-using Hive.Foundation.Extensions;
 
 namespace Hive.Commands
 {

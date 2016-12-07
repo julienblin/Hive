@@ -3,14 +3,20 @@
 namespace Hive.Exceptions
 {
 	/// <summary>
-	/// Base class for Hive exceptions.
+	///     Base class for Hive exceptions.
 	/// </summary>
 	public abstract class HiveException : Exception
 	{
-		protected HiveException() { }
+		protected HiveException()
+		{
+		}
 
-		protected HiveException(string message) : base(message) { }
+		protected HiveException(string message) : base(message)
+		{
+		}
 
-		protected HiveException(string message, Exception inner) : base(message, inner) { }
+		protected HiveException(string message, Exception inner) : base(message, inner)
+		{
+		}
 	}
 }

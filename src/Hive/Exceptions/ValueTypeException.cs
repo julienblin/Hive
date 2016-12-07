@@ -1,5 +1,4 @@
 ﻿using System;
-using Hive.Meta;
 using Hive.ValueTypes;
 
 namespace Hive.Exceptions

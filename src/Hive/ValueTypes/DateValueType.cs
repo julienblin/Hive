@@ -1,5 +1,4 @@
 ﻿using System;
-using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Meta;
 using NodaTime;
@@ -19,9 +18,7 @@ namespace Hive.ValueTypes
 			if (value == null) return null;
 
 			if (value is LocalDate)
-			{
 				return LocalDatePattern.IsoPattern.Format((LocalDate) value);
-			}
 
 			throw new NotSupportedException();
 		}
@@ -34,13 +31,13 @@ namespace Hive.ValueTypes
 
 			if (value is DateTime)
 			{
-				var realValue = (DateTime)value;
+				var realValue = (DateTime) value;
 				return new LocalDate(realValue.Year, realValue.Month, realValue.Day);
 			}
 
 			if (value is DateTimeOffset)
 			{
-				var realValue = (DateTimeOffset)value;
+				var realValue = (DateTimeOffset) value;
 
 				return new LocalDate(realValue.Year, realValue.Month, realValue.Day);
 			}
@@ -49,7 +46,9 @@ namespace Hive.ValueTypes
 			if (parseResult.Success)
 				return parseResult.Value;
 
-			throw new ValueTypeException(this, $"Error while parsing value {value} as a local date using pattern {LocalDatePattern.IsoPattern.PatternText}.", parseResult.Exception);
+			throw new ValueTypeException(this,
+				$"Error while parsing value {value} as a local date using pattern {LocalDatePattern.IsoPattern.PatternText}.",
+				parseResult.Exception);
 		}
 	}
 }

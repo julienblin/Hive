@@ -6,7 +6,7 @@
     {
       "name": "emailType",
       "type": "enum",
-      "values": ["home", "work"] 
+      "values": ["home", "work"]
     },
     {
       "name": "email",

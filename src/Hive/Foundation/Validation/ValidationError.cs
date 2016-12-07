@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Hive.Foundation.Validation
 {
@@ -12,7 +11,7 @@ namespace Hive.Foundation.Validation
 		}
 
 		public ValidationError(string target, string message)
-			: this(target, new []{ message })
+			: this(target, new[] {message})
 		{
 		}
 

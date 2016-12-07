@@ -29,13 +29,12 @@ namespace Hive.Meta.Impl
 				};
 				model.EntitiesBySingleName = (modelData["entities"] as PropertyBag[])
 					.Safe()
-					.ToDictionary(x => x["singlename"] as string, x => MapEntityDefinition(model, x));
+					.ToDictionary(x => x["singlename"] as string, x => MapEntityDefinition(model, x), StringComparer.OrdinalIgnoreCase);
 				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToDictionary(x => x.PluralName);
 
 				model.FinishLoading(_valueTypeFactory);
 
 				return model;
-
 			}
 			catch (Exception ex) when (!(ex is ModelLoadingException))
 			{
@@ -54,7 +53,8 @@ namespace Hive.Meta.Impl
 				EntityType = (entityDefinitionData["type"] as string).ToEnum<EntityType>()
 			};
 			entityDefinition.Properties =
-				MapProperties(entityDefinition, entityDefinitionData["properties"] as PropertyBag[]).ToDictionary(x => x.Name);
+				MapProperties(entityDefinition, entityDefinitionData["properties"] as PropertyBag[])
+				.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
 			return entityDefinition;
 		}
@@ -70,11 +70,9 @@ namespace Hive.Meta.Impl
 				DefaultValue = property["default"]
 			}).ToList();
 
-			if ((entityDefinition.EntityType != EntityType.None) && !propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))
-			{
-				
+			if ((entityDefinition.EntityType != EntityType.None) &&
+			    !propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))
 				propertyDefinitions.Add(new DefaultIdPropertyDefinition(entityDefinition, _valueTypeFactory.GetValueType("uuid")));
-			}
 
 			return propertyDefinitions;
 		}

@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
-using FluentAssertions;
-using Hive.Web.Rest;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Headers;
-using Xunit;
+using System.Collections.Immutable;
 using System.Linq;
+using FluentAssertions;
 using Hive.Foundation.Extensions;
 using Hive.Tests.Mocks;
+using Hive.Web.Rest;
 using Hive.Web.Rest.Serializers.Impl;
-using System.Collections.Immutable;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
+using Xunit;
 
 namespace Hive.Web.Tests.Rest
 {
@@ -53,9 +53,9 @@ namespace Hive.Web.Tests.Rest
 				new RestQueryString(
 					"patients",
 					"1",
-					new Dictionary<string, string>()
+					new Dictionary<string, string>
 					{
-						{ "clients", "1" }
+						{"clients", "1"}
 					}.ToImmutableDictionary(),
 					new Dictionary<string, StringValues>().ToImmutableDictionary())
 			};
@@ -66,9 +66,9 @@ namespace Hive.Web.Tests.Rest
 				new RestQueryString(
 					"1",
 					null,
-					new Dictionary<string, string>()
+					new Dictionary<string, string>
 					{
-						{ "clients", "patients" }
+						{"clients", "patients"}
 					}.ToImmutableDictionary(),
 					new Dictionary<string, StringValues>().ToImmutableDictionary())
 			};
@@ -79,14 +79,14 @@ namespace Hive.Web.Tests.Rest
 				new RestQueryString(
 					"patients",
 					"1",
-					new Dictionary<string, string>()
+					new Dictionary<string, string>
 					{
-						{ "clients", "1" }
+						{"clients", "1"}
 					}.ToImmutableDictionary(),
-					new Dictionary<string, StringValues>()
+					new Dictionary<string, StringValues>
 					{
-						{ "include", new StringValues("orders") },
-						{ "limit", new StringValues("2") }
+						{"include", new StringValues("orders")},
+						{"limit", new StringValues("2")}
 					}.ToImmutableDictionary())
 			};
 
@@ -97,10 +97,10 @@ namespace Hive.Web.Tests.Rest
 					"patients",
 					"1",
 					new Dictionary<string, string>().ToImmutableDictionary(),
-					new Dictionary<string, StringValues>()
+					new Dictionary<string, StringValues>
 					{
-						{ "include", new StringValues(new[] { "orders", "invoices"}) },
-						{ "limit", new StringValues("2") }
+						{"include", new StringValues(new[] {"orders", "invoices"})},
+						{"limit", new StringValues("2")}
 					}.ToImmutableDictionary())
 			};
 		}
@@ -108,7 +108,7 @@ namespace Hive.Web.Tests.Rest
 		private static RestProcessParameters CreateRestProcessParameter(string pathSegments, string queryString = null)
 		{
 			return new RestProcessParameters(
-				new DefaultHttpContext { Request = { Query = new QueryCollection(QueryHelpers.ParseQuery(queryString)) } },
+				new DefaultHttpContext {Request = {Query = new QueryCollection(QueryHelpers.ParseQuery(queryString))}},
 				new RequestHeaders(new HeaderDictionary()),
 				pathSegments.Split('/').Where(x => !x.Trim().IsNullOrEmpty()).ToArray(),
 				new ModelMock(),

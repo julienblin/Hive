@@ -12,15 +12,15 @@ namespace Hive.ValueTypes
 		{
 			var realValueTypes = valueTypes.IsNullOrEmpty()
 				? new IValueType[]
-					{
-						new ArrayValueType(),
-						new DateTimeValueType(),
-						new DateValueType(),
-						new EnumValueType(),
-						new GuidValueType(),
-						new IntValueType(),
-						new StringValueType()
-					}
+				{
+					new ArrayValueType(),
+					new DateTimeValueType(),
+					new DateValueType(),
+					new EnumValueType(),
+					new GuidValueType(),
+					new IntValueType(),
+					new StringValueType()
+				}
 				: valueTypes;
 
 			_valueTypes = realValueTypes.ToDictionary(x => x.Name);

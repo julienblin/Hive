@@ -10,6 +10,7 @@ namespace Hive.Meta.Impl
 {
 	internal class EntityDefinition : IEntityDefinition
 	{
+		public PropertyBag PropertyBag { get; set; }
 		public string FullName => $"{Model.Name}.{Name}";
 
 		public string Name => SingleName;
@@ -26,20 +27,6 @@ namespace Hive.Meta.Impl
 
 		public IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; set; }
 
-		public PropertyBag PropertyBag { get; set; }
-
-		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
-		{
-			foreach (var propertyDefinition in Properties?.Values)
-			{
-				var pf = propertyDefinition as PropertyDefinition;
-				if (pf != null)
-				{
-					pf.FinishLoading(valueTypeFactory);
-				}
-			}
-		}
-
 		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			throw new NotImplementedException();
@@ -53,6 +40,16 @@ namespace Hive.Meta.Impl
 		public virtual Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
 		{
 			throw new NotImplementedException();
+		}
+
+		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
+		{
+			foreach (var propertyDefinition in Properties?.Values)
+			{
+				var pf = propertyDefinition as PropertyDefinition;
+				if (pf != null)
+					pf.FinishLoading(valueTypeFactory);
+			}
 		}
 
 		public override string ToString() => FullName;

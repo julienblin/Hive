@@ -15,7 +15,6 @@ using Hive.Web.RequestProcessors;
 using Hive.Web.Rest.Responses;
 using Hive.Web.Rest.Serializers;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -56,7 +55,8 @@ namespace Hive.Web.Rest
 			var responseSerializer = headers.Accept.IsNullOrEmpty()
 				? requestSerializer
 				: _serializerFactory.GetByMediaType(headers.Accept.Safe().Select(x => x.MediaType));
-			var processParams = new RestProcessParameters(context, headers, pathSegments, model, requestSerializer, responseSerializer);
+			var processParams = new RestProcessParameters(context, headers, pathSegments, model, requestSerializer,
+				responseSerializer);
 
 			if (HttpMethods.IsGet(request.Method))
 			{
@@ -79,11 +79,12 @@ namespace Hive.Web.Rest
 
 			if (query is IdQuery)
 			{
-				var idQuery = (IdQuery)query;
+				var idQuery = (IdQuery) query;
 				var result = await EntityService.Execute(idQuery, ct);
 				if (result == null)
 				{
-					Respond(param, new MessageResponse($"Unable to find a {idQuery.EntityDefinition.SingleName} with id {idQuery.Id}"), StatusCodes.Status404NotFound);
+					Respond(param, new MessageResponse($"Unable to find a {idQuery.EntityDefinition.SingleName} with id {idQuery.Id}"),
+						StatusCodes.Status404NotFound);
 					return;
 				}
 
@@ -99,18 +100,11 @@ namespace Hive.Web.Rest
 			var restQuery = new RestQueryString(param);
 			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
 			if (entityDefinition == null)
-			{
 				throw new NotFoundException($"Unable to find an entity definition named {restQuery.Root}.");
-			}
 
 			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
-			{
 				return new ListQuery(entityDefinition);
-			}
-			else
-			{
-				return new IdQuery(entityDefinition, restQuery.AdditionalQualifier);
-			}
+			return new IdQuery(entityDefinition, restQuery.AdditionalQualifier);
 		}
 
 		private async Task ProcessPostCommand(RestProcessParameters param, CancellationToken ct)
@@ -118,14 +112,10 @@ namespace Hive.Web.Rest
 			var restQuery = new RestQueryString(param);
 			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
 			if (entityDefinition == null)
-			{
 				throw new BadRequestException($"Unable to find an entity definition named {restQuery.Root}.");
-			}
 
 			if (!restQuery.AdditionalQualifier.IsNullOrEmpty())
-			{
 				throw new BadRequestException($"A post request should not have an additional qualifier.");
-			}
 
 			var entity = await param.RequestSerializer.Deserialize(entityDefinition, param.Context.Request.Body, ct);
 			await entity.Init(ct);
@@ -135,17 +125,16 @@ namespace Hive.Web.Rest
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
-				{ "Location", $"{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}" }
+				{"Location", $"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}"}
 			});
 		}
 
-		private void Respond(RestProcessParameters param, object message, int statusCode, IDictionary<string, string> responseHeaders = null)
+		private void Respond(RestProcessParameters param, object message, int statusCode,
+			IDictionary<string, string> responseHeaders = null)
 		{
 			param.Context.Response.StatusCode = statusCode;
 			foreach (var responseHeader in responseHeaders.Safe())
-			{
 				param.Context.Response.Headers.Add(responseHeader.Key, new StringValues(responseHeader.Value));
-			}
 
 			param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
 			param.Context.Response.Headers["Content-Type"] = param.ResponseSerializer.MediaTypes.First();

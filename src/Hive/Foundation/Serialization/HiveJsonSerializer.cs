@@ -12,8 +12,6 @@ namespace Hive.Foundation
 			Instance = new HiveJsonSerializer();
 		}
 
-		public static HiveJsonSerializer Instance { get; }
-
 		public HiveJsonSerializer()
 		{
 			Converters.Add(new StringEnumConverter());
@@ -24,9 +22,9 @@ namespace Hive.Foundation
 			: this()
 		{
 			foreach (var jsonConverter in converters.Safe())
-			{
 				Converters.Add(jsonConverter);
-			}
 		}
+
+		public static HiveJsonSerializer Instance { get; }
 	}
 }

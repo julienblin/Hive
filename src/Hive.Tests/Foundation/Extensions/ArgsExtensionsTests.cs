@@ -13,13 +13,9 @@ namespace Hive.Tests.Foundation.Extensions
 		public void NotNull(object input, bool shouldThrow)
 		{
 			if (shouldThrow)
-			{
 				input.Invoking(x => x.NotNull(nameof(input))).ShouldThrow<ArgumentNullException>();
-			}
 			else
-			{
 				input.Invoking(x => x.NotNull(nameof(input))).ShouldNotThrow();
-			}
 		}
 
 		[Theory]
@@ -29,13 +25,9 @@ namespace Hive.Tests.Foundation.Extensions
 		public void NotNullOrEmpty(string input, bool shouldThrow)
 		{
 			if (shouldThrow)
-			{
 				input.Invoking(x => x.NotNullOrEmpty(nameof(input))).ShouldThrow<ArgumentNullException>();
-			}
 			else
-			{
 				input.Invoking(x => x.NotNullOrEmpty(nameof(input))).ShouldNotThrow();
-			}
 		}
 	}
 }

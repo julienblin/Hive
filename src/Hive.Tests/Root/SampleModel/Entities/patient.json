@@ -6,7 +6,7 @@
     {
       "name": "type",
       "type": "enum",
-      "values": [ "internal", "external" ] 
+      "values": ["internal", "external"]
     }
-  ] 
+  ]
 }

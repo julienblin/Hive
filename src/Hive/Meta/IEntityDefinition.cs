@@ -8,7 +8,7 @@ namespace Hive.Meta
 
 		IModel Model { get; }
 
-		string SingleName { get;  }
+		string SingleName { get; }
 
 		string PluralName { get; }
 
