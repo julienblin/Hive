@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Hive.Foundation.Entities;
 using Hive.Meta;
-using Hive.Meta.Data;
 using Hive.Meta.Impl;
 using Hive.Tests.Mocks;
 using Xunit;
@@ -33,7 +33,7 @@ namespace Hive.Tests.Meta.Impl
 			var model = new ModelMock();
 
 			var metaService = new MetaService(
-				new MetaRepositoryMock(new ModelData()),
+				new MetaRepositoryMock(new PropertyBag()),
 				new ModelLoaderMock(model),
 				new CacheMock<IModel>(putAsserts: (k, v) =>
 				{

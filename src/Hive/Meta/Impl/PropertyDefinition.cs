@@ -1,17 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Exceptions;
+using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
-using Hive.Meta.Data;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
 {
-	internal class PropertyDefinition : IPropertyDefinition, IOriginalDataHolder<PropertyDefinitionData>
+	internal class PropertyDefinition : IPropertyDefinition
 	{
-		private IDictionary<string, object> _properties = new Dictionary<string, object>();
+		private readonly Lazy<IDictionary<string, object>> _additionalProperties
+			= new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase));
 
 		public IEntityDefinition EntityDefinition { get; set; }
 
@@ -21,34 +23,25 @@ namespace Hive.Meta.Impl
 
 		public object DefaultValue { get; set; }
 
+		public IDictionary<string, object> AdditionalProperties => _additionalProperties.Value;
+
 		public Task SetDefaultValue(IEntity entity, CancellationToken ct)
 		{
 			return PropertyType.SetDefaultValue(this, entity, ct);
 		}
 
-		public T GetProperty<T>(string propertyName)
-		{
-			var result = _properties.SafeGet(propertyName);
-			return result == null ? default(T) : (T)result;
-		}
-
-		public void SetProperty(string propertyName, object value)
-		{
-			_properties[propertyName] = value;
-		}
-
-		public PropertyDefinitionData OriginalData { get; set; }
+		public PropertyBag PropertyBag { get; set; }
 
 		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{
 			if (PropertyType == null)
 			{
-				PropertyType = EntityDefinition.Model.EntitiesBySingleName.SafeGet(OriginalData.Type);
+				PropertyType = EntityDefinition.Model.EntitiesBySingleName.SafeGet(PropertyBag["type"] as string);
 			}
 
 			if (PropertyType == null)
 			{
-				throw new ModelLoadingException($"Unable to resolve property type {OriginalData.Type} for {this}.");
+				throw new ModelLoadingException($"Unable to resolve property type {PropertyBag["type"] as string} for {this}.");
 			}
 
 			if (PropertyType is IValueType)

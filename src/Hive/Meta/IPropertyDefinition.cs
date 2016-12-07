@@ -1,7 +1,10 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
-using Hive.Meta.Data;
+using Hive.Foundation.Entities;
+using Hive.Meta.Impl;
 
 namespace Hive.Meta
 {
@@ -13,12 +16,12 @@ namespace Hive.Meta
 
 		IDataType PropertyType { get; }
 
-		T GetProperty<T>(string propertyName);
-
-		void SetProperty(string propertyName, object value);
-
 		object DefaultValue { get; }
 
+		IDictionary<string, object> AdditionalProperties { get; }
+
 		Task SetDefaultValue(IEntity entity, CancellationToken ct);
+
+		PropertyBag PropertyBag { get; set; }
 	}
 }

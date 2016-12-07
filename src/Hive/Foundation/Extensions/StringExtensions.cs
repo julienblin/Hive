@@ -30,7 +30,8 @@ namespace Hive.Foundation.Extensions
 
 	    public static T ToEnum<T>(this string value, bool ignoreCase = true)
 	    {
-		    value.NotNullOrEmpty(nameof(value));
+		    if (value.IsNullOrEmpty())
+			    return default(T);
 
 		    return (T) Enum.Parse(typeof(T), value, ignoreCase);
 	    }

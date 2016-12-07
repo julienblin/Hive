@@ -1,5 +1,5 @@
-﻿using Hive.Meta;
-using Hive.Meta.Data;
+﻿using Hive.Foundation.Entities;
+using Hive.Meta;
 
 namespace Hive.Tests.Mocks
 {
@@ -16,7 +16,7 @@ namespace Hive.Tests.Mocks
 			_modelToReturn = modelToReturn;
 		}
 
-		public IModel Load(ModelData modelData)
+		public IModel Load(PropertyBag modelData)
 		{
 			return _modelToReturn;
 		}

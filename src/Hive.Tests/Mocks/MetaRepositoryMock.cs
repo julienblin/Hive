@@ -1,23 +1,24 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Hive.Meta.Data;
+using Hive.Foundation.Entities;
+using Hive.Meta;
 
 namespace Hive.Tests.Mocks
 {
 	public class MetaRepositoryMock : IMetaRepository
 	{
-		private readonly ModelData _modelData;
+		private readonly PropertyBag _modelData;
 
 		public MetaRepositoryMock()
 		{
 		}
 
-		public MetaRepositoryMock(ModelData modelData)
+		public MetaRepositoryMock(PropertyBag modelData)
 		{
 			_modelData = modelData;
 		}
 
-		public Task<ModelData> GetModel(string modelName, CancellationToken ct)
+		public Task<PropertyBag> GetModel(string modelName, CancellationToken ct)
 		{
 			return Task.FromResult(_modelData);
 		}

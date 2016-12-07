@@ -5,11 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Hive.Entities;
+using Hive.Foundation.Entities;
 using Hive.Foundation.Validation;
-using Hive.Meta;
-using Hive.Meta.Data;
 using Hive.Meta.Impl;
-using Hive.Tests.Mocks;
 using Hive.Validation.Impl;
 using Hive.ValueTypes;
 using Xunit;
@@ -29,24 +27,39 @@ namespace Hive.Tests.Validation.Impl
 
 		public static IEnumerable<object[]> TryValidateData()
 		{
-			var modelData = new ModelData
+			var modelData = new PropertyBag
 			{
-				Name = "UnitTests",
-				Version = "1.0.0",
-				Entities = new []
+				["name"] = "UnitTests",
+				["version"] = "1.0.0",
+				["entities"] = new[]
 				{
-					new EntityDefinitionData
+					new PropertyBag
 					{
-						SingleName = "None",
-						PluralName = "Nones",
-						Type = "none"
+						["singlename"] = "None",
+						["pluralname"] = "Nones",
+						["type"] = "none"
 					},
 
-					new EntityDefinitionData
+					new PropertyBag
 					{
-						SingleName = "Ref",
-						PluralName = "Refs",
-						Type = "reference"
+						["singlename"] = "Ref",
+						["pluralname"] = "Refs",
+						["type"] = "reference"
+					},
+
+					new PropertyBag
+					{
+						["singlename"] = "RefIdString",
+						["pluralname"] = "RefIdStrings",
+						["type"] = "reference",
+						["properties"] = new[]
+						{
+							new PropertyBag
+							{
+								["name"] = "id",
+								["type"] = "string",
+							}
+						}
 					}
 				}
 			};
@@ -68,7 +81,7 @@ namespace Hive.Tests.Validation.Impl
 
 			yield return new object[]
 			{
-				new Entity(model.EntitiesBySingleName["Ref"], string.Empty),
+				new Entity(model.EntitiesBySingleName["RefIdString"], string.Empty),
 				new Action<ValidationResults>(r => r.Errors.First().Target.Should().Be(nameof(IEntity.Id)))
 			};
 

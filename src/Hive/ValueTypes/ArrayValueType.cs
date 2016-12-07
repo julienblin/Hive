@@ -2,7 +2,6 @@
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
-using Hive.Meta.Data;
 
 namespace Hive.ValueTypes
 {
@@ -17,15 +16,7 @@ namespace Hive.ValueTypes
 
 		public override void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition)
 		{
-			base.FinishLoading(valueTypeFactory, propertyDefinition);
-
-			var propertyOriginalData = propertyDefinition as IOriginalDataHolder<PropertyDefinitionData>;
-			if (propertyOriginalData == null)
-			{
-				throw new ModelLoadingException($"Unable to finish the loading of property {propertyDefinition} because it does not implement {nameof(IOriginalDataHolder<PropertyDefinitionData>)}.");
-			}
-
-			var itemsData = propertyOriginalData.OriginalData.GetValue<string>("items");
+			var itemsData = propertyDefinition.PropertyBag["items"] as string;
 			if (itemsData == null)
 			{
 				throw new ModelLoadingException($"An array must have an item property that points to either a value type or an entity (on {propertyDefinition}).");
@@ -37,7 +28,7 @@ namespace Hive.ValueTypes
 				throw new ModelLoadingException($"Unable to find an entity or a value type named {itemsData} (on {propertyDefinition}).");
 			}
 
-			propertyDefinition.SetProperty(PropertyItems, itemsType);
+			propertyDefinition.AdditionalProperties[PropertyItems] = itemsType;
 		}
 	}
 }

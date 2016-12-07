@@ -4,9 +4,7 @@ using FluentAssertions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
-using Hive.Meta.Data;
 using Hive.Meta.Impl;
-using Hive.Tests.Mocks;
 using Hive.ValueTypes;
 using Xunit;
 
@@ -16,54 +14,54 @@ namespace Hive.Tests.Meta.Impl
 	{
 		[Theory]
 		[MemberData(nameof(LoadModelOkData))]
-		public void LoadModelOk(ModelData modelData, Action<IModel, ModelData> asserts)
+		public void LoadModelOk(PropertyBag modelData, Action<IModel> asserts)
 		{
 			var modelLoader = new ModelLoader(new ValueTypeFactory());
 
 			var model = modelLoader.Load(modelData);
 
-			asserts(model, modelData);
+			asserts(model);
 		}
 
 		public static IEnumerable<object[]> LoadModelOkData()
 		{
 			yield return new object[]
 			{
-				new ModelData
+				new PropertyBag
 				{
-					Name = "TestModel",
-					Version = "1.2.3"
+					["name"] = "TestModel",
+					["version"] = "1.2.3"
 				},
-				new Action<IModel, ModelData>((model, modelData) =>
+				new Action<IModel>(model =>
 				{
-					model.Name.Should().Be(modelData.Name);
+					model.Name.Should().Be("TestModel");
 					model.Version.Should().Be(new SemVer(1,2,3));
 				})
 			};
 
 			yield return new object[]
 			{
-				new ModelData
+				new PropertyBag
 				{
-					Name = "TestModel",
-					Version = "1.2.3",
-					Entities = new[]
+					["name"] = "TestModel",
+					["version"] = "1.2.3",
+					["entities"] = new[]
 					{
-						new EntityDefinitionData
+						new PropertyBag
 						{
-							SingleName = "foo",
-							PluralName = "foos",
-							Type = "masterdata"
+							["singlename"] = "foo",
+							["pluralname"] = "foos",
+							["type"] = "masterdata"
 						},
-						new EntityDefinitionData
+						new PropertyBag
 						{
-							SingleName = "bar",
-							PluralName = "bars",
-							Type = "masterdata"
+							["singlename"] = "bar",
+							["pluralname"] = "bars",
+							["type"] = "masterdata"
 						}
 					}
 				},
-				new Action<IModel, ModelData>((model, modelData) =>
+				new Action<IModel>(model =>
 				{
 					model.EntitiesBySingleName.Should().HaveCount(2);
 					model.EntitiesBySingleName.Keys.Should().Contain("foo");
@@ -80,36 +78,49 @@ namespace Hive.Tests.Meta.Impl
 
 			yield return new object[]
 			{
-				new ModelData
+				new PropertyBag
 				{
-					Name = "TestModel",
-					Version = "1.2.3",
-					Entities = new[]
+					["name"] = "TestModel",
+					["version"] = "1.2.3",
+					["entities"] = new[]
 					{
-						new EntityDefinitionData
+						new PropertyBag
 						{
-							SingleName = "email",
-							PluralName = "emails",
-							Type = "none",
-							Properties = new []
+							["singlename"] = "email",
+							["pluralname"] = "emails",
+							["type"] = "none",
+							["properties"] = new []
 							{
-								new PropertyDefinitionDataMock("type", "string"),
-								new PropertyDefinitionDataMock("email", "string")
+								new PropertyBag
+								{
+									["name"] = "type",
+									["type"] = "string",
+								},
+								new PropertyBag
+								{
+									["name"] = "email",
+									["type"] = "string",
+								}
 							}
 						},
-						new EntityDefinitionData
+						new PropertyBag
 						{
-							SingleName = "foo",
-							PluralName = "foos",
-							Type = "masterdata",
-							Properties = new []
+							["singlename"] = "foo",
+							["pluralname"] = "foos",
+							["type"] = "masterdata",
+							["properties"] = new []
 							{
-								new PropertyDefinitionDataMock("emails", "array", new Dictionary<string, object> { { "items", "email"} })
+								new PropertyBag
+								{
+									["name"] = "emails",
+									["type"] = "array",
+									["items"] = "email"
+								}
 							}
 						}
 					}
 				},
-				new Action<IModel, ModelData>((model, modelData) =>
+				new Action<IModel>(model =>
 				{
 					var emailEntity = model.EntitiesBySingleName["email"];
 					var typePropertyDefinition = emailEntity.Properties.SafeGet("type");
@@ -122,7 +133,7 @@ namespace Hive.Tests.Meta.Impl
 					var emailsProperty = fooEntity.Properties.SafeGet("emails");
 					emailsProperty.Should().NotBeNull();
 					emailsProperty.PropertyType.Should().BeOfType<ArrayValueType>();
-					emailsProperty.GetProperty<IDataType>("items").Should().Be(emailEntity);
+					(emailsProperty.AdditionalProperties["items"] as IDataType).Should().Be(emailEntity);
 				})
 			};
 		}

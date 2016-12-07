@@ -1,9 +1,9 @@
-﻿using Hive.Meta.Data;
+﻿using Hive.Foundation.Entities;
 
 namespace Hive.Meta
 {
 	public interface IModelLoader
 	{
-		IModel Load(ModelData modelData);
+		IModel Load(PropertyBag modelData);
 	}
 }

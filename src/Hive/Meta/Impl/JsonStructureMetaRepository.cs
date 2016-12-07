@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using Hive.Config;
 using Hive.Exceptions;
 using Hive.Foundation;
+using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Hive.Meta.Data.Impl
+namespace Hive.Meta.Impl
 {
 	public class JsonStructureMetaRepository : IMetaRepository
 	{
@@ -18,22 +19,21 @@ namespace Hive.Meta.Data.Impl
 		private const string EntitiesFolderName = "Entities";
 
 		private readonly IOptions<JsonStructureMetaRepositoryOptions> _options;
-		private readonly JsonSerializer _serializer;
 
 		public JsonStructureMetaRepository(IOptions<JsonStructureMetaRepositoryOptions> options)
 		{
 			_options = options.NotNull(nameof(options));
-			_serializer = new HiveJsonSerializer(new PropertyDefinitionDataConverter());
 		}
 
-		public async Task<ModelData> GetModel(string modelName, CancellationToken ct)
+		public async Task<PropertyBag> GetModel(string modelName, CancellationToken ct)
 		{
 			var baseDirectory = GetBaseDirectory(modelName, ct);
-			var modelData = LoadModelManifest(baseDirectory);
-			modelData.Name = baseDirectory.Name;
-			await LoadEntities(baseDirectory, modelData, ct);
+			var modelPropertyBag = LoadModelManifest(baseDirectory);
+			modelPropertyBag["name"] = baseDirectory.Name;
 
-			return modelData;
+			await LoadEntities(baseDirectory, modelPropertyBag, ct);
+
+			return modelPropertyBag;
 		}
 
 		private DirectoryInfo GetBaseDirectory(string modelName, CancellationToken ct)
@@ -54,7 +54,7 @@ namespace Hive.Meta.Data.Impl
 			return baseDirectory;
 		}
 
-		private ModelData LoadModelManifest(DirectoryInfo baseDirectory)
+		private PropertyBag LoadModelManifest(DirectoryInfo baseDirectory)
 		{
 			var manifestFile = baseDirectory.GetFiles(ManifestFilename).FirstOrDefault();
 			if (manifestFile == null)
@@ -65,7 +65,7 @@ namespace Hive.Meta.Data.Impl
 
 			try
 			{
-				return _serializer.DeserializeFile<ModelData>(manifestFile.FullName);
+				return HiveJsonSerializer.Instance.DeserializeFile<PropertyBag>(manifestFile.FullName);
 			}
 			catch (Exception ex)
 			{
@@ -74,7 +74,7 @@ namespace Hive.Meta.Data.Impl
 			}
 		}
 
-		private async Task LoadEntities(DirectoryInfo baseDirectory, ModelData modelData, CancellationToken ct)
+		private async Task LoadEntities(DirectoryInfo baseDirectory, PropertyBag modelPropertyBag, CancellationToken ct)
 		{
 			var entitiesDirectory = baseDirectory.GetDirectories(EntitiesFolderName).FirstOrDefault();
 			if (entitiesDirectory == null) return;
@@ -83,8 +83,8 @@ namespace Hive.Meta.Data.Impl
 
 			try
 			{
-				modelData.Entities = (await entityFiles
-					.SafeForEachParallel((x, token) => _serializer.DeserializeFileAsync<EntityDefinitionData>(x.FullName, token), ct)
+				modelPropertyBag["Entities"] = (await entityFiles
+					.SafeForEachParallel((x, token) => HiveJsonSerializer.Instance.DeserializeFileAsync<PropertyBag>(x.FullName, token), ct)
 					).ToArray();
 			}
 			catch (Exception ex)

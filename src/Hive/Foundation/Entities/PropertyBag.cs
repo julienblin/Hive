@@ -27,7 +27,22 @@ namespace Hive.Foundation.Entities
 		};
 #endif
 
-		private readonly IDictionary<string, object> _values = new Dictionary<string, object>();
+		private readonly IDictionary<string, object> _values;
+
+		public PropertyBag()
+		{
+			_values = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+		}
+
+		public PropertyBag(IDictionary<string, object> values)
+		{
+			_values = values ?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+		}
+
+		public PropertyBag(PropertyBag reference)
+		{
+			_values = reference._values ?? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+		}
 
 		public object this[string key]
 		{

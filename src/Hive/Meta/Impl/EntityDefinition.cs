@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
-using Hive.Foundation.Extensions;
-using Hive.Meta.Data;
+using Hive.Foundation.Entities;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
 {
-	internal class EntityDefinition : IEntityDefinition, IOriginalDataHolder<EntityDefinitionData>
+	internal class EntityDefinition : IEntityDefinition
 	{
 		public string FullName => $"{Model.Name}.{Name}";
 
@@ -27,7 +26,7 @@ namespace Hive.Meta.Impl
 
 		public IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; set; }
 
-		public EntityDefinitionData OriginalData { get; set; }
+		public PropertyBag PropertyBag { get; set; }
 
 		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{

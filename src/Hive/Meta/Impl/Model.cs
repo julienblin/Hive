@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using Hive.Foundation.Entities;
-using Hive.Meta.Data;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
 {
-	internal class Model : IModel, IOriginalDataHolder<ModelData>
+	internal class Model : IModel
 	{
 		public string Name { get; set; }
 
@@ -15,7 +14,7 @@ namespace Hive.Meta.Impl
 
 		public IReadOnlyDictionary<string, IEntityDefinition> EntitiesByPluralName { get; set; }
 
-		public ModelData OriginalData { get; set; }
+		public PropertyBag PropertyBag { get; set; }
 
 		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{

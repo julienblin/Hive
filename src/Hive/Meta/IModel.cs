@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Hive.Foundation.Entities;
-using Hive.Meta.Data;
 
 namespace Hive.Meta
 {

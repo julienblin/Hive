@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
-using Hive.Meta.Data;
 
 namespace Hive.ValueTypes
 {
@@ -21,14 +20,6 @@ namespace Hive.ValueTypes
 
 		public virtual void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition)
 		{
-			var propertyOriginalData = propertyDefinition as IOriginalDataHolder<PropertyDefinitionData>;
-			if (propertyOriginalData == null) return;
-
-			var defaultValue = propertyOriginalData.OriginalData?.GetValue<object>(MetaConstants.DefaultProperty);
-			if (defaultValue != null)
-			{
-				propertyDefinition.SetProperty(MetaConstants.DefaultProperty, defaultValue);
-			}
 		}
 
 		public virtual object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)

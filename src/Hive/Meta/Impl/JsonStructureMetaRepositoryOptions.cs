@@ -1,4 +1,4 @@
-﻿namespace Hive.Meta.Data.Impl
+﻿namespace Hive.Meta.Impl
 {
 	public class JsonStructureMetaRepositoryOptions
 	{

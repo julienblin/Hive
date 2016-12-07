@@ -4,7 +4,6 @@ using System.Linq;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
-using Hive.Meta.Data;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
@@ -18,18 +17,19 @@ namespace Hive.Meta.Impl
 			_valueTypeFactory = valueTypeFactory.NotNull(nameof(valueTypeFactory));
 		}
 
-		public IModel Load(ModelData modelData)
+		public IModel Load(PropertyBag modelData)
 		{
 			try
 			{
 				var model = new Model
 				{
-					OriginalData = modelData,
-					Name = modelData.Name,
-					Version = SemVer.Parse(modelData.Version)
+					PropertyBag = modelData,
+					Name = modelData["name"] as string,
+					Version = SemVer.Parse(modelData["version"] as string)
 				};
-				model.EntitiesBySingleName = modelData.Entities.Safe()
-					.ToDictionary(x => x.SingleName, x => MapEntityDefinition(model, x));
+				model.EntitiesBySingleName = (modelData["entities"] as PropertyBag[])
+					.Safe()
+					.ToDictionary(x => x["singlename"] as string, x => MapEntityDefinition(model, x));
 				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToDictionary(x => x.PluralName);
 
 				model.FinishLoading(_valueTypeFactory);
@@ -39,45 +39,41 @@ namespace Hive.Meta.Impl
 			}
 			catch (Exception ex) when (!(ex is ModelLoadingException))
 			{
-				throw new ModelLoadingException($"There has been an error while loading the model {modelData.Name}", ex);
+				throw new ModelLoadingException($"There has been an error while loading the model {modelData["name"]}", ex);
 			}
 		}
 
-		private IEntityDefinition MapEntityDefinition(IModel model, EntityDefinitionData entityDefinitionData)
+		private IEntityDefinition MapEntityDefinition(IModel model, PropertyBag entityDefinitionData)
 		{
 			var entityDefinition = new EntityDefinition
 			{
 				Model = model,
-				OriginalData = entityDefinitionData,
-				SingleName = entityDefinitionData.SingleName,
-				PluralName = entityDefinitionData.PluralName,
-				EntityType = entityDefinitionData.Type.ToEnum<EntityType>()
+				PropertyBag = entityDefinitionData,
+				SingleName = entityDefinitionData["singlename"] as string,
+				PluralName = entityDefinitionData["pluralname"] as string,
+				EntityType = (entityDefinitionData["type"] as string).ToEnum<EntityType>()
 			};
 			entityDefinition.Properties =
-				MapProperties(entityDefinition, entityDefinitionData.Properties).ToDictionary(x => x.Name);
+				MapProperties(entityDefinition, entityDefinitionData["properties"] as PropertyBag[]).ToDictionary(x => x.Name);
 
 			return entityDefinition;
 		}
 
-		private IEnumerable<IPropertyDefinition> MapProperties(IEntityDefinition entityDefinition, IEnumerable<PropertyDefinitionData> properties)
+		private IEnumerable<IPropertyDefinition> MapProperties(IEntityDefinition entityDefinition, PropertyBag[] properties)
 		{
 			var propertyDefinitions = properties.Safe().Select(property => new PropertyDefinition
 			{
 				EntityDefinition = entityDefinition,
-				OriginalData = property,
-				Name = property.Name,
-				PropertyType = _valueTypeFactory.GetValueType(property.Type)
+				PropertyBag = property,
+				Name = property["name"] as string,
+				PropertyType = _valueTypeFactory.GetValueType(property["type"] as string),
+				DefaultValue = property["default"]
 			}).ToList();
 
 			if ((entityDefinition.EntityType != EntityType.None) && !propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))
 			{
-				propertyDefinitions.Add(new PropertyDefinition
-				{
-					Name = MetaConstants.IdProperty,
-					EntityDefinition = entityDefinition,
-					PropertyType = _valueTypeFactory.GetValueType("uuid"),
-					DefaultValue = GuidValueType.NewGuidDefaultValue
-				});
+				
+				propertyDefinitions.Add(new DefaultIdPropertyDefinition(entityDefinition, _valueTypeFactory.GetValueType("uuid")));
 			}
 
 			return propertyDefinitions;
