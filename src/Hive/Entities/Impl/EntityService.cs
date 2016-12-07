@@ -21,7 +21,7 @@ namespace Hive.Entities.Impl
 
 		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			return _entityRepository.Execute(query, ct);
 		}
 
 		public Task<T> Execute<T>(Command<T> command, CancellationToken ct)

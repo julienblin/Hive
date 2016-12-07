@@ -19,7 +19,7 @@ namespace Hive.Tests.Meta.Impl
 			var metaService = new MetaService(
 				new MetaRepositoryMock(),
 				new ModelLoaderMock(),
-				new CacheMock<IModel>(cachedModel)
+				new ModelCacheMock(cachedModel)
 			);
 
 			var result = await metaService.GetModel(cachedModel.Name, CancellationToken.None);
@@ -34,10 +34,9 @@ namespace Hive.Tests.Meta.Impl
 			var metaService = new MetaService(
 				new MetaRepositoryMock(new PropertyBag()),
 				new ModelLoaderMock(model),
-				new CacheMock<IModel>(putAsserts: (k, v) =>
+				new ModelCacheMock(putAsserts: m =>
 				{
-					k.Should().Be(model.Name);
-					v.Should().BeSameAs(model);
+					m.Should().BeSameAs(model);
 				})
 			);
 

@@ -36,7 +36,23 @@ namespace Hive.Azure.DocumentDb
 
 		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
 		{
+			if (query is IdQuery)
+			{
+				return ExecuteIdQuery<T>(query as IdQuery, ct);
+			}
 			throw new NotImplementedException();
+		}
+
+		private async Task<T> ExecuteIdQuery<T>(IdQuery query, CancellationToken ct)
+		{
+			query.NotNull(nameof(query));
+			query.Id.NotNull(nameof(query.Id));
+
+			var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.Id.ToString()));
+			if (doc == null)
+				return default(T);
+
+			return (T)ConvertToEntity(query.EntityDefinition, doc);
 		}
 
 		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
@@ -44,7 +60,7 @@ namespace Hive.Azure.DocumentDb
 			entity.NotNull(nameof(entity));
 			var doc =
 				await Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true);
-			return await ConvertToEntity(doc.Resource, ct);
+			return ConvertToEntity(entity.Definition, doc.Resource);
 		}
 
 		public Task<IEntity> Update(IEntity entity, CancellationToken ct)
@@ -65,18 +81,9 @@ namespace Hive.Azure.DocumentDb
 			return propertyBag;
 		}
 
-		private async Task<IEntity> ConvertToEntity(Document doc, CancellationToken ct)
+		private IEntity ConvertToEntity(IEntityDefinition entityDefinition, Document doc)
 		{
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
-			var entityDefinitionId = propertyBag[DocumentDbConstants.EntityDefinitionProperty] as string;
-			if (entityDefinitionId.IsNullOrEmpty())
-				return null;
-			var entityDefinitionSplit = entityDefinitionId.Split('.');
-			if (entityDefinitionSplit.Length != 2)
-				return null;
-
-			var model = await _metaService.GetModel(entityDefinitionSplit[0], ct);
-			var entityDefinition = model.EntitiesBySingleName[entityDefinitionSplit[1]];
 			return new Entity(entityDefinition, propertyBag);
 		}
 
@@ -88,6 +95,11 @@ namespace Hive.Azure.DocumentDb
 		private Uri CreateCollectionUri()
 		{
 			return UriFactory.CreateDocumentCollectionUri(_options.Value.Database, _options.Value.Collection);
+		}
+
+		private Uri CreateDocumentUri(string documentId)
+		{
+			return UriFactory.CreateDocumentUri(_options.Value.Database, _options.Value.Collection, documentId);
 		}
 
 		private async Task CreateDatabaseIfNotExists()

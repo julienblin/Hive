@@ -48,11 +48,19 @@ namespace Hive.SampleApp
 			services.Configure<RestOptions>(Configuration.GetSection("rest"));
 			services.Configure<DocumentDbOptions>(Configuration.GetSection("documentdb"));
 
+			if (HostingEnvironment.IsDevelopment())
+			{
+				services.AddSingleton<IModelCache, NullModelCache>();
+			}
+			else
+			{
+				services.AddSingleton<IModelCache, MemoryModelCache>();
+			}
+
 			services.AddSingleton<ITelemetry, DebugTelemetry>();
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();
 			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
 			services.AddSingleton<IModelLoader, ModelLoader>();
-			services.AddSingleton<ICache<IModel>, NullCache<IModel>>();
 			services.AddSingleton<IMetaService, MetaService>();
 			services.AddSingleton<IEntityRepository, DocumentDbEntityRepository>();
 			services.AddSingleton<IEntityValidationService, EntityValidationService>();

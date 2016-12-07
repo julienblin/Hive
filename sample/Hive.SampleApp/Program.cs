@@ -8,6 +8,7 @@ namespace Hive.SampleApp
 		public static void Main(string[] args)
 		{
 			var host = new WebHostBuilder()
+				.UseEnvironment(EnvironmentName.Development)
 				.UseKestrel()
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.UseStartup<Startup>()

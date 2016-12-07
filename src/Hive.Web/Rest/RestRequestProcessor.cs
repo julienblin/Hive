@@ -88,7 +88,7 @@ namespace Hive.Web.Rest
 					return;
 				}
 
-				Respond(param, result, StatusCodes.Status200OK);
+				Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
 				return;
 			}
 

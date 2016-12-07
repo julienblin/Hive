@@ -7,14 +7,14 @@ namespace Hive.Meta.Impl
 {
 	public class MetaService : IMetaService
 	{
-		private readonly ICache<IModel> _cache;
+		private readonly IModelCache _cache;
 		private readonly IMetaRepository _metaRepository;
 		private readonly IModelLoader _modelLoader;
 
 		public MetaService(
 			IMetaRepository metaRepository,
 			IModelLoader modelLoader,
-			ICache<IModel> cache)
+			IModelCache cache)
 		{
 			_metaRepository = metaRepository.NotNull(nameof(metaRepository));
 			_modelLoader = modelLoader.NotNull(nameof(modelLoader));
@@ -27,7 +27,7 @@ namespace Hive.Meta.Impl
 			if (cachedModel != null) return cachedModel;
 
 			var model = _modelLoader.Load(await _metaRepository.GetModel(modelName, ct));
-			_cache.Put(model.Name, model);
+			_cache.Put(model);
 			return model;
 		}
 	}
