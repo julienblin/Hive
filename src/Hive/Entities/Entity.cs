@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
@@ -9,7 +11,7 @@ namespace Hive.Entities
 {
 	public class Entity : IEntity
 	{
-		private readonly IDictionary<string, object> _propertyValues = new Dictionary<string, object>();
+		private readonly IDictionary<string, object> _propertyValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
 		public Entity(IEntityDefinition definition)
 		{
@@ -27,7 +29,11 @@ namespace Hive.Entities
 		{
 			foreach (var property in propertyBag)
 			{
-				SetPropertyValue(property.Key, property.Value);
+				var propertyDefinition = Definition.Properties.SafeGet(property.Key);
+				if (propertyDefinition != null)
+				{
+					_propertyValues[property.Key] = propertyDefinition.PropertyType.ConvertFromPropertyBagValue(propertyDefinition, property.Value);
+				}
 			}
 		}
 
@@ -35,8 +41,28 @@ namespace Hive.Entities
 
 		public object Id
 		{
-			get { return GetPropertyValue<object>(MetaConstants.IdProperty); }
-			set { SetPropertyValue(MetaConstants.IdProperty, value); }
+			get { return this[MetaConstants.IdProperty]; }
+			set { this[MetaConstants.IdProperty] = value; }
+		}
+
+		public object this[string propertyName]
+		{
+			get
+			{
+				return _propertyValues.SafeGet(propertyName);
+			}
+			set
+			{
+				var propertyDefinition = Definition.Properties.SafeGet(propertyName);
+				if (propertyDefinition != null)
+				{
+					if (propertyDefinition.PropertyType.InternalNetType != value.GetType())
+					{
+						throw new EntityException($"Unable to set property value {value} for {propertyName} on {this} because types are incompatible (expected: {propertyDefinition.PropertyType.InternalNetType}, actual: {value.GetType()})");
+					}
+					_propertyValues[propertyName] = value;
+				}
+			}
 		}
 
 		public PropertyBag ToPropertyBag()
@@ -45,8 +71,8 @@ namespace Hive.Entities
 
 			foreach (var propertyDefinition in Definition.Properties)
 			{
-				var propertyValue = GetPropertyValue<object>(propertyDefinition.Key);
-				var bagValue = propertyDefinition.Value.PropertyType.ConvertTo(propertyDefinition.Value, propertyValue);
+				var propertyValue = this[propertyDefinition.Key];
+				var bagValue = propertyDefinition.Value.PropertyType.ConvertToPropertyBagValue(propertyDefinition.Value, propertyValue);
 
 				if (bagValue != null)
 					propertyBag[propertyDefinition.Key] = bagValue;
@@ -55,32 +81,11 @@ namespace Hive.Entities
 			return propertyBag;
 		}
 
-		public void SetPropertyValue(string propertyName, object value)
-		{
-			var propertyDefinition = Definition.Properties.SafeGet(propertyName);
-			if (propertyDefinition != null)
-			{
-				_propertyValues[propertyName] = propertyDefinition.PropertyType.ConvertFrom(propertyDefinition, value);
-			}
-		}
-
-		public T GetPropertyValue<T>(string propertyName)
-		{
-			var value = _propertyValues.SafeGet(propertyName);
-			return value != null ? (T) value : default(T);
-		}
-
-		public bool HasPropertyValue(string propertyName)
-		{
-			var value = _propertyValues.SafeGet(propertyName);
-			return value != null;
-		}
-
 		public async Task Init(CancellationToken ct)
 		{
 			foreach (var propertyDefinition in Definition.Properties.Values)
 			{
-				if ((propertyDefinition.DefaultValue != null) && !HasPropertyValue(propertyDefinition.Name))
+				if ((propertyDefinition.DefaultValue != null) && (this[propertyDefinition.Name] == null))
 				{
 					await propertyDefinition.SetDefaultValue(this, ct);
 				}

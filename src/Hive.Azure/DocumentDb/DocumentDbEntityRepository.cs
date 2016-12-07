@@ -12,6 +12,8 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Options;
 using System.Linq;
+using Hive.Foundation;
+using Hive.Foundation.Entities;
 using Hive.Foundation.Lifecycle;
 using Hive.Meta;
 
@@ -20,12 +22,14 @@ namespace Hive.Azure.DocumentDb
 	public class DocumentDbEntityRepository : IEntityRepository, IStartable
 	{
 		private readonly IOptions<DocumentDbOptions> _options;
+		private readonly IMetaService _metaService;
 		private readonly Lazy<IDocumentClient> _lazyClient;
 		private readonly Lazy<Uri> _lazyCollectionUri;
 
-		public DocumentDbEntityRepository(IOptions<DocumentDbOptions> options)
+		public DocumentDbEntityRepository(IOptions<DocumentDbOptions> options, IMetaService metaService)
 		{
 			_options = options.NotNull(nameof(options));
+			_metaService = metaService.NotNull(nameof(metaService));
 			_lazyClient = new Lazy<IDocumentClient>(CreateClient);
 			_lazyCollectionUri = new Lazy<Uri>(CreateCollectionUri);
 		}
@@ -38,8 +42,8 @@ namespace Hive.Azure.DocumentDb
 		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
-			await Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true);
-			return entity;
+			var doc = await Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true);
+			return await ConvertToEntity(doc.Resource, ct);
 		}
 
 		public Task<IEntity> Update(IEntity entity, CancellationToken ct)
@@ -49,21 +53,24 @@ namespace Hive.Azure.DocumentDb
 
 		private static object ConvertToDocument(IEntity entity)
 		{
-			var document = new Dictionary<string, object>
-			{
-				[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName
-			};
+			var propertyBag = entity.ToPropertyBag();
+			propertyBag[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName;
+			return propertyBag;
+		}
 
-			foreach (var propertyDefinition in entity.Definition.Properties)
-			{
-				var propertyValue = entity.GetPropertyValue<object>(propertyDefinition.Key);
-				var storageValue = propertyDefinition.Value.PropertyType.ConvertTo(propertyDefinition.Value, propertyValue);
+		private async Task<IEntity> ConvertToEntity(Document doc, CancellationToken ct)
+		{
+			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
+			var entityDefinitionId = propertyBag[DocumentDbConstants.EntityDefinitionProperty] as string;
+			if (entityDefinitionId.IsNullOrEmpty())
+				return null;
+			var entityDefinitionSplit = entityDefinitionId.Split('.');
+			if (entityDefinitionSplit.Length != 2)
+				return null;
 
-				if (storageValue != null)
-					document[propertyDefinition.Key] = storageValue;
-			}
-
-			return document;
+			var model = await _metaService.GetModel(entityDefinitionSplit[0], ct);
+			var entityDefinition = model.EntitiesBySingleName[entityDefinitionSplit[1]];
+			return new Entity(entityDefinition, propertyBag);
 		}
 
 		private IDocumentClient Client => _lazyClient.Value;

@@ -13,9 +13,9 @@ namespace Hive.Meta
 
 		Type InternalNetType { get; }
 
-		object ConvertTo(IPropertyDefinition propertyDefinition, object value);
+		object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value);
 
-		object ConvertFrom(IPropertyDefinition propertyDefinition, object value);
+		object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value);
 
 		Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct);
 	}

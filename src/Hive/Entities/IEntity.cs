@@ -13,11 +13,7 @@ namespace Hive.Entities
 
 		PropertyBag ToPropertyBag();
 
-		void SetPropertyValue(string propertyName, object value);
-
-		T GetPropertyValue<T>(string propertyName);
-
-		bool HasPropertyValue(string propertyName);
+		object this[string propertyName] { get; set; }
 
 		Task Init(CancellationToken ct);
 	}

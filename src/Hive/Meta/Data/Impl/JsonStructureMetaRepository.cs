@@ -65,7 +65,7 @@ namespace Hive.Meta.Data.Impl
 
 			try
 			{
-				return _serializer.Deserialize<ModelData>(manifestFile.FullName);
+				return _serializer.DeserializeFile<ModelData>(manifestFile.FullName);
 			}
 			catch (Exception ex)
 			{
@@ -84,7 +84,7 @@ namespace Hive.Meta.Data.Impl
 			try
 			{
 				modelData.Entities = (await entityFiles
-					.SafeForEachParallel((x, token) => _serializer.DeserializeAsync<EntityDefinitionData>(x.FullName, token), ct)
+					.SafeForEachParallel((x, token) => _serializer.DeserializeFileAsync<EntityDefinitionData>(x.FullName, token), ct)
 					).ToArray();
 			}
 			catch (Exception ex)

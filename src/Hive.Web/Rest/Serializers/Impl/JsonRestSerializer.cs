@@ -35,10 +35,10 @@ namespace Hive.Web.Rest.Serializers.Impl
 			HiveJsonSerializer.Instance.Serialize(message, stream);
 		}
 
-		public override async Task<IEntity> Deserialize(IEntityDefinition entityDefinition, Stream stream, CancellationToken ct)
+		public override Task<IEntity> Deserialize(IEntityDefinition entityDefinition, Stream stream, CancellationToken ct)
 		{
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(stream);
-			return new Entity(entityDefinition, propertyBag);
+			return Task.FromResult<IEntity>(new Entity(entityDefinition, propertyBag));
 		}
 	}
 }

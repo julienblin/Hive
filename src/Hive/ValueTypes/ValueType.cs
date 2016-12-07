@@ -31,12 +31,12 @@ namespace Hive.ValueTypes
 			}
 		}
 
-		public virtual object ConvertTo(IPropertyDefinition propertyDefinition, object value)
+		public virtual object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			return value;
 		}
 
-		public virtual object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
+		public virtual object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			return value;
 		}
@@ -45,7 +45,7 @@ namespace Hive.ValueTypes
 		{
 			if (propertyDefinition.DefaultValue == null) return Task.CompletedTask;
 
-			entity.SetPropertyValue(propertyDefinition.Name, propertyDefinition.DefaultValue);
+			entity[propertyDefinition.Name] = propertyDefinition.DefaultValue;
 
 			return Task.CompletedTask;
 		}

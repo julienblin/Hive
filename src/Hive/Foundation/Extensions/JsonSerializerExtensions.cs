@@ -31,7 +31,21 @@ namespace Hive.Foundation.Extensions
 			}
 		}
 
-		public static T Deserialize<T>(this JsonSerializer serializer, string path)
+		public static T Deserialize<T>(this JsonSerializer serializer, string json)
+		{
+			serializer.NotNull(nameof(serializer));
+
+			if (json.IsNullOrEmpty())
+				return default(T);
+
+			using (var streamReader = new StringReader(json))
+			using (var jsonTextReader = new JsonTextReader(streamReader))
+			{
+				return serializer.Deserialize<T>(jsonTextReader);
+			}
+		}
+
+		public static T DeserializeFile<T>(this JsonSerializer serializer, string path)
 		{
 			serializer.NotNull(nameof(serializer));
 			path.NotNullOrEmpty(nameof(path));
@@ -53,13 +67,13 @@ namespace Hive.Foundation.Extensions
 			);
 		}
 
-		public static Task<T> DeserializeAsync<T>(this JsonSerializer serializer, string path, CancellationToken ct)
+		public static Task<T> DeserializeFileAsync<T>(this JsonSerializer serializer, string path, CancellationToken ct)
 		{
 			serializer.NotNull(nameof(serializer));
 			path.NotNullOrEmpty(nameof(path));
 
 			return Task.Run(
-				() => serializer.Deserialize<T>(path),
+				() => serializer.DeserializeFile<T>(path),
 				ct
 			);
 		}

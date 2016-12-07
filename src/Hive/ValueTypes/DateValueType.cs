@@ -14,7 +14,7 @@ namespace Hive.ValueTypes
 		{
 		}
 
-		public override object ConvertTo(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			if (value == null) return null;
 
@@ -26,7 +26,7 @@ namespace Hive.ValueTypes
 			throw new NotSupportedException();
 		}
 
-		public override object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			if (value == null) return null;
 

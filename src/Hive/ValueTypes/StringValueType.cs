@@ -9,7 +9,7 @@ namespace Hive.ValueTypes
 		{
 		}
 
-		public override object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			return value?.ToString();
 		}

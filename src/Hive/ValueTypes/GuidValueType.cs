@@ -17,7 +17,7 @@ namespace Hive.ValueTypes
 		{
 		}
 
-		public override object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			if (value == null) return null;
 
@@ -41,11 +41,11 @@ namespace Hive.ValueTypes
 
 			if (defaultValue.SafeOrdinalEquals(NewGuidDefaultValue))
 			{
-				entity.SetPropertyValue(propertyDefinition.Name, Guid.NewGuid());
+				entity[propertyDefinition.Name] = Guid.NewGuid();
 			}
 			else
 			{
-				entity.SetPropertyValue(propertyDefinition.Name, defaultValue);
+				entity[propertyDefinition.Name] = defaultValue;
 			}
 
 			return Task.CompletedTask;

@@ -41,12 +41,12 @@ namespace Hive.Meta.Impl
 			}
 		}
 
-		object IDataType.ConvertTo(IPropertyDefinition propertyDefinition, object value)
+		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			throw new NotImplementedException();
 		}
 
-		object IDataType.ConvertFrom(IPropertyDefinition propertyDefinition, object value)
+		object IDataType.ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			throw new NotImplementedException();
 		}
