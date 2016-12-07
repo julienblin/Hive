@@ -1,9 +1,11 @@
 ﻿using System;
+using Hive.Entities;
 using Hive.Exceptions;
+using Hive.Meta;
 using NodaTime;
 using NodaTime.Text;
 
-namespace Hive.Meta.ValueTypes
+namespace Hive.ValueTypes
 {
 	public class DateValueType : ValueType<LocalDate>
 	{
@@ -12,7 +14,19 @@ namespace Hive.Meta.ValueTypes
 		{
 		}
 
-		public override object ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertTo(IPropertyDefinition propertyDefinition, object value)
+		{
+			if (value == null) return null;
+
+			if (value is LocalDate)
+			{
+				return LocalDatePattern.IsoPattern.Format((LocalDate) value);
+			}
+
+			throw new NotSupportedException();
+		}
+
+		public override object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
 		{
 			if (value == null) return null;
 

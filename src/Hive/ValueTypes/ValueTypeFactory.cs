@@ -2,7 +2,7 @@
 using System.Linq;
 using Hive.Foundation.Extensions;
 
-namespace Hive.Meta.ValueTypes
+namespace Hive.ValueTypes
 {
 	public class ValueTypeFactory : IValueTypeFactory
 	{

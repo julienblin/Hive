@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
+using Hive.Meta;
 using Hive.Meta.Data;
-using Hive.Meta.Impl;
 
-namespace Hive.Meta.ValueTypes
+namespace Hive.ValueTypes
 {
 	public class ArrayValueType : ValueType<Array>
 	{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
@@ -12,7 +13,9 @@ namespace Hive.Meta
 
 		Type InternalNetType { get; }
 
-		object ConvertValue(IPropertyDefinition propertyDefinition, object value);
+		object ConvertTo(IPropertyDefinition propertyDefinition, object value);
+
+		object ConvertFrom(IPropertyDefinition propertyDefinition, object value);
 
 		Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct);
 	}

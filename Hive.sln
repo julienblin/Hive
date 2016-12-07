@@ -22,6 +22,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.SampleApp", "sample\Hi
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.Web.Tests", "src\Hive.Web.Tests\Hive.Web.Tests.xproj", "{BE755FF9-47A9-4EA8-A9E2-C339D77863D8}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Hive.Azure", "src\Hive.Azure\Hive.Azure.xproj", "{665937AA-1C80-4384-B9D8-7B9355F95B89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{BE755FF9-47A9-4EA8-A9E2-C339D77863D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE755FF9-47A9-4EA8-A9E2-C339D77863D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE755FF9-47A9-4EA8-A9E2-C339D77863D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{665937AA-1C80-4384-B9D8-7B9355F95B89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{665937AA-1C80-4384-B9D8-7B9355F95B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{665937AA-1C80-4384-B9D8-7B9355F95B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{665937AA-1C80-4384-B9D8-7B9355F95B89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,5 +64,6 @@ Global
 		{61D470B4-153E-47A2-9CB3-70D977FF5D4B} = {CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}
 		{FD43B93F-20B5-4CC9-BB73-239FE27FB459} = {97DB85EA-B0DC-443E-A270-58C4C94A53CE}
 		{BE755FF9-47A9-4EA8-A9E2-C339D77863D8} = {CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}
+		{665937AA-1C80-4384-B9D8-7B9355F95B89} = {CA4EDA17-E8E2-4CA3-8C99-B9E4178AC939}
 	EndGlobalSection
 EndGlobal

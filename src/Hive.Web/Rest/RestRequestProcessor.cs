@@ -133,7 +133,7 @@ namespace Hive.Web.Rest
 			var result = await EntityService.Execute(cmd, ct);
 			Respond(param, result, StatusCodes.Status201Created, new Dictionary<string, string>
 			{
-				{ "Location", $"/{entityDefinition.PluralName}/{result.Id}" }
+				{ "Location", $"{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}" }
 			});
 		}
 

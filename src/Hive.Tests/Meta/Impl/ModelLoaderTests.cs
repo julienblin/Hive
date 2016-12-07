@@ -6,8 +6,8 @@ using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Meta.Data;
 using Hive.Meta.Impl;
-using Hive.Meta.ValueTypes;
 using Hive.Tests.Mocks;
+using Hive.ValueTypes;
 using Xunit;
 
 namespace Hive.Tests.Meta.Impl

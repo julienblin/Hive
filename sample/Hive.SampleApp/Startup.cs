@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Hive.Azure.DocumentDb;
 using Hive.Cache;
 using Hive.Cache.Impl;
 using Hive.Config;
@@ -15,10 +16,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Hive.Foundation.Extensions;
-using Hive.Meta.ValueTypes;
 using Hive.Telemetry;
 using Hive.Validation;
 using Hive.Validation.Impl;
+using Hive.ValueTypes;
 using Hive.Web.Middlewares;
 using Hive.Web.Rest;
 using Hive.Web.Rest.Serializers;
@@ -47,6 +48,7 @@ namespace Hive.SampleApp
 			services.Configure<HiveOptions>(Configuration.GetSection("hive"));
 			services.Configure<JsonStructureMetaRepositoryOptions>(Configuration.GetSection("meta"));
 			services.Configure<RestOptions>(Configuration.GetSection("rest"));
+			services.Configure<DocumentDbOptions>(Configuration.GetSection("documentdb"));
 
 			services.AddSingleton<ITelemetry, DebugTelemetry>();
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();
@@ -54,10 +56,14 @@ namespace Hive.SampleApp
 			services.AddSingleton<IModelLoader, ModelLoader>();
 			services.AddSingleton<ICache<IModel>, NullCache<IModel>>();
 			services.AddSingleton<IMetaService, MetaService>();
+			services.AddSingleton<IEntityRepository, DocumentDbEntityRepository>();
 			services.AddSingleton<IEntityValidationService, EntityValidationService>();
 			services.AddSingleton<IEntityService, EntityService>();
 			services.AddSingleton<IRestSerializerFactory, RestSerializerFactory>();
 			services.AddSingleton<RestRequestProcessor>();
+
+			// Have to do it manually for now...
+			services.AddSingleton(x => (IStartable) x.GetService<IEntityRepository>());
 		}
 
 		public void Configure(

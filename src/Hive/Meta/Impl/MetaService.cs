@@ -8,7 +8,6 @@ using Hive.Config;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
-using Hive.Meta.ValueTypes;
 
 namespace Hive.Meta.Impl
 {

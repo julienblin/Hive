@@ -34,7 +34,7 @@ namespace Hive.Entities
 			var propertyDefinition = Definition.Properties.SafeGet(propertyName);
 			if (propertyDefinition != null)
 			{
-				_propertyValues[propertyName] = propertyDefinition.PropertyType.ConvertValue(propertyDefinition, value);
+				_propertyValues[propertyName] = propertyDefinition.PropertyType.ConvertFrom(propertyDefinition, value);
 			}
 		}
 

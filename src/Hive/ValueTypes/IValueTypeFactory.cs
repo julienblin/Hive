@@ -1,4 +1,4 @@
-﻿namespace Hive.Meta
+﻿namespace Hive.ValueTypes
 {
 	public interface IValueTypeFactory
 	{

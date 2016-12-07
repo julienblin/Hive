@@ -1,0 +1,130 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
+using Hive.Entities;
+using Hive.Foundation.Extensions;
+using Hive.Queries;
+using Microsoft.Azure.Documents;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Extensions.Options;
+using System.Linq;
+using Hive.Foundation.Lifecycle;
+using Hive.Meta;
+
+namespace Hive.Azure.DocumentDb
+{
+	public class DocumentDbEntityRepository : IEntityRepository, IStartable
+	{
+		private readonly IOptions<DocumentDbOptions> _options;
+		private readonly Lazy<IDocumentClient> _lazyClient;
+		private readonly Lazy<Uri> _lazyCollectionUri;
+
+		public DocumentDbEntityRepository(IOptions<DocumentDbOptions> options)
+		{
+			_options = options.NotNull(nameof(options));
+			_lazyClient = new Lazy<IDocumentClient>(CreateClient);
+			_lazyCollectionUri = new Lazy<Uri>(CreateCollectionUri);
+		}
+
+		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
+		{
+			entity.NotNull(nameof(entity));
+			await Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true);
+			return entity;
+		}
+
+		public Task<IEntity> Update(IEntity entity, CancellationToken ct)
+		{
+			throw new NotImplementedException();
+		}
+
+		private static object ConvertToDocument(IEntity entity)
+		{
+			var document = new Dictionary<string, object>
+			{
+				[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName
+			};
+
+			foreach (var propertyDefinition in entity.Definition.Properties)
+			{
+				var propertyValue = entity.GetPropertyValue<object>(propertyDefinition.Key);
+				var storageValue = propertyDefinition.Value.PropertyType.ConvertTo(propertyDefinition.Value, propertyValue);
+
+				if (storageValue != null)
+					document[propertyDefinition.Key] = storageValue;
+			}
+
+			return document;
+		}
+
+		private IDocumentClient Client => _lazyClient.Value;
+
+		private Uri CollectionUri => _lazyCollectionUri.Value;
+
+		private IDocumentClient CreateClient()
+		{
+			return new DocumentClient(_options.Value.ServiceEndpoint, _options.Value.AuthKey);
+		}
+
+		private Uri CreateCollectionUri()
+		{
+			return UriFactory.CreateDocumentCollectionUri(_options.Value.Database, _options.Value.Collection);
+		}
+
+		public async Task Start(CancellationToken ct)
+		{
+			await CreateDatabaseIfNotExists();
+			await CreateCollectionIfNotExists();
+		}
+
+		private async Task CreateDatabaseIfNotExists()
+		{
+			try
+			{
+				await Client.ReadDatabaseAsync(UriFactory.CreateDatabaseUri(_options.Value.Database));
+			}
+			catch (DocumentClientException e)
+			{
+				if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+				{
+					await Client.CreateDatabaseAsync(new Database { Id = _options.Value.Database });
+				}
+				else
+				{
+					throw;
+				}
+			}
+		}
+
+		private async Task CreateCollectionIfNotExists()
+		{
+			try
+			{
+				await Client.ReadDocumentCollectionAsync(CollectionUri);
+			}
+			catch (DocumentClientException e)
+			{
+				if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+				{
+					await Client.CreateDocumentCollectionAsync(
+						UriFactory.CreateDatabaseUri(_options.Value.Database),
+						new DocumentCollection { Id = _options.Value.Collection },
+						new RequestOptions { OfferThroughput = 1000 });
+				}
+				else
+				{
+					throw;
+				}
+			}
+		}
+	}
+}

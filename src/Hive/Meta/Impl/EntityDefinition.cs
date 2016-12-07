@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
+using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
 {
 	internal class EntityDefinition : IEntityDefinition, IOriginalDataHolder<EntityDefinitionData>
 	{
+		public string FullName => $"{Model.Name}.{Name}";
+
 		public string Name => SingleName;
 
 		public Type InternalNetType => typeof(IEntityDefinition);
@@ -38,7 +41,12 @@ namespace Hive.Meta.Impl
 			}
 		}
 
-		object IDataType.ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		object IDataType.ConvertTo(IPropertyDefinition propertyDefinition, object value)
+		{
+			throw new NotImplementedException();
+		}
+
+		object IDataType.ConvertFrom(IPropertyDefinition propertyDefinition, object value)
 		{
 			throw new NotImplementedException();
 		}
@@ -48,6 +56,6 @@ namespace Hive.Meta.Impl
 			throw new NotImplementedException();
 		}
 
-		public override string ToString() => $"{Model}.{Name}";
+		public override string ToString() => FullName;
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace Hive.Meta.ValueTypes
+﻿namespace Hive.ValueTypes
 {
 	public class IntValueType : ValueType<int>
 	{

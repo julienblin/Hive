@@ -1,6 +1,6 @@
 ﻿using NodaTime;
 
-namespace Hive.Meta.ValueTypes
+namespace Hive.ValueTypes
 {
 	public class DateTimeValueType : ValueType<Instant>
 	{

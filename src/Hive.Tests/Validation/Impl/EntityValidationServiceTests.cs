@@ -9,9 +9,9 @@ using Hive.Foundation.Validation;
 using Hive.Meta;
 using Hive.Meta.Data;
 using Hive.Meta.Impl;
-using Hive.Meta.ValueTypes;
 using Hive.Tests.Mocks;
 using Hive.Validation.Impl;
+using Hive.ValueTypes;
 using Xunit;
 
 namespace Hive.Tests.Validation.Impl

@@ -5,6 +5,7 @@ using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta.Data;
+using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
 {

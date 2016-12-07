@@ -1,4 +1,6 @@
-﻿namespace Hive.Meta.ValueTypes
+﻿using Hive.Meta;
+
+namespace Hive.ValueTypes
 {
 	public class StringValueType : ValueType<string>
 	{
@@ -7,7 +9,7 @@
 		{
 		}
 
-		public override object ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
 		{
 			return value?.ToString();
 		}

@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
+using Hive.Meta;
 
-namespace Hive.Meta.ValueTypes
+namespace Hive.ValueTypes
 {
 	public class GuidValueType : ValueType<Guid>
 	{
@@ -16,7 +17,7 @@ namespace Hive.Meta.ValueTypes
 		{
 		}
 
-		public override object ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
 		{
 			if (value == null) return null;
 

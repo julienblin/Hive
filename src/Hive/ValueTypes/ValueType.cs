@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Meta;
 using Hive.Meta.Data;
-using Hive.Meta.Impl;
 
-namespace Hive.Meta.ValueTypes
+namespace Hive.ValueTypes
 {
 	public abstract class ValueType<T> : IValueType
 	{
@@ -32,7 +31,12 @@ namespace Hive.Meta.ValueTypes
 			}
 		}
 
-		public virtual object ConvertValue(IPropertyDefinition propertyDefinition, object value)
+		public virtual object ConvertTo(IPropertyDefinition propertyDefinition, object value)
+		{
+			return value;
+		}
+
+		public virtual object ConvertFrom(IPropertyDefinition propertyDefinition, object value)
 		{
 			return value;
 		}
