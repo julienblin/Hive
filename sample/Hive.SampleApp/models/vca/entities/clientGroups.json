@@ -1,0 +1,15 @@
+﻿{
+  "singleName": "clientGroup",
+  "pluralName": "clientGroups",
+  "type": "reference",
+  "properties": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    }
+  ]
+}

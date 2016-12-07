@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
@@ -11,7 +12,9 @@ using Hive.Meta;
 using Hive.Queries;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Options;
+using System.Linq;
 
 namespace Hive.Azure.DocumentDb
 {
@@ -40,7 +43,13 @@ namespace Hive.Azure.DocumentDb
 			{
 				return ExecuteIdQuery<T>(query as IdQuery, ct);
 			}
-			throw new NotImplementedException();
+
+			if (query is ListQuery)
+			{
+				return ExecuteListQuery<T>(query as ListQuery, ct);
+			}
+
+			throw new NotSupportedException($"{query.GetType()}");
 		}
 
 		private async Task<T> ExecuteIdQuery<T>(IdQuery query, CancellationToken ct)
@@ -48,11 +57,47 @@ namespace Hive.Azure.DocumentDb
 			query.NotNull(nameof(query));
 			query.Id.NotNull(nameof(query.Id));
 
-			var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.Id.ToString()));
-			if (doc == null)
-				return default(T);
+			try
+			{
+				var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.Id.ToString()));
+				return (T)ConvertToEntity(query.EntityDefinition, doc);
+			}
+			catch (DocumentClientException ex)
+			{
+				if (ex.StatusCode == HttpStatusCode.NotFound)
+					return default(T);
+				throw;
+			}
+			
+		}
 
-			return (T)ConvertToEntity(query.EntityDefinition, doc);
+		private async Task<T> ExecuteListQuery<T>(ListQuery query, CancellationToken ct)
+		{
+			query.NotNull(nameof(query));
+
+			try
+			{
+				var queryBuilder = new DocumentDbSqlQueryBuilder<T>(query);
+				var options = new FeedOptions
+				{
+					MaxItemCount = query.Limit
+				};
+
+				var docQuery = Client
+					.CreateDocumentQuery<Document>(CollectionUri, queryBuilder.GetSqlQuerySpec(), options)
+					.AsDocumentQuery();
+
+				var docs = await docQuery.ListAsync(ct);
+
+				return (T) docs.Select(x => ConvertToEntity(query.EntityDefinition, x));
+			}
+			catch (DocumentClientException ex)
+			{
+				if (ex.StatusCode == HttpStatusCode.NotFound)
+					return default(T);
+				throw;
+			}
+
 		}
 
 		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
@@ -77,6 +122,7 @@ namespace Hive.Azure.DocumentDb
 		private static object ConvertToDocument(IEntity entity)
 		{
 			var propertyBag = entity.ToPropertyBag();
+			propertyBag[MetaConstants.IdProperty] = $"{entity.Definition.FullName}_{propertyBag[MetaConstants.IdProperty]}";
 			propertyBag[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName;
 			return propertyBag;
 		}
@@ -84,6 +130,7 @@ namespace Hive.Azure.DocumentDb
 		private IEntity ConvertToEntity(IEntityDefinition entityDefinition, Document doc)
 		{
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
+			propertyBag[MetaConstants.IdProperty] = (propertyBag[MetaConstants.IdProperty] as string)?.Substring(entityDefinition.FullName.Length + 1);
 			return new Entity(entityDefinition, propertyBag);
 		}
 

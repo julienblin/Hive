@@ -83,12 +83,21 @@ namespace Hive.Web.Rest
 				var result = await EntityService.Execute(idQuery, ct);
 				if (result == null)
 				{
-					Respond(param, new MessageResponse($"Unable to find a {idQuery.EntityDefinition.SingleName} with id {idQuery.Id}"),
+					Respond(param,
+						new MessageResponse($"Unable to find a {idQuery.EntityDefinition.SingleName} with id {idQuery.Id}"),
 						StatusCodes.Status404NotFound);
 					return;
 				}
 
 				Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
+				return;
+			}
+
+			if (query is ListQuery)
+			{
+				var listQuery = (ListQuery)query;
+				var result = await EntityService.Execute(listQuery, ct);
+				Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
 				return;
 			}
 
@@ -103,7 +112,15 @@ namespace Hive.Web.Rest
 				throw new NotFoundException($"Unable to find an entity definition named {restQuery.Root}.");
 
 			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
-				return new ListQuery(entityDefinition);
+			{
+				var query = new ListQuery(entityDefinition);
+				if (restQuery.QueryStringValues.ContainsKey("$limit"))
+				{
+					query.Limit = restQuery.QueryStringValues["$limit"].FirstOrDefault().IntSafeInvariantParse();
+				}
+				return query;
+			}
+				
 			return new IdQuery(entityDefinition, restQuery.AdditionalQualifier);
 		}
 
@@ -136,8 +153,8 @@ namespace Hive.Web.Rest
 			foreach (var responseHeader in responseHeaders.Safe())
 				param.Context.Response.Headers.Add(responseHeader.Key, new StringValues(responseHeader.Value));
 
-			param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
 			param.Context.Response.Headers["Content-Type"] = param.ResponseSerializer.MediaTypes.First();
+			param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
 		}
 	}
 }

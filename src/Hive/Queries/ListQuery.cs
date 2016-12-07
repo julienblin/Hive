@@ -10,5 +10,7 @@ namespace Hive.Queries
 			: base(entityDefinition)
 		{
 		}
+
+		public int? Limit { get; set; }
 	}
 }

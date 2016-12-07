@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Hive.Foundation.Extensions;
@@ -32,7 +33,7 @@ namespace Hive.Web.Rest
 					currentKey = null;
 				}
 			PathValues = pathValues.ToImmutableDictionary();
-			QueryStringValues = param.Context.Request.Query.ToImmutableDictionary();
+			QueryStringValues = param.Context.Request.Query.ToImmutableDictionary(StringComparer.OrdinalIgnoreCase);
 		}
 
 		public RestQueryString(string root, string additionalQualifier, IImmutableDictionary<string, string> pathValues,
