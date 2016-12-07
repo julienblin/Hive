@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation;
+using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Newtonsoft.Json;
@@ -36,20 +37,8 @@ namespace Hive.Web.Rest.Serializers.Impl
 
 		public override async Task<IEntity> Deserialize(IEntityDefinition entityDefinition, Stream stream, CancellationToken ct)
 		{
-			var entity = new Entity(entityDefinition);
-
-			using (var reader = new StreamReader(stream))
-			{
-				var jObject = JObject.Parse(await reader.ReadToEndAsync());
-				foreach (var property in jObject.Properties())
-				{
-					entity.SetPropertyValue(property.Name, property.Value);
-				}
-			}
-
-			await entity.Init(ct);
-
-			return entity;
+			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(stream);
+			return new Entity(entityDefinition, propertyBag);
 		}
 	}
 }

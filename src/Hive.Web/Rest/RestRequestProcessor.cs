@@ -128,10 +128,12 @@ namespace Hive.Web.Rest
 			}
 
 			var entity = await param.RequestSerializer.Deserialize(entityDefinition, param.Context.Request.Body, ct);
+			await entity.Init(ct);
 
 			var cmd = new CreateCommand(entity);
 			var result = await EntityService.Execute(cmd, ct);
-			Respond(param, result, StatusCodes.Status201Created, new Dictionary<string, string>
+
+			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
 				{ "Location", $"{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}" }
 			});

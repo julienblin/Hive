@@ -13,7 +13,6 @@ namespace Hive.SampleApp
         {
 			var host = new WebHostBuilder()
 				.UseKestrel()
-				.UseUrls("http://localhost:5432")
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.UseStartup<Startup>()
 				.Build();

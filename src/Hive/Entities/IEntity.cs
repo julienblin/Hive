@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Hive.Foundation.Entities;
 using Hive.Meta;
 
 namespace Hive.Entities
@@ -9,6 +10,8 @@ namespace Hive.Entities
 		IEntityDefinition Definition { get; }
 
 		object Id { get; }
+
+		PropertyBag ToPropertyBag();
 
 		void SetPropertyValue(string propertyName, object value);
 
