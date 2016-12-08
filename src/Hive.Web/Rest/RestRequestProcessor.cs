@@ -70,6 +70,12 @@ namespace Hive.Web.Rest
 				return true;
 			}
 
+			if (HttpMethods.IsDelete(request.Method))
+			{
+				await ProcessDeleteCommand(processParams, ct);
+				return true;
+			}
+
 			throw new NotSupportedException();
 		}
 
@@ -146,6 +152,28 @@ namespace Hive.Web.Rest
 			});
 		}
 
+		private async Task ProcessDeleteCommand(RestProcessParameters param, CancellationToken ct)
+		{
+			var restQuery = new RestQueryString(param);
+			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
+			if (entityDefinition == null)
+				throw new BadRequestException($"Unable to find an entity definition named {restQuery.Root}.");
+
+			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
+				throw new BadRequestException($"A delete request must include an id.");
+
+			var cmd = new DeleteCommand(entityDefinition, restQuery.AdditionalQualifier);
+			var result = await EntityService.Execute(cmd, ct);
+			if (!result)
+			{
+				Respond(param,
+						new MessageResponse($"Unable to find a {entityDefinition.SingleName} with id {restQuery.AdditionalQualifier}."),
+						StatusCodes.Status404NotFound);
+				return;
+			}
+			Respond(param, null, StatusCodes.Status204NoContent);
+		}
+
 		private void Respond(RestProcessParameters param, object message, int statusCode,
 			IDictionary<string, string> responseHeaders = null)
 		{
@@ -154,7 +182,10 @@ namespace Hive.Web.Rest
 				param.Context.Response.Headers.Add(responseHeader.Key, new StringValues(responseHeader.Value));
 
 			param.Context.Response.Headers["Content-Type"] = param.ResponseSerializer.MediaTypes.First();
-			param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
+			if (message != null)
+			{
+				param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
+			}
 		}
 	}
 }

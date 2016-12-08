@@ -59,7 +59,7 @@ namespace Hive.Azure.DocumentDb
 
 			try
 			{
-				var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.Id.ToString()));
+				var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.EntityDefinition, query.Id));
 				return (T)ConvertToEntity(query.EntityDefinition, doc);
 			}
 			catch (DocumentClientException ex)
@@ -113,6 +113,24 @@ namespace Hive.Azure.DocumentDb
 			throw new NotImplementedException();
 		}
 
+		public async Task<bool> Delete(IEntityDefinition entityDefinition, object id, CancellationToken ct)
+		{
+			entityDefinition.NotNull(nameof(entityDefinition));
+			id.NotNull(nameof(id));
+
+			try
+			{
+				await Client.DeleteDocumentAsync(CreateDocumentUri(entityDefinition, id));
+			}
+			catch (DocumentClientException ex)
+			{
+				if (ex.StatusCode == HttpStatusCode.NotFound)
+					return false;
+				throw;
+			}
+			return true;
+		}
+
 		public async Task Start(CancellationToken ct)
 		{
 			await CreateDatabaseIfNotExists();
@@ -122,7 +140,7 @@ namespace Hive.Azure.DocumentDb
 		private static object ConvertToDocument(IEntity entity)
 		{
 			var propertyBag = entity.ToPropertyBag();
-			propertyBag[MetaConstants.IdProperty] = $"{entity.Definition.FullName}_{propertyBag[MetaConstants.IdProperty]}";
+			propertyBag[MetaConstants.IdProperty] = CreateDocumentId(entity.Definition, propertyBag[MetaConstants.IdProperty]);
 			propertyBag[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName;
 			return propertyBag;
 		}
@@ -144,9 +162,19 @@ namespace Hive.Azure.DocumentDb
 			return UriFactory.CreateDocumentCollectionUri(_options.Value.Database, _options.Value.Collection);
 		}
 
+		private Uri CreateDocumentUri(IEntityDefinition entityDefinition, object id)
+		{
+			return CreateDocumentUri(CreateDocumentId(entityDefinition, id));
+		}
+
 		private Uri CreateDocumentUri(string documentId)
 		{
 			return UriFactory.CreateDocumentUri(_options.Value.Database, _options.Value.Collection, documentId);
+		}
+
+		private static string CreateDocumentId(IEntityDefinition entityDefinition, object id)
+		{
+			return $"{entityDefinition.FullName}_{id}";
 		}
 
 		private async Task CreateDatabaseIfNotExists()

@@ -32,6 +32,9 @@ namespace Hive.Entities.Impl
 			if (command is UpdateCommand)
 				return Execute<T>(command as UpdateCommand, ct);
 
+			if (command is DeleteCommand)
+				return Execute<T>(command as DeleteCommand, ct);
+
 			throw new NotImplementedException();
 		}
 
@@ -45,6 +48,11 @@ namespace Hive.Entities.Impl
 		{
 			await _validationService.Validate(command.Entity, ct);
 			return (T) await _entityRepository.Update(command.Entity, ct);
+		}
+
+		private async Task<T> Execute<T>(DeleteCommand command, CancellationToken ct)
+		{
+			return (T)(object) await _entityRepository.Delete(command.EntityDefinition, command.EntityId, ct);
 		}
 	}
 }
