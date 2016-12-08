@@ -17,8 +17,7 @@ namespace Hive.Azure.DocumentDb
 				var batch = await docQuery.ExecuteNextAsync<T>();
 
 				batches.Add(batch);
-			}
-			while (docQuery.HasMoreResults);
+			} while (docQuery.HasMoreResults);
 
 			return batches.SelectMany(x => x);
 		}

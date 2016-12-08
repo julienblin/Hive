@@ -62,27 +62,6 @@ namespace Hive.Entities
 			}
 		}
 
-		public override bool TryGetMember(GetMemberBinder binder, out object result)
-		{
-			if (!Definition.Properties.ContainsKey(binder.Name))
-			{
-				result = null;
-				return false;
-			}
-
-			result = this[binder.Name];
-			return true;
-		}
-
-		public override bool TrySetMember(SetMemberBinder binder, object value)
-		{
-			if (!Definition.Properties.ContainsKey(binder.Name))
-				return false;
-
-			this[binder.Name] = value;
-			return true;
-		}
-
 		public PropertyBag ToPropertyBag()
 		{
 			var propertyBag = new PropertyBag();
@@ -105,6 +84,27 @@ namespace Hive.Entities
 			foreach (var propertyDefinition in Definition.Properties.Values)
 				if ((propertyDefinition.DefaultValue != null) && (this[propertyDefinition.Name] == null))
 					await propertyDefinition.SetDefaultValue(this, ct);
+		}
+
+		public override bool TryGetMember(GetMemberBinder binder, out object result)
+		{
+			if (!Definition.Properties.ContainsKey(binder.Name))
+			{
+				result = null;
+				return false;
+			}
+
+			result = this[binder.Name];
+			return true;
+		}
+
+		public override bool TrySetMember(SetMemberBinder binder, object value)
+		{
+			if (!Definition.Properties.ContainsKey(binder.Name))
+				return false;
+
+			this[binder.Name] = value;
+			return true;
 		}
 
 		public override string ToString() => $"{Definition} ({Id})";

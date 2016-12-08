@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace Hive.Foundation.Extensions
 			return dictionary.TryGetValue(key, out value) ? value : default(TValue);
 		}
 
-		public static TValue SafeGet<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+		public static TValue SafeGet<TKey, TValue>(this IImmutableDictionary<TKey, TValue> dictionary, TKey key)
 		{
 			if (dictionary == null) return default(TValue);
 

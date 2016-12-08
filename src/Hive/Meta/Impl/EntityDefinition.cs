@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
@@ -25,7 +25,7 @@ namespace Hive.Meta.Impl
 
 		public EntityType EntityType { get; set; }
 
-		public IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; set; }
+		public IImmutableDictionary<string, IPropertyDefinition> Properties { get; set; }
 
 		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{

@@ -49,13 +49,9 @@ namespace Hive.SampleApp
 			services.Configure<DocumentDbOptions>(Configuration.GetSection("documentdb"));
 
 			if (HostingEnvironment.IsDevelopment())
-			{
 				services.AddSingleton<IModelCache, NullModelCache>();
-			}
 			else
-			{
 				services.AddSingleton<IModelCache, MemoryModelCache>();
-			}
 
 			services.AddSingleton<ITelemetry, DebugTelemetry>();
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();

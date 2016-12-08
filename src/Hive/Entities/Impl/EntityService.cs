@@ -52,7 +52,7 @@ namespace Hive.Entities.Impl
 
 		private async Task<T> Execute<T>(DeleteCommand command, CancellationToken ct)
 		{
-			return (T)(object) await _entityRepository.Delete(command.EntityDefinition, command.EntityId, ct);
+			return (T) (object) await _entityRepository.Delete(command.EntityDefinition, command.EntityId, ct);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 
 namespace Hive.Meta
 {
@@ -14,6 +14,6 @@ namespace Hive.Meta
 
 		EntityType EntityType { get; }
 
-		IReadOnlyDictionary<string, IPropertyDefinition> Properties { get; }
+		IImmutableDictionary<string, IPropertyDefinition> Properties { get; }
 	}
 }

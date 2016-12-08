@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Hive.Foundation.Entities;
-using Hive.Meta;
 using Hive.Meta.Impl;
 using Hive.Tests.Mocks;
 using Xunit;
@@ -34,10 +33,7 @@ namespace Hive.Tests.Meta.Impl
 			var metaService = new MetaService(
 				new MetaRepositoryMock(new PropertyBag()),
 				new ModelLoaderMock(model),
-				new ModelCacheMock(putAsserts: m =>
-				{
-					m.Should().BeSameAs(model);
-				})
+				new ModelCacheMock(putAsserts: m => { m.Should().BeSameAs(model); })
 			);
 
 			var result = await metaService.GetModel(model.Name, CancellationToken.None);

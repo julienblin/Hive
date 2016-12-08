@@ -9,7 +9,7 @@ namespace Hive.Web.Rest.Serializers.Impl
 	public class RestSerializerFactory : IRestSerializerFactory
 	{
 		private readonly IRestSerializer _defaultSerializer;
-		private readonly IReadOnlyDictionary<string, IRestSerializer> _serializersByMediaTypes;
+		private readonly IImmutableDictionary<string, IRestSerializer> _serializersByMediaTypes;
 
 		public RestSerializerFactory(IEnumerable<IRestSerializer> serializers = null)
 		{
@@ -45,7 +45,7 @@ namespace Hive.Web.Rest.Serializers.Impl
 			return _defaultSerializer;
 		}
 
-		private static IReadOnlyDictionary<string, IRestSerializer> LoadSerializers(IEnumerable<IRestSerializer> serializers)
+		private static IImmutableDictionary<string, IRestSerializer> LoadSerializers(IEnumerable<IRestSerializer> serializers)
 		{
 			var serializersByMediaTypes = new Dictionary<string, IRestSerializer>();
 

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
@@ -14,7 +14,6 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Options;
-using System.Linq;
 
 namespace Hive.Azure.DocumentDb
 {
@@ -40,64 +39,12 @@ namespace Hive.Azure.DocumentDb
 		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
 		{
 			if (query is IdQuery)
-			{
 				return ExecuteIdQuery<T>(query as IdQuery, ct);
-			}
 
 			if (query is ListQuery)
-			{
 				return ExecuteListQuery<T>(query as ListQuery, ct);
-			}
 
 			throw new NotSupportedException($"{query.GetType()}");
-		}
-
-		private async Task<T> ExecuteIdQuery<T>(IdQuery query, CancellationToken ct)
-		{
-			query.NotNull(nameof(query));
-			query.Id.NotNull(nameof(query.Id));
-
-			try
-			{
-				var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.EntityDefinition, query.Id));
-				return (T)ConvertToEntity(query.EntityDefinition, doc);
-			}
-			catch (DocumentClientException ex)
-			{
-				if (ex.StatusCode == HttpStatusCode.NotFound)
-					return default(T);
-				throw;
-			}
-			
-		}
-
-		private async Task<T> ExecuteListQuery<T>(ListQuery query, CancellationToken ct)
-		{
-			query.NotNull(nameof(query));
-
-			try
-			{
-				var queryBuilder = new DocumentDbSqlQueryBuilder<T>(query);
-				var options = new FeedOptions
-				{
-					MaxItemCount = query.Limit
-				};
-
-				var docQuery = Client
-					.CreateDocumentQuery<Document>(CollectionUri, queryBuilder.GetSqlQuerySpec(), options)
-					.AsDocumentQuery();
-
-				var docs = await docQuery.ListAsync(ct);
-
-				return (T) docs.Select(x => ConvertToEntity(query.EntityDefinition, x));
-			}
-			catch (DocumentClientException ex)
-			{
-				if (ex.StatusCode == HttpStatusCode.NotFound)
-					return default(T);
-				throw;
-			}
-
 		}
 
 		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
@@ -137,6 +84,52 @@ namespace Hive.Azure.DocumentDb
 			await CreateCollectionIfNotExists();
 		}
 
+		private async Task<T> ExecuteIdQuery<T>(IdQuery query, CancellationToken ct)
+		{
+			query.NotNull(nameof(query));
+			query.Id.NotNull(nameof(query.Id));
+
+			try
+			{
+				var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.EntityDefinition, query.Id));
+				return (T) ConvertToEntity(query.EntityDefinition, doc);
+			}
+			catch (DocumentClientException ex)
+			{
+				if (ex.StatusCode == HttpStatusCode.NotFound)
+					return default(T);
+				throw;
+			}
+		}
+
+		private async Task<T> ExecuteListQuery<T>(ListQuery query, CancellationToken ct)
+		{
+			query.NotNull(nameof(query));
+
+			try
+			{
+				var queryBuilder = new DocumentDbSqlQueryBuilder<T>(query);
+				var options = new FeedOptions
+				{
+					MaxItemCount = query.Limit
+				};
+
+				var docQuery = Client
+					.CreateDocumentQuery<Document>(CollectionUri, queryBuilder.GetSqlQuerySpec(), options)
+					.AsDocumentQuery();
+
+				var docs = await docQuery.ListAsync(ct);
+
+				return (T) docs.Select(x => ConvertToEntity(query.EntityDefinition, x));
+			}
+			catch (DocumentClientException ex)
+			{
+				if (ex.StatusCode == HttpStatusCode.NotFound)
+					return default(T);
+				throw;
+			}
+		}
+
 		private static object ConvertToDocument(IEntity entity)
 		{
 			var propertyBag = entity.ToPropertyBag();
@@ -148,7 +141,8 @@ namespace Hive.Azure.DocumentDb
 		private IEntity ConvertToEntity(IEntityDefinition entityDefinition, Document doc)
 		{
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
-			propertyBag[MetaConstants.IdProperty] = (propertyBag[MetaConstants.IdProperty] as string)?.Substring(entityDefinition.FullName.Length + 1);
+			propertyBag[MetaConstants.IdProperty] =
+				(propertyBag[MetaConstants.IdProperty] as string)?.Substring(entityDefinition.FullName.Length + 1);
 			return new Entity(entityDefinition, propertyBag);
 		}
 

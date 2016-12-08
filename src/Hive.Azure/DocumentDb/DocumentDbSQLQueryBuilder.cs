@@ -2,7 +2,6 @@
 using Hive.Foundation.Extensions;
 using Hive.Queries;
 using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 
 namespace Hive.Azure.DocumentDb
 {
@@ -35,7 +34,7 @@ namespace Hive.Azure.DocumentDb
 		{
 			var whereConditions = new List<string>
 			{
-				"ROOT."+ DocumentDbConstants.EntityDefinitionProperty + " = @_entityType"
+				"ROOT." + DocumentDbConstants.EntityDefinitionProperty + " = @_entityType"
 			};
 
 			parameters.Add(new SqlParameter("@_entityType", _query.EntityDefinition.FullName));

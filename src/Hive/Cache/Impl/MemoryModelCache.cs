@@ -6,7 +6,8 @@ namespace Hive.Cache.Impl
 {
 	public class MemoryModelCache : IModelCache
 	{
-		private readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions { ExpirationScanFrequency = TimeSpan.MaxValue });
+		private readonly MemoryCache _cache =
+			new MemoryCache(new MemoryCacheOptions {ExpirationScanFrequency = TimeSpan.MaxValue});
 
 		public IModel Get(string modelName)
 		{

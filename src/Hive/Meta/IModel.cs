@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 using Hive.Foundation.Entities;
 
 namespace Hive.Meta
@@ -9,8 +9,8 @@ namespace Hive.Meta
 
 		SemVer Version { get; }
 
-		IReadOnlyDictionary<string, IEntityDefinition> EntitiesBySingleName { get; }
+		IImmutableDictionary<string, IEntityDefinition> EntitiesBySingleName { get; }
 
-		IReadOnlyDictionary<string, IEntityDefinition> EntitiesByPluralName { get; }
+		IImmutableDictionary<string, IEntityDefinition> EntitiesByPluralName { get; }
 	}
 }

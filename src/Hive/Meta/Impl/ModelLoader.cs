@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
@@ -29,8 +30,9 @@ namespace Hive.Meta.Impl
 				};
 				model.EntitiesBySingleName = (modelData["entities"] as PropertyBag[])
 					.Safe()
-					.ToDictionary(x => x["singlename"] as string, x => MapEntityDefinition(model, x), StringComparer.OrdinalIgnoreCase);
-				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToDictionary(x => x.PluralName);
+					.ToImmutableDictionary(x => x["singlename"] as string, x => MapEntityDefinition(model, x),
+						StringComparer.OrdinalIgnoreCase);
+				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToImmutableDictionary(x => x.PluralName);
 
 				model.FinishLoading(_valueTypeFactory);
 
@@ -54,7 +56,7 @@ namespace Hive.Meta.Impl
 			};
 			entityDefinition.Properties =
 				MapProperties(entityDefinition, entityDefinitionData["properties"] as PropertyBag[])
-				.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+					.ToImmutableDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
 			return entityDefinition;
 		}

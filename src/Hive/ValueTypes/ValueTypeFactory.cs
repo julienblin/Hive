@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using Hive.Foundation.Extensions;
 
 namespace Hive.ValueTypes
 {
 	public class ValueTypeFactory : IValueTypeFactory
 	{
-		private readonly IReadOnlyDictionary<string, IValueType> _valueTypes;
+		private readonly IImmutableDictionary<string, IValueType> _valueTypes;
 
 		public ValueTypeFactory(IEnumerable<IValueType> valueTypes = null)
 		{
@@ -23,7 +23,7 @@ namespace Hive.ValueTypes
 				}
 				: valueTypes;
 
-			_valueTypes = realValueTypes.ToDictionary(x => x.Name);
+			_valueTypes = realValueTypes.ToImmutableDictionary(x => x.Name);
 		}
 
 		public IValueType GetValueType(string name)

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 using Hive.Foundation.Entities;
 using Hive.ValueTypes;
 
@@ -11,9 +11,9 @@ namespace Hive.Meta.Impl
 
 		public SemVer Version { get; set; }
 
-		public IReadOnlyDictionary<string, IEntityDefinition> EntitiesBySingleName { get; set; }
+		public IImmutableDictionary<string, IEntityDefinition> EntitiesBySingleName { get; set; }
 
-		public IReadOnlyDictionary<string, IEntityDefinition> EntitiesByPluralName { get; set; }
+		public IImmutableDictionary<string, IEntityDefinition> EntitiesByPluralName { get; set; }
 
 		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
 		{

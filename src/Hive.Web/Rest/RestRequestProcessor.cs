@@ -101,7 +101,7 @@ namespace Hive.Web.Rest
 
 			if (query is ListQuery)
 			{
-				var listQuery = (ListQuery)query;
+				var listQuery = (ListQuery) query;
 				var result = await EntityService.Execute(listQuery, ct);
 				Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
 				return;
@@ -121,12 +121,10 @@ namespace Hive.Web.Rest
 			{
 				var query = new ListQuery(entityDefinition);
 				if (restQuery.QueryStringValues.ContainsKey("$limit"))
-				{
 					query.Limit = restQuery.QueryStringValues["$limit"].FirstOrDefault().IntSafeInvariantParse();
-				}
 				return query;
 			}
-				
+
 			return new IdQuery(entityDefinition, restQuery.AdditionalQualifier);
 		}
 
@@ -167,8 +165,8 @@ namespace Hive.Web.Rest
 			if (!result)
 			{
 				Respond(param,
-						new MessageResponse($"Unable to find a {entityDefinition.SingleName} with id {restQuery.AdditionalQualifier}."),
-						StatusCodes.Status404NotFound);
+					new MessageResponse($"Unable to find a {entityDefinition.SingleName} with id {restQuery.AdditionalQualifier}."),
+					StatusCodes.Status404NotFound);
 				return;
 			}
 			Respond(param, null, StatusCodes.Status204NoContent);
@@ -183,9 +181,7 @@ namespace Hive.Web.Rest
 
 			param.Context.Response.Headers["Content-Type"] = param.ResponseSerializer.MediaTypes.First();
 			if (message != null)
-			{
 				param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
-			}
 		}
 	}
 }
