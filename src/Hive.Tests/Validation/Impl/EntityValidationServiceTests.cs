@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Hive.Entities;
+using Hive.Entities.Impl;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Validation;
 using Hive.Meta.Impl;
@@ -64,28 +65,29 @@ namespace Hive.Tests.Validation.Impl
 
 			var modelLoader = new ModelLoader(new ValueTypeFactory());
 			var model = modelLoader.Load(modelData);
+			var entityFactory = new EntityFactory();
 
 			yield return new object[]
 			{
-				new Entity(model.EntitiesBySingleName["None"]),
+				entityFactory.Hydrate(model.EntitiesBySingleName["None"], new PropertyBag()),
 				new Action<ValidationResults>(r => r.IsValid.Should().BeTrue())
 			};
 
 			yield return new object[]
 			{
-				new Entity(model.EntitiesBySingleName["Ref"]),
+				entityFactory.Hydrate(model.EntitiesBySingleName["Ref"], new PropertyBag()),
 				new Action<ValidationResults>(r => r.Errors.First().Target.Should().Be(nameof(IEntity.Id)))
 			};
 
 			yield return new object[]
 			{
-				new Entity(model.EntitiesBySingleName["RefIdString"], string.Empty),
+				entityFactory.Hydrate(model.EntitiesBySingleName["RefIdString"], new PropertyBag { ["Id"] = string.Empty }),
 				new Action<ValidationResults>(r => r.Errors.First().Target.Should().Be(nameof(IEntity.Id)))
 			};
 
 			yield return new object[]
 			{
-				new Entity(model.EntitiesBySingleName["Ref"], Guid.NewGuid()),
+				entityFactory.Hydrate(model.EntitiesBySingleName["RefIdString"], new PropertyBag { ["Id"] = Guid.NewGuid() }),
 				new Action<ValidationResults>(r => r.IsValid.Should().BeTrue())
 			};
 		}

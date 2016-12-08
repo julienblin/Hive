@@ -1,11 +1,12 @@
-﻿using System.Threading;
+﻿using System.Dynamic;
+using System.Threading;
 using System.Threading.Tasks;
 using Hive.Foundation.Entities;
 using Hive.Meta;
 
 namespace Hive.Entities
 {
-	public interface IEntity
+	public interface IEntity : IDynamicMetaObjectProvider
 	{
 		IEntityDefinition Definition { get; }
 
@@ -14,7 +15,5 @@ namespace Hive.Entities
 		object this[string propertyName] { get; set; }
 
 		PropertyBag ToPropertyBag();
-
-		Task Init(CancellationToken ct);
 	}
 }

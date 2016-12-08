@@ -15,16 +15,20 @@ namespace Hive.Web.RequestProcessors
 		protected RequestProcessor(
 			ITelemetry telemetry,
 			IMetaService metaService,
+			IEntityFactory entityfactory,
 			IEntityService entityService)
 		{
 			Telemetry = telemetry.NotNull(nameof(telemetry));
 			MetaService = metaService.NotNull(nameof(metaService));
+			EntityFactory = entityfactory.NotNull(nameof(entityfactory));
 			EntityService = entityService.NotNull(nameof(entityService));
 		}
 
 		protected ITelemetry Telemetry { get; }
 
 		protected IMetaService MetaService { get; }
+
+		protected IEntityFactory EntityFactory { get; }
 
 		protected IEntityService EntityService { get; }
 

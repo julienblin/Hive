@@ -22,12 +22,17 @@ namespace Hive.Azure.DocumentDb
 		private readonly Lazy<IDocumentClient> _lazyClient;
 		private readonly Lazy<Uri> _lazyCollectionUri;
 		private readonly IMetaService _metaService;
+		private readonly IEntityFactory _entityFactory;
 		private readonly IOptions<DocumentDbOptions> _options;
 
-		public DocumentDbEntityRepository(IOptions<DocumentDbOptions> options, IMetaService metaService)
+		public DocumentDbEntityRepository(
+			IOptions<DocumentDbOptions> options,
+			IMetaService metaService,
+			IEntityFactory entityFactory)
 		{
 			_options = options.NotNull(nameof(options));
 			_metaService = metaService.NotNull(nameof(metaService));
+			_entityFactory = entityFactory.NotNull(nameof(entityFactory));
 			_lazyClient = new Lazy<IDocumentClient>(CreateClient);
 			_lazyCollectionUri = new Lazy<Uri>(CreateCollectionUri);
 		}
@@ -55,9 +60,12 @@ namespace Hive.Azure.DocumentDb
 			return ConvertToEntity(entity.Definition, doc.Resource);
 		}
 
-		public Task<IEntity> Update(IEntity entity, CancellationToken ct)
+		public async Task<IEntity> Update(IEntity entity, CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			entity.NotNull(nameof(entity));
+			var doc =
+				await Client.ReplaceDocumentAsync(GetDocumentUri(entity), ConvertToDocument(entity));
+			return ConvertToEntity(entity.Definition, doc.Resource);
 		}
 
 		public async Task<bool> Delete(IEntityDefinition entityDefinition, object id, CancellationToken ct)
@@ -67,7 +75,7 @@ namespace Hive.Azure.DocumentDb
 
 			try
 			{
-				await Client.DeleteDocumentAsync(CreateDocumentUri(entityDefinition, id));
+				await Client.DeleteDocumentAsync(GetDocumentUri(entityDefinition, id));
 			}
 			catch (DocumentClientException ex)
 			{
@@ -91,7 +99,7 @@ namespace Hive.Azure.DocumentDb
 
 			try
 			{
-				var doc = await Client.ReadDocumentAsync(CreateDocumentUri(query.EntityDefinition, query.Id));
+				var doc = await Client.ReadDocumentAsync(GetDocumentUri(query.EntityDefinition, query.Id));
 				return (T) ConvertToEntity(query.EntityDefinition, doc);
 			}
 			catch (DocumentClientException ex)
@@ -133,7 +141,7 @@ namespace Hive.Azure.DocumentDb
 		private static object ConvertToDocument(IEntity entity)
 		{
 			var propertyBag = entity.ToPropertyBag();
-			propertyBag[MetaConstants.IdProperty] = CreateDocumentId(entity.Definition, propertyBag[MetaConstants.IdProperty]);
+			propertyBag[MetaConstants.IdProperty] = GetDocumentId(entity.Definition, propertyBag[MetaConstants.IdProperty]);
 			propertyBag[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName;
 			return propertyBag;
 		}
@@ -143,7 +151,7 @@ namespace Hive.Azure.DocumentDb
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
 			propertyBag[MetaConstants.IdProperty] =
 				(propertyBag[MetaConstants.IdProperty] as string)?.Substring(entityDefinition.FullName.Length + 1);
-			return new Entity(entityDefinition, propertyBag);
+			return _entityFactory.Hydrate(entityDefinition, propertyBag);
 		}
 
 		private IDocumentClient CreateClient()
@@ -156,17 +164,22 @@ namespace Hive.Azure.DocumentDb
 			return UriFactory.CreateDocumentCollectionUri(_options.Value.Database, _options.Value.Collection);
 		}
 
-		private Uri CreateDocumentUri(IEntityDefinition entityDefinition, object id)
+		private Uri GetDocumentUri(IEntity entity)
 		{
-			return CreateDocumentUri(CreateDocumentId(entityDefinition, id));
+			return GetDocumentUri(entity.Definition, entity.Id);
 		}
 
-		private Uri CreateDocumentUri(string documentId)
+		private Uri GetDocumentUri(IEntityDefinition entityDefinition, object id)
+		{
+			return GetDocumentUri(GetDocumentId(entityDefinition, id));
+		}
+
+		private Uri GetDocumentUri(string documentId)
 		{
 			return UriFactory.CreateDocumentUri(_options.Value.Database, _options.Value.Collection, documentId);
 		}
 
-		private static string CreateDocumentId(IEntityDefinition entityDefinition, object id)
+		private static string GetDocumentId(IEntityDefinition entityDefinition, object id)
 		{
 			return $"{entityDefinition.FullName}_{id}";
 		}

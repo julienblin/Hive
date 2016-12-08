@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Threading;
-using System.Threading.Tasks;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
@@ -10,7 +8,7 @@ using Hive.Meta;
 
 namespace Hive.Entities
 {
-	public class Entity : DynamicObject, IEntity
+	internal class Entity : DynamicObject, IEntity
 	{
 		private readonly IDictionary<string, object> _propertyValues =
 			new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -18,24 +16,6 @@ namespace Hive.Entities
 		public Entity(IEntityDefinition definition)
 		{
 			Definition = definition.NotNull(nameof(definition));
-		}
-
-		public Entity(IEntityDefinition definition, object id)
-			: this(definition)
-		{
-			Id = id;
-		}
-
-		public Entity(IEntityDefinition definition, PropertyBag propertyBag)
-			: this(definition)
-		{
-			foreach (var property in propertyBag)
-			{
-				var propertyDefinition = Definition.Properties.SafeGet(property.Key);
-				if (propertyDefinition != null)
-					_propertyValues[property.Key] = propertyDefinition.PropertyType.ConvertFromPropertyBagValue(propertyDefinition,
-						property.Value);
-			}
 		}
 
 		public IEntityDefinition Definition { get; }
@@ -77,13 +57,6 @@ namespace Hive.Entities
 			}
 
 			return propertyBag;
-		}
-
-		public async Task Init(CancellationToken ct)
-		{
-			foreach (var propertyDefinition in Definition.Properties.Values)
-				if ((propertyDefinition.DefaultValue != null) && (this[propertyDefinition.Name] == null))
-					await propertyDefinition.SetDefaultValue(this, ct);
 		}
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)

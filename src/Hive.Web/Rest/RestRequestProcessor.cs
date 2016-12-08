@@ -29,9 +29,10 @@ namespace Hive.Web.Rest
 			IOptions<RestOptions> options,
 			ITelemetry telemetry,
 			IMetaService metaService,
+			IEntityFactory entityfactory,
 			IEntityService entityService,
 			IRestSerializerFactory serializerFactory)
-			: base(telemetry, metaService, entityService)
+			: base(telemetry, metaService, entityfactory, entityService)
 		{
 			_options = options.NotNull(nameof(options));
 			_serializerFactory = serializerFactory.NotNull(nameof(serializerFactory));
@@ -67,6 +68,12 @@ namespace Hive.Web.Rest
 			if (HttpMethods.IsPost(request.Method))
 			{
 				await ProcessPostCommand(processParams, ct);
+				return true;
+			}
+
+			if (HttpMethods.IsPut(request.Method))
+			{
+				await ProcessPutCommand(processParams, ct);
 				return true;
 			}
 
@@ -138,8 +145,8 @@ namespace Hive.Web.Rest
 			if (!restQuery.AdditionalQualifier.IsNullOrEmpty())
 				throw new BadRequestException($"A post request should not have an additional qualifier.");
 
-			var entity = await param.RequestSerializer.Deserialize(entityDefinition, param.Context.Request.Body, ct);
-			await entity.Init(ct);
+			var propertyBag = param.RequestSerializer.Deserialize(param.Context.Request.Body);
+			var entity = await EntityFactory.Create(entityDefinition, propertyBag, ct);
 
 			var cmd = new CreateCommand(entity);
 			var result = await EntityService.Execute(cmd, ct);
@@ -148,6 +155,26 @@ namespace Hive.Web.Rest
 			{
 				{"Location", $"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}"}
 			});
+		}
+
+		private async Task ProcessPutCommand(RestProcessParameters param, CancellationToken ct)
+		{
+			var restQuery = new RestQueryString(param);
+			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
+			if (entityDefinition == null)
+				throw new BadRequestException($"Unable to find an entity definition named {restQuery.Root}.");
+
+			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
+				throw new BadRequestException($"A put request must apply to a specific id.");
+
+			var propertyBag = param.RequestSerializer.Deserialize(param.Context.Request.Body);
+			propertyBag[MetaConstants.IdProperty] = restQuery.AdditionalQualifier;
+			var entity = await EntityFactory.Hydrate(entityDefinition, propertyBag, ct);
+
+			var cmd = new UpdateCommand(entity);
+			var result = await EntityService.Execute(cmd, ct);
+
+			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
 		}
 
 		private async Task ProcessDeleteCommand(RestProcessParameters param, CancellationToken ct)

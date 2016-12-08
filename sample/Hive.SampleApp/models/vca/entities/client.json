@@ -14,6 +14,10 @@
     {
       "name": "dateOfBirth",
       "type": "date"
+    },
+    {
+      "name": "foo",
+      "type": "string"
     }
   ]
 }

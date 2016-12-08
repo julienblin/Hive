@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
+using Hive.Foundation.Entities;
 using Hive.Meta;
 
 namespace Hive.Web.Rest.Serializers
@@ -13,6 +14,6 @@ namespace Hive.Web.Rest.Serializers
 
 		void Serialize(object @object, Stream stream);
 
-		Task<IEntity> Deserialize(IEntityDefinition entityDefinition, Stream stream, CancellationToken ct);
+		PropertyBag Deserialize(Stream stream);
 	}
 }

@@ -58,6 +58,7 @@ namespace Hive.SampleApp
 			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
 			services.AddSingleton<IModelLoader, ModelLoader>();
 			services.AddSingleton<IMetaService, MetaService>();
+			services.AddSingleton<IEntityFactory, EntityFactory>();
 			services.AddSingleton<IEntityRepository, DocumentDbEntityRepository>();
 			services.AddSingleton<IEntityValidationService, EntityValidationService>();
 			services.AddSingleton<IEntityService, EntityService>();
