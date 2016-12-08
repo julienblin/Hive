@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Exceptions;
@@ -9,7 +10,7 @@ using Hive.Meta;
 
 namespace Hive.Entities
 {
-	public class Entity : IEntity
+	public class Entity : DynamicObject, IEntity
 	{
 		private readonly IDictionary<string, object> _propertyValues =
 			new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -59,6 +60,27 @@ namespace Hive.Entities
 					_propertyValues[propertyName] = value;
 				}
 			}
+		}
+
+		public override bool TryGetMember(GetMemberBinder binder, out object result)
+		{
+			if (!Definition.Properties.ContainsKey(binder.Name))
+			{
+				result = null;
+				return false;
+			}
+
+			result = this[binder.Name];
+			return true;
+		}
+
+		public override bool TrySetMember(SetMemberBinder binder, object value)
+		{
+			if (!Definition.Properties.ContainsKey(binder.Name))
+				return false;
+
+			this[binder.Name] = value;
+			return true;
 		}
 
 		public PropertyBag ToPropertyBag()
