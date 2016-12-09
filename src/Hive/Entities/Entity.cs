@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Reflection;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
@@ -31,10 +32,16 @@ namespace Hive.Entities
 			get { return _propertyValues.SafeGet(propertyName); }
 			set
 			{
+				if (value == null)
+				{
+					_propertyValues[propertyName] = null;
+					return;
+				}
+
 				var propertyDefinition = Definition.Properties.SafeGet(propertyName);
 				if (propertyDefinition != null)
 				{
-					if (propertyDefinition.PropertyType.InternalNetType != value.GetType())
+					if(!propertyDefinition.PropertyType.InternalNetType.GetTypeInfo().IsAssignableFrom(value.GetType()))
 						throw new EntityException(
 							$"Unable to set property value {value} for {propertyName} on {this} because types are incompatible (expected: {propertyDefinition.PropertyType.InternalNetType}, actual: {value.GetType()})");
 					_propertyValues[propertyName] = value;

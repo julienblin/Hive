@@ -1,0 +1,31 @@
+﻿{
+  "singleName": "address",
+  "pluralName": "addresses",
+  "type": "none",
+  "properties": [
+    {
+      "name": "line1",
+      "type": "string"
+    },
+    {
+      "name": "line2",
+      "type": "string"
+    },
+    {
+      "name": "city",
+      "type": "string"
+    },
+    {
+      "name": "state",
+      "type": "string"
+    },
+    {
+      "name": "postalCode",
+      "type": "string"
+    },
+    {
+      "name": "country",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+﻿{
+  "singleName": "clientDetail",
+  "pluralName": "clientDetails",
+  "type": "none",
+  "properties": [
+    {
+      "name": "detail1",
+      "type": "string"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
 using Hive.Foundation.Entities;
+using Hive.Foundation.Extensions;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
@@ -15,7 +16,7 @@ namespace Hive.Meta.Impl
 
 		public string Name => SingleName;
 
-		public Type InternalNetType => typeof(IEntityDefinition);
+		public Type InternalNetType => typeof(IEntity);
 
 		public IModel Model { get; set; }
 
@@ -29,12 +30,24 @@ namespace Hive.Meta.Impl
 
 		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
-			throw new NotImplementedException();
+			var entityValue = value as IEntity;
+			return entityValue?.ToPropertyBag();
 		}
 
 		object IDataType.ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
-			throw new NotImplementedException();
+			var propertyBagValue = value as PropertyBag;
+			if (propertyBagValue == null) return null;
+
+			var result = new Entity(this);
+			foreach (var property in propertyBagValue)
+			{
+				var itemPropertyDefinition = Properties.SafeGet(property.Key);
+				if (propertyDefinition != null)
+					result[property.Key] = itemPropertyDefinition.PropertyType.ConvertFromPropertyBagValue(propertyDefinition, property.Value);
+			}
+
+			return result;
 		}
 
 		public virtual Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)

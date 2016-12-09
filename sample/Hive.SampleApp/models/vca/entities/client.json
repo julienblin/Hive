@@ -16,8 +16,13 @@
       "type": "date"
     },
     {
-      "name": "foo",
-      "type": "string"
+      "name": "addresses",
+      "type": "array",
+      "items": "address"
+    },
+    {
+      "name": "detail",
+      "type": "clientDetail"
     }
   ]
 }
