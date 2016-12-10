@@ -11,6 +11,8 @@ namespace Hive.Meta
 
 		Type InternalNetType { get; }
 
+		void ModelLoaded(IPropertyDefinition propertyDefinition);
+
 		object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value);
 
 		object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value);

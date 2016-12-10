@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Hive.Foundation.Extensions;
 
@@ -10,20 +11,7 @@ namespace Hive.ValueTypes
 
 		public ValueTypeFactory(IEnumerable<IValueType> valueTypes = null)
 		{
-			var realValueTypes = valueTypes.IsNullOrEmpty()
-				? new IValueType[]
-				{
-					new ArrayValueType(),
-					new DateTimeValueType(),
-					new DateValueType(),
-					new EnumValueType(),
-					new GuidValueType(),
-					new IntValueType(),
-					new StringValueType()
-				}
-				: valueTypes;
-
-			_valueTypes = realValueTypes.ToImmutableDictionary(x => x.Name);
+			_valueTypes = valueTypes.Safe().ToImmutableDictionary(x => x.Name);
 		}
 
 		public IValueType GetValueType(string name)

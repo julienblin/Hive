@@ -63,7 +63,7 @@ namespace Hive.Tests.Validation.Impl
 				}
 			};
 
-			var modelLoader = new ModelLoader(new ValueTypeFactory());
+			var modelLoader = new ModelLoader(new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType() }));
 			var model = modelLoader.Load(modelData);
 			var entityFactory = new EntityFactory();
 

@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
+using Hive.ValueTypes;
 
 namespace Hive.Tests.Mocks
 {
@@ -23,5 +24,7 @@ namespace Hive.Tests.Mocks
 		public IImmutableDictionary<string, IEntityDefinition> EntitiesBySingleName { get; }
 
 		public IImmutableDictionary<string, IEntityDefinition> EntitiesByPluralName { get; }
+
+		public IValueTypeFactory ValueTypeFactory { get; set; } 
 	}
 }

@@ -1,0 +1,29 @@
+﻿{
+  "singleName": "passcode",
+  "pluralName": "passcodes",
+  "type": "transactional",
+  "properties": [
+    {
+      "name": "id",
+      "type": "string",
+      "description": "The id of the passcode is the user id."  
+    },
+    {
+      "name": "secret",
+      "type": "string",
+      "description": "The secret is the actual passcode validated against." 
+    },
+    {
+      "name": "failedValidationAttemps",
+      "type": "int",
+      "description": "The number of failed validation attempts.", 
+      "default": 0
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "description": "The status of the passcode. Validation can only occured when status is active.", 
+      "values": [ "notSet", "active", "locked" ]
+    }
+  ]
+}

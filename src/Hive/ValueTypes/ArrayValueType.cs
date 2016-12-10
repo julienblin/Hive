@@ -52,7 +52,7 @@ namespace Hive.ValueTypes
 			return result;
 		}
 
-		public override void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition)
+		public override void ModelLoaded(IPropertyDefinition propertyDefinition)
 		{
 			var untypedItemsData = propertyDefinition.PropertyBag["items"];
 
@@ -62,42 +62,33 @@ namespace Hive.ValueTypes
 				if ((propertyBagItemsData["type"] as string).IsNullOrEmpty())
 					throw new ModelLoadingException($"When using inline property definitions, the property type is mandatory (on {propertyDefinition}).");
 
-				var itemsType = (IDataType)valueTypeFactory.GetValueType(propertyBagItemsData["type"] as string) ??
-							propertyDefinition.EntityDefinition.Model.EntitiesBySingleName.SafeGet(propertyBagItemsData["type"] as string);
+				var itemsType = propertyDefinition.GetValueTypeOrEntityDefinition(propertyBagItemsData["type"] as string);
 				if (itemsType == null)
 					throw new ModelLoadingException(
 						$"Unable to find an entity or a value type named {propertyBagItemsData["type"]} (on {propertyDefinition}).");
 
-				propertyDefinition.AdditionalProperties[PropertyItems] = new PropertyDefinition
-				{
-					EntityDefinition = propertyDefinition.EntityDefinition,
-					PropertyBag = propertyBagItemsData,
-					Name = propertyDefinition.Name + "_items",
-					PropertyType = itemsType,
-					DefaultValue = propertyBagItemsData["default"]
-				};
+				propertyBagItemsData["name"] = propertyDefinition.Name + "_items";
+				propertyBagItemsData["description"] = $"Items for {propertyDefinition}";
+				propertyDefinition.AdditionalProperties[PropertyItems] =
+					PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, propertyBagItemsData);
 
 				return;
 			}
 
 			if (untypedItemsData is string)
 			{
-				var strItemsData = (string) untypedItemsData;
-
-				var itemsType = (IDataType)valueTypeFactory.GetValueType(strItemsData) ??
-							propertyDefinition.EntityDefinition.Model.EntitiesBySingleName.SafeGet(strItemsData);
+				var itemsType = propertyDefinition.GetValueTypeOrEntityDefinition((string) untypedItemsData);
 				if (itemsType == null)
 					throw new ModelLoadingException(
-						$"Unable to find an entity or a value type named {strItemsData} (on {propertyDefinition}).");
-
-				propertyDefinition.AdditionalProperties[PropertyItems] = new PropertyDefinition
+						$"Unable to find an entity or a value type named {untypedItemsData} (on {propertyDefinition}).");
+				var itemsPropertyBag = new PropertyBag
 				{
-					EntityDefinition = propertyDefinition.EntityDefinition,
-					PropertyBag = new PropertyBag(),
-					Name = propertyDefinition.Name + "_items",
-					PropertyType = itemsType,
-					DefaultValue = null
+					["name"] = propertyDefinition.Name + "_items",
+					["description"] = $"Items for {propertyDefinition}"
 				};
+
+				propertyDefinition.AdditionalProperties[PropertyItems] =
+					PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, itemsPropertyBag);
 
 				return;
 			}

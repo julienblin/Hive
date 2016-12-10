@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Hive.Foundation.Entities;
+using Hive.Foundation.Extensions;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
@@ -7,6 +8,7 @@ namespace Hive.Meta.Impl
 	internal class Model : IModel
 	{
 		public PropertyBag PropertyBag { get; set; }
+
 		public string Name { get; set; }
 
 		public SemVer Version { get; set; }
@@ -15,15 +17,9 @@ namespace Hive.Meta.Impl
 
 		public IImmutableDictionary<string, IEntityDefinition> EntitiesByPluralName { get; set; }
 
-		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
-		{
-			foreach (var entityDefinition in EntitiesBySingleName?.Values)
-			{
-				var ef = entityDefinition as EntityDefinition;
-				if (ef != null)
-					ef.FinishLoading(valueTypeFactory);
-			}
-		}
+		public IValueTypeFactory ValueTypeFactory { get; set; }
+
+		internal void ModelLoaded() => EntitiesBySingleName?.Values.SafeForEach(x => ((EntityDefinition)x).ModelLoaded());
 
 		public override string ToString() => Name;
 	}

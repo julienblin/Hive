@@ -28,6 +28,10 @@ namespace Hive.Meta.Impl
 
 		public IImmutableDictionary<string, IPropertyDefinition> Properties { get; set; }
 
+		void IDataType.ModelLoaded(IPropertyDefinition propertyDefinition)
+		{
+		}
+
 		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
 			var entityValue = value as IEntity;
@@ -50,20 +54,12 @@ namespace Hive.Meta.Impl
 			return result;
 		}
 
-		public virtual Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
+		Task IDataType.SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
-		{
-			foreach (var propertyDefinition in Properties?.Values)
-			{
-				var pf = propertyDefinition as PropertyDefinition;
-				if (pf != null)
-					pf.FinishLoading(valueTypeFactory);
-			}
-		}
+		internal void ModelLoaded() => Properties?.Values.SafeForEach(x => ((PropertyDefinition)x).ModelLoaded());
 
 		public override string ToString() => FullName;
 	}

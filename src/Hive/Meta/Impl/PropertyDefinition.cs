@@ -19,6 +19,8 @@ namespace Hive.Meta.Impl
 
 		public string Name { get; set; }
 
+		public string Description { get; set; }
+
 		public IDataType PropertyType { get; set; }
 
 		public object DefaultValue { get; set; }
@@ -32,16 +34,21 @@ namespace Hive.Meta.Impl
 
 		public PropertyBag PropertyBag { get; set; }
 
-		internal void FinishLoading(IValueTypeFactory valueTypeFactory)
+		internal void ModelLoaded()
 		{
 			if (PropertyType == null)
+			{
+				if (PropertyBag == null)
+				{
+					throw new ModelLoadingException($"Unable to finish model loading because PropertyBag is null for {this}.");
+				}
 				PropertyType = EntityDefinition.Model.EntitiesBySingleName.SafeGet(PropertyBag["type"] as string);
+			}
 
 			if (PropertyType == null)
 				throw new ModelLoadingException($"Unable to resolve property type {PropertyBag["type"] as string} for {this}.");
 
-			if (PropertyType is IValueType)
-				((IValueType) PropertyType).FinishLoading(valueTypeFactory, this);
+			PropertyType.ModelLoaded(this);
 		}
 
 		public override string ToString() => $"{EntityDefinition}.{Name}";

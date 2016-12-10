@@ -18,7 +18,7 @@ namespace Hive.ValueTypes
 
 		public Type InternalNetType => typeof(T);
 
-		public virtual void FinishLoading(IValueTypeFactory valueTypeFactory, IPropertyDefinition propertyDefinition)
+		public virtual void ModelLoaded(IPropertyDefinition propertyDefinition)
 		{
 		}
 

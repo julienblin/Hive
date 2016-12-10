@@ -12,6 +12,8 @@ namespace Hive.Meta
 
 		string Name { get; }
 
+		string Description { get; }
+
 		IDataType PropertyType { get; }
 
 		object DefaultValue { get; }

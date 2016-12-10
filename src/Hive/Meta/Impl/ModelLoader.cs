@@ -26,7 +26,8 @@ namespace Hive.Meta.Impl
 				{
 					PropertyBag = modelData,
 					Name = modelData["name"] as string,
-					Version = SemVer.Parse(modelData["version"] as string)
+					Version = SemVer.Parse(modelData["version"] as string),
+					ValueTypeFactory = _valueTypeFactory
 				};
 				model.EntitiesBySingleName = (modelData["entities"] as PropertyBag[])
 					.Safe()
@@ -34,7 +35,7 @@ namespace Hive.Meta.Impl
 						StringComparer.OrdinalIgnoreCase);
 				model.EntitiesByPluralName = model.EntitiesBySingleName.Values.ToImmutableDictionary(x => x.PluralName);
 
-				model.FinishLoading(_valueTypeFactory);
+				model.ModelLoaded();
 
 				return model;
 			}
@@ -63,14 +64,11 @@ namespace Hive.Meta.Impl
 
 		private IEnumerable<IPropertyDefinition> MapProperties(IEntityDefinition entityDefinition, PropertyBag[] properties)
 		{
-			var propertyDefinitions = properties.Safe().Select(property => new PropertyDefinition
-			{
-				EntityDefinition = entityDefinition,
-				PropertyBag = property,
-				Name = property["name"] as string,
-				PropertyType = _valueTypeFactory.GetValueType(property["type"] as string),
-				DefaultValue = property["default"]
-			}).ToList();
+			var propertyDefinitions = properties
+				.Safe()
+				.Select(property =>
+				PropertyDefinitionFactory.Create(entityDefinition, _valueTypeFactory.GetValueType(property["type"] as string), property))
+				.ToList();
 
 			if ((entityDefinition.EntityType != EntityType.None) &&
 			    !propertyDefinitions.Any(x => x.Name.SafeOrdinalEquals(MetaConstants.IdProperty)))

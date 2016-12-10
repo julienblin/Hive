@@ -1,0 +1,34 @@
+﻿{
+  "singleName": "passcodeValidation",
+  "pluralName": "passcodeValidations",
+  "type": "none",
+  "properties": [
+    {
+      "name": "secret",
+      "type": "string"
+    },
+    {
+      "name": "valid",
+      "type": "bool"
+    },
+    {
+      "name": "numberOfRemainingAttemps",
+      "type": "int"
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [ "notSet", "active", "locked" ]
+    },
+    {
+      "name": "user",
+      "type": "relation",
+      "target": "user"
+    }
+  ],
+  "handlers": [
+    {
+      "type": "create"
+    }
+  ] 
+}

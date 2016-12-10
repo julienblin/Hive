@@ -16,7 +16,7 @@ namespace Hive.Tests.Meta.Impl
 		[MemberData(nameof(LoadModelOkData))]
 		public void LoadModelOk(PropertyBag modelData, Action<IModel> asserts)
 		{
-			var modelLoader = new ModelLoader(new ValueTypeFactory());
+			var modelLoader = new ModelLoader(new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType(), new ArrayValueType() }));
 
 			var model = modelLoader.Load(modelData);
 
@@ -133,7 +133,6 @@ namespace Hive.Tests.Meta.Impl
 					var emailsProperty = fooEntity.Properties.SafeGet("emails");
 					emailsProperty.Should().NotBeNull();
 					emailsProperty.PropertyType.Should().BeOfType<ArrayValueType>();
-					(emailsProperty.AdditionalProperties["items"] as IDataType).Should().Be(emailEntity);
 				})
 			};
 		}

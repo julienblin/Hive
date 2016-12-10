@@ -20,6 +20,7 @@ using Hive.Web.Rest.Serializers;
 using Hive.Web.Rest.Serializers.Impl;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,11 +43,23 @@ namespace Hive.SampleApp
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddResponseCompression(options => options.Providers.Add<GzipCompressionProvider>());
+
 			services.AddOptions();
 			services.Configure<HiveOptions>(Configuration.GetSection("hive"));
 			services.Configure<JsonStructureMetaRepositoryOptions>(Configuration.GetSection("meta"));
 			services.Configure<RestOptions>(Configuration.GetSection("rest"));
 			services.Configure<DocumentDbOptions>(Configuration.GetSection("documentdb"));
+
+			services.AddSingleton<IValueType, ArrayValueType>();
+			services.AddSingleton<IValueType, BoolValueType>();
+			services.AddSingleton<IValueType, DateTimeValueType>();
+			services.AddSingleton<IValueType, DateValueType>();
+			services.AddSingleton<IValueType, EnumValueType>();
+			services.AddSingleton<IValueType, GuidValueType>();
+			services.AddSingleton<IValueType, IntValueType>();
+			services.AddSingleton<IValueType, RelationValueType>();
+			services.AddSingleton<IValueType, StringValueType>();
 
 			if (HostingEnvironment.IsDevelopment())
 				services.AddSingleton<IModelCache, NullModelCache>();
@@ -76,6 +89,7 @@ namespace Hive.SampleApp
 		{
 			serviceProvider.GetServices<IStartable>().SafeForEachParallel((x, ct) => x.Start(ct), CancellationToken.None).Wait();
 
+			app.UseResponseCompression();
 			app.UseRequestProcessor(serviceProvider.GetRequiredService<RestRequestProcessor>());
 		}
 	}

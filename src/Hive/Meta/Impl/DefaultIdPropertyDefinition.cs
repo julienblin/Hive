@@ -1,4 +1,5 @@
-﻿using Hive.ValueTypes;
+﻿using Hive.Foundation.Entities;
+using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
 {
@@ -10,6 +11,7 @@ namespace Hive.Meta.Impl
 			EntityDefinition = entityDefinition;
 			PropertyType = guidDataType;
 			DefaultValue = GuidValueType.NewGuidDefaultValue;
+			Description = $"Id for {entityDefinition}";
 		}
 	}
 }
