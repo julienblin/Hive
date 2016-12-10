@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Context;
 using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
@@ -14,17 +15,21 @@ namespace Hive.Web.RequestProcessors
 	{
 		protected RequestProcessor(
 			ITelemetry telemetry,
+			IContextService contextService,
 			IMetaService metaService,
 			IEntityFactory entityfactory,
 			IEntityService entityService)
 		{
 			Telemetry = telemetry.NotNull(nameof(telemetry));
+			ContextService = contextService.NotNull(nameof(contextService));
 			MetaService = metaService.NotNull(nameof(metaService));
 			EntityFactory = entityfactory.NotNull(nameof(entityfactory));
 			EntityService = entityService.NotNull(nameof(entityService));
 		}
 
 		protected ITelemetry Telemetry { get; }
+
+		protected IContextService ContextService { get; }
 
 		protected IMetaService MetaService { get; }
 

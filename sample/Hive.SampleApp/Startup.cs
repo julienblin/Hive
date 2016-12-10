@@ -4,6 +4,7 @@ using Hive.Azure.DocumentDb;
 using Hive.Cache;
 using Hive.Cache.Impl;
 using Hive.Config;
+using Hive.Context;
 using Hive.Entities;
 using Hive.Entities.Impl;
 using Hive.Foundation.Extensions;
@@ -15,12 +16,14 @@ using Hive.Validation;
 using Hive.Validation.Impl;
 using Hive.Validation.Validators;
 using Hive.ValueTypes;
+using Hive.Web.Context;
 using Hive.Web.Middlewares;
 using Hive.Web.Rest;
 using Hive.Web.Rest.Serializers;
 using Hive.Web.Rest.Serializers.Impl;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +48,7 @@ namespace Hive.SampleApp
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddResponseCompression(options => options.Providers.Add<GzipCompressionProvider>());
+			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 			services.AddOptions();
 			services.Configure<HiveOptions>(Configuration.GetSection("hive"));
@@ -81,6 +85,8 @@ namespace Hive.SampleApp
 			services.AddSingleton<IEntityValidationService, EntityValidationService>();
 			services.AddSingleton<IEntityService, EntityService>();
 			services.AddSingleton<IRestSerializerFactory, RestSerializerFactory>();
+
+			services.AddSingleton<IContextService, HttpContextService>();
 			services.AddSingleton<RestRequestProcessor>();
 
 			// Have to do it manually for now...
@@ -95,6 +101,7 @@ namespace Hive.SampleApp
 			serviceProvider.GetServices<IStartable>().SafeForEachParallel((x, ct) => x.Start(ct), CancellationToken.None).Wait();
 
 			app.UseResponseCompression();
+			app.UseContextService();
 			app.UseRequestProcessor(serviceProvider.GetRequiredService<RestRequestProcessor>());
 		}
 	}

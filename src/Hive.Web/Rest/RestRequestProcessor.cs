@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Commands;
+using Hive.Context;
 using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
@@ -28,11 +29,12 @@ namespace Hive.Web.Rest
 		public RestRequestProcessor(
 			IOptions<RestOptions> options,
 			ITelemetry telemetry,
+			IContextService contextService,
 			IMetaService metaService,
 			IEntityFactory entityfactory,
 			IEntityService entityService,
 			IRestSerializerFactory serializerFactory)
-			: base(telemetry, metaService, entityfactory, entityService)
+			: base(telemetry, contextService, metaService, entityfactory, entityService)
 		{
 			_options = options.NotNull(nameof(options));
 			_serializerFactory = serializerFactory.NotNull(nameof(serializerFactory));
