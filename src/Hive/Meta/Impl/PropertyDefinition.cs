@@ -25,6 +25,8 @@ namespace Hive.Meta.Impl
 
 		public object DefaultValue { get; set; }
 
+		public IEnumerable<IPropertyValidatorDefinition> ValidatorDefinitions { get; set; }
+
 		public IDictionary<string, object> AdditionalProperties => _additionalProperties.Value;
 
 		public Task SetDefaultValue(IEntity entity, CancellationToken ct)
@@ -49,6 +51,7 @@ namespace Hive.Meta.Impl
 				throw new ModelLoadingException($"Unable to resolve property type {PropertyBag["type"] as string} for {this}.");
 
 			PropertyType.ModelLoaded(this);
+			ValidatorDefinitions.SafeForEach(x => x.Validator?.ModelLoaded(x));
 		}
 
 		public override string ToString() => $"{EntityDefinition}.{Name}";

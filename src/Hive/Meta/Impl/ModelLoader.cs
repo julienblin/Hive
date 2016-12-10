@@ -5,6 +5,7 @@ using System.Linq;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Validation;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
@@ -12,10 +13,12 @@ namespace Hive.Meta.Impl
 	public class ModelLoader : IModelLoader
 	{
 		private readonly IValueTypeFactory _valueTypeFactory;
+		private readonly IValidatorFactory _validatorFactory;
 
-		public ModelLoader(IValueTypeFactory valueTypeFactory)
+		public ModelLoader(IValueTypeFactory valueTypeFactory, IValidatorFactory validatorFactory)
 		{
 			_valueTypeFactory = valueTypeFactory.NotNull(nameof(valueTypeFactory));
+			_validatorFactory = validatorFactory.NotNull(nameof(validatorFactory));
 		}
 
 		public IModel Load(PropertyBag modelData)
@@ -27,7 +30,8 @@ namespace Hive.Meta.Impl
 					PropertyBag = modelData,
 					Name = modelData["name"] as string,
 					Version = SemVer.Parse(modelData["version"] as string),
-					ValueTypeFactory = _valueTypeFactory
+					ValueTypeFactory = _valueTypeFactory,
+					ValidatorFactory = _validatorFactory
 				};
 				model.EntitiesBySingleName = (modelData["entities"] as PropertyBag[])
 					.Safe()

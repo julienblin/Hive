@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Hive.Foundation;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Web.Exceptions;
 
 namespace Hive.Web.Rest.Serializers.Impl
 {
@@ -19,7 +21,14 @@ namespace Hive.Web.Rest.Serializers.Impl
 
 		public override PropertyBag Deserialize(Stream stream)
 		{
-			return HiveJsonSerializer.Instance.Deserialize<PropertyBag>(stream);
+			try
+			{
+				return HiveJsonSerializer.Instance.Deserialize<PropertyBag>(stream);
+			}
+			catch (Exception ex)
+			{
+				throw new BadRequestException("Malformed json.", ex);
+			}
 		}
 	}
 }

@@ -14,5 +14,7 @@ namespace Hive.Foundation.Validation
 		public bool IsValid => !Errors.Safe().Any();
 
 		public IEnumerable<ValidationError> Errors { get; }
+
+		public override string ToString() => $"Valid: {IsValid} ({string.Join(", ", Errors.Safe())})";
 	}
 }

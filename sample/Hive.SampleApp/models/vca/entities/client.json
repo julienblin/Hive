@@ -5,11 +5,21 @@
   "properties": [
     {
       "name": "firstName",
-      "type": "string"
+      "type": "string",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
     },
     {
       "name": "lastName",
-      "type": "string"
+      "type": "string",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
     },
     {
       "name": "dateOfBirth",

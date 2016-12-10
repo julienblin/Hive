@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Validation;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
@@ -18,6 +19,8 @@ namespace Hive.Meta.Impl
 		public IImmutableDictionary<string, IEntityDefinition> EntitiesByPluralName { get; set; }
 
 		public IValueTypeFactory ValueTypeFactory { get; set; }
+
+		public IValidatorFactory ValidatorFactory { get; set; }
 
 		internal void ModelLoaded() => EntitiesBySingleName?.Values.SafeForEach(x => ((EntityDefinition)x).ModelLoaded());
 

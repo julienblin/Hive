@@ -86,6 +86,46 @@ namespace Hive.Web.Rest
 			throw new NotSupportedException();
 		}
 
+		protected override Task ProcessException(HttpContext context, Exception exception, CancellationToken ct)
+		{
+			var headers = context.Request.GetTypedHeaders();
+			var responseSerializer = headers.Accept.IsNullOrEmpty()
+				? _serializerFactory.GetByMediaType(headers.ContentType?.MediaType)
+				: _serializerFactory.GetByMediaType(headers.Accept.Safe().Select(x => x.MediaType));
+
+			if (exception is BadRequestException)
+			{
+				var badRequestException = (BadRequestException)exception;
+				context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
+				responseSerializer.Serialize(new MessageResponse(badRequestException.Message), context.Response.Body);
+				return Task.CompletedTask;
+			}
+
+			if (exception is NotFoundException)
+			{
+				var notFoundException = (NotFoundException)exception;
+				context.Response.StatusCode = StatusCodes.Status404NotFound;
+
+				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
+				responseSerializer.Serialize(new MessageResponse(notFoundException.Message), context.Response.Body);
+				return Task.CompletedTask;
+			}
+
+			if (exception is ValidationException)
+			{
+				var validationException = (ValidationException)exception;
+				context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
+
+				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
+				responseSerializer.Serialize(validationException.Results, context.Response.Body);
+				return Task.CompletedTask;
+			}
+
+			return base.ProcessException(context, exception, ct);
+		}
+
 		private async Task ProcessQuery(RestProcessParameters param, CancellationToken ct)
 		{
 			var query = BuildQuery(param);

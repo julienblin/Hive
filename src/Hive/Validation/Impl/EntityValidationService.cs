@@ -11,6 +11,13 @@ namespace Hive.Validation.Impl
 {
 	public class EntityValidationService : IEntityValidationService
 	{
+		private readonly IValidatorFactory _validatorFactory;
+
+		public EntityValidationService(IValidatorFactory validatorFactory)
+		{
+			_validatorFactory = validatorFactory.NotNull(nameof(validatorFactory));
+		}
+
 		public async Task Validate(IEntity entity, CancellationToken ct)
 		{
 			var validationResults = await TryValidate(entity, ct);
@@ -18,7 +25,7 @@ namespace Hive.Validation.Impl
 				throw new ValidationException(validationResults);
 		}
 
-		public Task<ValidationResults> TryValidate(IEntity entity, CancellationToken ct)
+		public async Task<ValidationResults> TryValidate(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
 
@@ -26,7 +33,15 @@ namespace Hive.Validation.Impl
 
 			ValidateId(entity, validationErrors);
 
-			return Task.FromResult(new ValidationResults(validationErrors));
+			foreach (var propertyDefinition in entity.Definition.Properties.Values.Safe())
+			{
+				foreach (var validatorDefinition in propertyDefinition.ValidatorDefinitions.Safe())
+				{
+					validationErrors.AddRange(await validatorDefinition.Validator.Validate(validatorDefinition, entity[propertyDefinition.Name], ct));
+				}
+			}
+
+			return new ValidationResults(validationErrors);
 		}
 
 		private static void ValidateId(IEntity entity, List<ValidationError> validationErrors)

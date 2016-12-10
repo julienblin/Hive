@@ -16,5 +16,7 @@ namespace Hive.Exceptions
 		}
 
 		public ValidationResults Results { get; }
+
+		public override string ToString() => $"{base.ToString()}: {Results}";
 	}
 }

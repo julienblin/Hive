@@ -13,6 +13,7 @@ using Hive.Meta.Impl;
 using Hive.Telemetry;
 using Hive.Validation;
 using Hive.Validation.Impl;
+using Hive.Validation.Validators;
 using Hive.ValueTypes;
 using Hive.Web.Middlewares;
 using Hive.Web.Rest;
@@ -60,6 +61,10 @@ namespace Hive.SampleApp
 			services.AddSingleton<IValueType, IntValueType>();
 			services.AddSingleton<IValueType, RelationValueType>();
 			services.AddSingleton<IValueType, StringValueType>();
+			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
+
+			services.AddSingleton<IValidator, RequiredValidator>();
+			services.AddSingleton<IValidatorFactory, ValidatorFactory>();
 
 			if (HostingEnvironment.IsDevelopment())
 				services.AddSingleton<IModelCache, NullModelCache>();
@@ -68,7 +73,6 @@ namespace Hive.SampleApp
 
 			services.AddSingleton<ITelemetry, DebugTelemetry>();
 			services.AddSingleton<IMetaRepository, JsonStructureMetaRepository>();
-			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
 			services.AddSingleton<IModelLoader, ModelLoader>();
 			services.AddSingleton<IMetaService, MetaService>();
 			services.AddSingleton<IEntityFactory, EntityFactory>();

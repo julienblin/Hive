@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hive.Foundation.Extensions;
 
 namespace Hive.Foundation.Validation
 {
@@ -18,5 +19,7 @@ namespace Hive.Foundation.Validation
 		public string Target { get; }
 
 		public IEnumerable<string> Messages { get; }
+
+		public override string ToString() => $"[{Target}]: {string.Join(", ", Messages.Safe())}";
 	}
 }

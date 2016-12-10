@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Meta.Impl;
+using Hive.Validation.Impl;
+using Hive.Validation.Validators;
 using Hive.ValueTypes;
 using Xunit;
 
@@ -16,7 +19,10 @@ namespace Hive.Tests.Meta.Impl
 		[MemberData(nameof(LoadModelOkData))]
 		public void LoadModelOk(PropertyBag modelData, Action<IModel> asserts)
 		{
-			var modelLoader = new ModelLoader(new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType(), new ArrayValueType() }));
+			var modelLoader = new ModelLoader(
+				new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType(), new ArrayValueType() }),
+				new ValidatorFactory(new[] { new RequiredValidator() })
+			);
 
 			var model = modelLoader.Load(modelData);
 
@@ -133,6 +139,49 @@ namespace Hive.Tests.Meta.Impl
 					var emailsProperty = fooEntity.Properties.SafeGet("emails");
 					emailsProperty.Should().NotBeNull();
 					emailsProperty.PropertyType.Should().BeOfType<ArrayValueType>();
+				})
+			};
+
+			yield return new object[]
+			{
+				new PropertyBag
+				{
+					["name"] = "TestModel",
+					["version"] = "1.2.3",
+					["entities"] = new[]
+					{
+						new PropertyBag
+						{
+							["singlename"] = "foo",
+							["pluralname"] = "foos",
+							["type"] = "masterdata",
+							["properties"] = new[]
+							{
+								new PropertyBag
+								{
+									["name"] = "name",
+									["type"] = "string",
+									["validators"] = new[]
+									{
+										new PropertyBag
+										{
+											["type"] = "required"
+										},
+									}
+								}
+							}
+						}
+					}
+				},
+				new Action<IModel>(model =>
+				{
+					var fooEntity = model.EntitiesBySingleName["foo"];
+					var namePropertyDefinition = fooEntity.Properties.SafeGet("name");
+					namePropertyDefinition.Should().NotBeNull();
+					namePropertyDefinition.ValidatorDefinitions.Should().NotBeEmpty();
+					var requiredValidatorDefinition = namePropertyDefinition.ValidatorDefinitions.First();
+					requiredValidatorDefinition.PropertyDefinition.Should().BeSameAs(namePropertyDefinition);
+					requiredValidatorDefinition.Validator.Should().BeOfType<RequiredValidator>();
 				})
 			};
 		}

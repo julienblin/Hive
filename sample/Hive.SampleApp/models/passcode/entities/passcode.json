@@ -11,19 +11,35 @@
     {
       "name": "secret",
       "type": "string",
-      "description": "The secret is the actual passcode validated against." 
+      "description": "The secret is the actual passcode validated against.",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
     },
     {
       "name": "failedValidationAttemps",
       "type": "int",
-      "description": "The number of failed validation attempts.", 
-      "default": 0
+      "description": "The number of failed validation attempts.",
+      "default": 0,
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
     },
     {
       "name": "status",
       "type": "enum",
-      "description": "The status of the passcode. Validation can only occured when status is active.", 
-      "values": [ "notSet", "active", "locked" ]
+      "description": "The status of the passcode. Validation can only occured when status is active.",
+      "values": [ "active", "locked" ],
+      "default": "active",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
     }
   ]
 }

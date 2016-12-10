@@ -18,6 +18,8 @@ namespace Hive.Meta
 
 		object DefaultValue { get; }
 
+		IEnumerable<IPropertyValidatorDefinition> ValidatorDefinitions { get; }
+
 		IDictionary<string, object> AdditionalProperties { get; }
 
 		PropertyBag PropertyBag { get; set; }

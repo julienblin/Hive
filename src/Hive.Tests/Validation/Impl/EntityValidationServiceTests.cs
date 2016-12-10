@@ -10,6 +10,7 @@ using Hive.Foundation.Entities;
 using Hive.Foundation.Validation;
 using Hive.Meta.Impl;
 using Hive.Validation.Impl;
+using Hive.Validation.Validators;
 using Hive.ValueTypes;
 using Xunit;
 
@@ -21,7 +22,7 @@ namespace Hive.Tests.Validation.Impl
 		[MemberData(nameof(TryValidateData))]
 		public async Task TryValidate(IEntity entity, Action<ValidationResults> asserts)
 		{
-			var validationService = new EntityValidationService();
+			var validationService = new EntityValidationService(new ValidatorFactory(new[] { new RequiredValidator() }));
 			var results = await validationService.TryValidate(entity, CancellationToken.None);
 			asserts(results);
 		}
@@ -59,11 +60,35 @@ namespace Hive.Tests.Validation.Impl
 								["type"] = "string"
 							}
 						}
+					},
+					new PropertyBag
+					{
+						["singlename"] = "Required",
+						["pluralname"] = "Requireds",
+						["type"] = "none",
+						["properties"] = new[]
+						{
+							new PropertyBag
+							{
+								["name"] = "name",
+								["type"] = "string",
+								["validators"] = new[]
+								{
+									new PropertyBag
+									{
+										["type"] = "required"
+									}
+								}
+							}
+						}
 					}
 				}
 			};
 
-			var modelLoader = new ModelLoader(new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType() }));
+			var modelLoader = new ModelLoader(
+				new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType() }),
+				new ValidatorFactory(new[] { new RequiredValidator() })
+			);
 			var model = modelLoader.Load(modelData);
 			var entityFactory = new EntityFactory();
 
@@ -88,6 +113,18 @@ namespace Hive.Tests.Validation.Impl
 			yield return new object[]
 			{
 				entityFactory.Hydrate(model.EntitiesBySingleName["RefIdString"], new PropertyBag { ["Id"] = Guid.NewGuid() }),
+				new Action<ValidationResults>(r => r.IsValid.Should().BeTrue())
+			};
+
+			yield return new object[]
+			{
+				entityFactory.Hydrate(model.EntitiesBySingleName["Required"], new PropertyBag()),
+				new Action<ValidationResults>(r => r.IsValid.Should().BeFalse())
+			};
+
+			yield return new object[]
+			{
+				entityFactory.Hydrate(model.EntitiesBySingleName["Required"], new PropertyBag { ["name"] ="foo" }),
 				new Action<ValidationResults>(r => r.IsValid.Should().BeTrue())
 			};
 		}
