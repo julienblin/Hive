@@ -15,14 +15,14 @@ namespace Hive.Validation.Validators
 		{
 			if (value == null)
 			{
-				yield return new ValidationError(validatorDefinition.PropertyDefinition.Name, $"{validatorDefinition.PropertyDefinition.Name} is required.");
+				yield return CreateError(validatorDefinition, $"{validatorDefinition.PropertyDefinition.Name} is required.");
 			}
 
 			if (value is string)
 			{
 				if (value.Equals(string.Empty))
 				{
-					yield return new ValidationError(validatorDefinition.PropertyDefinition.Name, $"{validatorDefinition.PropertyDefinition.Name} is required.");
+					yield return CreateError(validatorDefinition, $"{validatorDefinition.PropertyDefinition.Name} is required.");
 				}
 			}
 		}

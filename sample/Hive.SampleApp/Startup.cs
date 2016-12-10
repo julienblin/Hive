@@ -64,6 +64,7 @@ namespace Hive.SampleApp
 			services.AddSingleton<IValueTypeFactory, ValueTypeFactory>();
 
 			services.AddSingleton<IValidator, RequiredValidator>();
+			services.AddSingleton<IValidator, RegexValidator>();
 			services.AddSingleton<IValidatorFactory, ValidatorFactory>();
 
 			if (HostingEnvironment.IsDevelopment())

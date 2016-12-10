@@ -9,6 +9,11 @@
       "validators": [
         {
           "type": "required"
+        },
+        {
+          "type": "regex",
+          "pattern": "^[^\\s]*$",
+          "message": "The first name cannot contain whitespace." 
         }
       ]
     },

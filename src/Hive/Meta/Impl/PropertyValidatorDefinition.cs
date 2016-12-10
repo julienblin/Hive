@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hive.Foundation.Entities;
 using Hive.Validation;
 
 namespace Hive.Meta.Impl
@@ -13,6 +14,12 @@ namespace Hive.Meta.Impl
 
 		public IValidator Validator { get; set; }
 
+		public string Message { get; set; }
+
 		public IDictionary<string, object> AdditionalProperties => _additionalProperties.Value;
+
+		public PropertyBag PropertyBag { get; set; }
+
+		public override string ToString() => $"{PropertyDefinition}.{Validator.Name}";
 	}
 }

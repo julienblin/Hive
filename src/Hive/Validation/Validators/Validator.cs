@@ -29,5 +29,10 @@ namespace Hive.Validation.Validators
 		}
 
 		protected abstract IEnumerable<ValidationError> ValidateSync(IPropertyValidatorDefinition validatorDefinition, object value);
+
+		protected virtual ValidationError CreateError(IPropertyValidatorDefinition validatorDefinition, string defaultMessage)
+		{
+			return new ValidationError(validatorDefinition.PropertyDefinition.Name, validatorDefinition.Message ?? defaultMessage);
+		}
 	}
 }

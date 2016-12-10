@@ -39,7 +39,9 @@ namespace Hive.Meta
 				.Select(x => 
 					new PropertyValidatorDefinition
 					{
+						PropertyBag = x,
 						PropertyDefinition = propertyDefinition,
+						Message = x["message"] as string,
 						Validator = propertyDefinition.EntityDefinition.Model.ValidatorFactory.GetValidator(x["type"] as string)
 					})
 				.Where(x => x.Validator != null)
