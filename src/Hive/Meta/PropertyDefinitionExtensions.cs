@@ -8,7 +8,7 @@ namespace Hive.Meta
 		{
 			if (name.IsNullOrEmpty()) return null;
 
-			return (IDataType)propertyDefinition.EntityDefinition.Model.ValueTypeFactory.GetValueType(name)
+			return (IDataType)propertyDefinition.EntityDefinition.Model.Factories.ValueType.GetValueType(name)
 				?? propertyDefinition.EntityDefinition.Model.EntitiesBySingleName.SafeGet(name);
 		}
 	}

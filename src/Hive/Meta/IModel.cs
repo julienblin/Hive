@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
 using Hive.Foundation.Entities;
-using Hive.Validation;
-using Hive.ValueTypes;
 
 namespace Hive.Meta
 {
@@ -15,8 +13,6 @@ namespace Hive.Meta
 
 		IImmutableDictionary<string, IEntityDefinition> EntitiesByPluralName { get; }
 
-		IValueTypeFactory ValueTypeFactory { get; }
-
-		IValidatorFactory ValidatorFactory { get; }
+		IModelFactories Factories { get; }
 	}
 }

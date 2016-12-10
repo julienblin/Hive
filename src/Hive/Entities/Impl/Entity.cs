@@ -7,7 +7,7 @@ using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 
-namespace Hive.Entities
+namespace Hive.Entities.Impl
 {
 	internal class Entity : DynamicObject, IEntity
 	{

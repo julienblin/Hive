@@ -42,7 +42,7 @@ namespace Hive.Meta
 						PropertyBag = x,
 						PropertyDefinition = propertyDefinition,
 						Message = x["message"] as string,
-						Validator = propertyDefinition.EntityDefinition.Model.ValidatorFactory.GetValidator(x["type"] as string)
+						Validator = propertyDefinition.EntityDefinition.Model.Factories.Validator.GetValidator(x["type"] as string)
 					})
 				.Where(x => x.Validator != null)
 				.ToArray();

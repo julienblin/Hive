@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
@@ -14,24 +15,28 @@ namespace Hive.Meta.Impl
 	{
 		private readonly IValueTypeFactory _valueTypeFactory;
 		private readonly IValidatorFactory _validatorFactory;
+		private readonly IEntityFactory _entityFactory;
 
-		public ModelLoader(IValueTypeFactory valueTypeFactory, IValidatorFactory validatorFactory)
+		public ModelLoader(
+			IValueTypeFactory valueTypeFactory,
+			IValidatorFactory validatorFactory,
+			IEntityFactory entityFactory)
 		{
 			_valueTypeFactory = valueTypeFactory.NotNull(nameof(valueTypeFactory));
 			_validatorFactory = validatorFactory.NotNull(nameof(validatorFactory));
+			_entityFactory = entityFactory.NotNull(nameof(entityFactory));
 		}
 
 		public IModel Load(PropertyBag modelData)
 		{
 			try
 			{
-				var model = new Model
+				var model = new Model(
+					modelData["name"] as string,
+					SemVer.Parse(modelData["version"] as string),
+					new ModelFactories(_valueTypeFactory, _validatorFactory, _entityFactory))
 				{
-					PropertyBag = modelData,
-					Name = modelData["name"] as string,
-					Version = SemVer.Parse(modelData["version"] as string),
-					ValueTypeFactory = _valueTypeFactory,
-					ValidatorFactory = _validatorFactory
+					PropertyBag = modelData
 				};
 				model.EntitiesBySingleName = (modelData["entities"] as PropertyBag[])
 					.Safe()

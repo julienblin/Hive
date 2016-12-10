@@ -87,7 +87,8 @@ namespace Hive.Tests.Validation.Impl
 
 			var modelLoader = new ModelLoader(
 				new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType() }),
-				new ValidatorFactory(new[] { new RequiredValidator() })
+				new ValidatorFactory(new[] { new RequiredValidator() }),
+				new EntityFactory()
 			);
 			var model = modelLoader.Load(modelData);
 			var entityFactory = new EntityFactory();

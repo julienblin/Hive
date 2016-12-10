@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Hive.Entities.Impl;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
@@ -21,7 +22,8 @@ namespace Hive.Tests.Meta.Impl
 		{
 			var modelLoader = new ModelLoader(
 				new ValueTypeFactory(new IValueType[] { new StringValueType(), new GuidValueType(), new ArrayValueType() }),
-				new ValidatorFactory(new[] { new RequiredValidator() })
+				new ValidatorFactory(new[] { new RequiredValidator() }),
+				new EntityFactory()
 			);
 
 			var model = modelLoader.Load(modelData);

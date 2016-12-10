@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
+using Hive.Entities.Impl;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.ValueTypes;
@@ -12,6 +13,7 @@ namespace Hive.Meta.Impl
 	internal class EntityDefinition : IEntityDefinition
 	{
 		public PropertyBag PropertyBag { get; set; }
+
 		public string FullName => $"{Model.Name}.{Name}";
 
 		public string Name => SingleName;
@@ -43,15 +45,7 @@ namespace Hive.Meta.Impl
 			var propertyBagValue = value as PropertyBag;
 			if (propertyBagValue == null) return null;
 
-			var result = new Entity(this);
-			foreach (var property in propertyBagValue)
-			{
-				var itemPropertyDefinition = Properties.SafeGet(property.Key);
-				if (propertyDefinition != null)
-					result[property.Key] = itemPropertyDefinition.PropertyType.ConvertFromPropertyBagValue(propertyDefinition, property.Value);
-			}
-
-			return result;
+			return Model.Factories.Entity.Hydrate(this, propertyBagValue);
 		}
 
 		Task IDataType.SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
