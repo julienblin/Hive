@@ -1,0 +1,21 @@
+﻿{
+  "singleName": "patient",
+  "pluralName": "patients",
+  "type": "masterdata",
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
+    },
+    {
+      "name": "client",
+      "type": "relation",
+      "target":  "patient"
+    }
+  ]
+}

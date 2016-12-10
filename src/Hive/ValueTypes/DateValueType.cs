@@ -13,7 +13,7 @@ namespace Hive.ValueTypes
 		{
 		}
 
-		public override object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value, bool keepRelationInfo)
 		{
 			if (value == null) return null;
 

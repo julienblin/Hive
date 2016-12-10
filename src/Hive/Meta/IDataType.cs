@@ -13,7 +13,7 @@ namespace Hive.Meta
 
 		void ModelLoaded(IPropertyDefinition propertyDefinition);
 
-		object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value);
+		object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value, bool keepRelationInfo);
 
 		object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value);
 

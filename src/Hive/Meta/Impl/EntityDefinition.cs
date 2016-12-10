@@ -34,10 +34,10 @@ namespace Hive.Meta.Impl
 		{
 		}
 
-		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
+		object IDataType.ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value, bool keepRelationInfo)
 		{
 			var entityValue = value as IEntity;
-			return entityValue?.ToPropertyBag();
+			return entityValue?.ToPropertyBag(keepRelationInfo);
 		}
 
 		object IDataType.ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)

@@ -11,6 +11,7 @@ using Hive.Foundation.Lifecycle;
 using Hive.Meta;
 using Hive.Queries;
 using Hive.Telemetry;
+using Hive.ValueTypes;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
@@ -172,9 +173,10 @@ namespace Hive.Azure.DocumentDb
 
 		private static object ConvertToDocument(IEntity entity)
 		{
-			var propertyBag = entity.ToPropertyBag();
+			var propertyBag = entity.ToPropertyBag(keepRelationInfo: false);
 			propertyBag[MetaConstants.IdProperty] = GetDocumentId(entity.Definition, propertyBag[MetaConstants.IdProperty]);
 			propertyBag[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName;
+
 			return propertyBag;
 		}
 

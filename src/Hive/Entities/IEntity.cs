@@ -14,6 +14,6 @@ namespace Hive.Entities
 
 		object this[string propertyName] { get; set; }
 
-		PropertyBag ToPropertyBag();
+		PropertyBag ToPropertyBag(bool keepRelationInfo = true);
 	}
 }

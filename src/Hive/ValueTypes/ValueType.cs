@@ -22,7 +22,7 @@ namespace Hive.ValueTypes
 		{
 		}
 
-		public virtual object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
+		public virtual object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value, bool keepRelationInfo)
 		{
 			return value;
 		}

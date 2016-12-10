@@ -36,16 +36,17 @@ namespace Hive.ValueTypes
 			return result;
 		}
 
-		public override object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
+		public override object ConvertToPropertyBagValue(IPropertyDefinition propertyDefinition, object value, bool keepRelationInfo)
 		{
 			var netvalue = value as List<object>;
 			if (netvalue == null || netvalue.Count == 0) return null;
 
 			var itemsPropertyDefinition = (IPropertyDefinition)propertyDefinition.AdditionalProperties[PropertyItems];
 			var targetList = netvalue
-				.Select(x => itemsPropertyDefinition.PropertyType.ConvertToPropertyBagValue(itemsPropertyDefinition, x))
+				.Select(x => itemsPropertyDefinition.PropertyType.ConvertToPropertyBagValue(itemsPropertyDefinition, x, keepRelationInfo))
+				.Where(x => x != null)
 				.ToArray();
-			if (targetList.Length == 0) return null;
+			if (!targetList.Any()) return null;
 			var targetListItemsTypes = targetList.First().GetType();
 			var result = Array.CreateInstance(targetListItemsTypes, targetList.Length);
 			Array.Copy(targetList, result, targetList.Length);
@@ -69,8 +70,9 @@ namespace Hive.ValueTypes
 
 				propertyBagItemsData["name"] = propertyDefinition.Name + "_items";
 				propertyBagItemsData["description"] = $"Items for {propertyDefinition}";
-				propertyDefinition.AdditionalProperties[PropertyItems] =
-					PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, propertyBagItemsData);
+				var itemsPropertyDefinition = PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, propertyBagItemsData);
+				itemsPropertyDefinition.PropertyType.ModelLoaded(itemsPropertyDefinition);
+				propertyDefinition.AdditionalProperties[PropertyItems] = itemsPropertyDefinition;
 
 				return;
 			}
@@ -87,8 +89,9 @@ namespace Hive.ValueTypes
 					["description"] = $"Items for {propertyDefinition}"
 				};
 
-				propertyDefinition.AdditionalProperties[PropertyItems] =
-					PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, itemsPropertyBag);
+				var itemsPropertyDefinition = PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, itemsPropertyBag);
+				itemsPropertyDefinition.PropertyType.ModelLoaded(itemsPropertyDefinition);
+				propertyDefinition.AdditionalProperties[PropertyItems] = itemsPropertyDefinition;
 
 				return;
 			}

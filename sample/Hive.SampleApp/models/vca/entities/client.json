@@ -13,7 +13,7 @@
         {
           "type": "regex",
           "pattern": "^[^\\s]*$",
-          "message": "The first name cannot contain whitespace." 
+          "message": "The first name cannot contain whitespace."
         }
       ]
     },
@@ -38,6 +38,15 @@
     {
       "name": "detail",
       "type": "clientDetail"
+    },
+    {
+      "name": "patients",
+      "type": "array",
+      "items": {
+        "type": "relation",
+        "target": "patient",
+        "inverseOf": "client"
+      }
     }
   ]
 }

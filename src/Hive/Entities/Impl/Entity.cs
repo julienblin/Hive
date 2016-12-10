@@ -49,15 +49,14 @@ namespace Hive.Entities.Impl
 			}
 		}
 
-		public PropertyBag ToPropertyBag()
+		public PropertyBag ToPropertyBag(bool keepRelationInfo = true)
 		{
 			var propertyBag = new PropertyBag();
 
 			foreach (var propertyDefinition in Definition.Properties)
 			{
 				var propertyValue = this[propertyDefinition.Key];
-				var bagValue = propertyDefinition.Value.PropertyType.ConvertToPropertyBagValue(propertyDefinition.Value,
-					propertyValue);
+				var bagValue = propertyDefinition.Value.PropertyType.ConvertToPropertyBagValue(propertyDefinition.Value, propertyValue, keepRelationInfo);
 
 				if (bagValue != null)
 					propertyBag[propertyDefinition.Key] = bagValue;
