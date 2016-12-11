@@ -2,8 +2,8 @@
 {
 	public static class Operators
 	{
-		public static string Eq = "=";
+		public const string Eq = "=";
 
-		public static string In = "IN";
+		public const string In = "IN";
 	}
 }

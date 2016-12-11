@@ -20,7 +20,7 @@ namespace Hive.Queries
 			return new Criterion(propertyName, Operators.In, value);
 		}
 
-		public Criterion(string propertyName, object @operator, object value = null, bool isIdCriterion = false)
+		public Criterion(string propertyName, string @operator, object value = null, bool isIdCriterion = false)
 		{
 			PropertyName = propertyName.NotNullOrEmpty(nameof(propertyName));
 			Operator = @operator.NotNull(nameof(@operator));
@@ -30,7 +30,7 @@ namespace Hive.Queries
 
 		public string PropertyName { get; set; }
 
-		public object Operator { get; set; }
+		public string Operator { get; set; }
 
 		public object Value { get; set; }
 

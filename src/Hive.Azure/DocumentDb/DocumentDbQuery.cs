@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Queries;
@@ -97,11 +98,36 @@ namespace Hive.Azure.DocumentDb
 
 			foreach (var criterion in Criterions)
 			{
-				whereConditions.Add($"ROOT.{criterion.PropertyName} {criterion.Operator} @{criterion.PropertyName}");
-				parameters.Add(new SqlParameter($"@{criterion.PropertyName}", criterion.Value));
+				switch (criterion.Operator)
+				{
+					case Operators.Eq:
+						whereConditions.Add($"ROOT.{criterion.PropertyName} = @{criterion.PropertyName}");
+						parameters.Add(new SqlParameter($"@{criterion.PropertyName}", criterion.Value));
+						break;
+					case Operators.In:
+						whereConditions.Add($"ROOT.{criterion.PropertyName} IN ({string.Join(", ", GetInValues(criterion.Value))})");
+						break;
+					default:
+						throw new QueryException(this, $"Unsupported operator {criterion.Operator}.");
+				}
 			}
 
 			return string.Join(" AND ", whereConditions);
+		}
+
+		private IEnumerable<object> GetInValues(object values)
+		{
+			if (values is IEnumerable)
+			{
+				foreach (var value in (IEnumerable) values)
+				{
+					yield return value is string ? $"\"{value}\"" : value;
+				}
+			}
+			else
+			{
+				yield return values is string ? $"\"{values}\"" : values;
+			}
 		}
 	}
 }

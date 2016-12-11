@@ -6,7 +6,7 @@
 
 		object Value { get; set; }
 
-		object Operator { get; set; }
+		string Operator { get; set; }
 
 		bool IsIdCriterion { get; set; }
 	}

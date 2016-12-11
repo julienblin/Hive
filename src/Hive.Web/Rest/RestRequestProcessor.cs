@@ -105,6 +105,16 @@ namespace Hive.Web.Rest
 				return Task.CompletedTask;
 			}
 
+			if (exception is QueryException)
+			{
+				var queryException = (QueryException)exception;
+				context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
+				responseSerializer.Serialize(new MessageResponse(queryException.Message), context.Response.Body);
+				return Task.CompletedTask;
+			}
+
 			if (exception is NotFoundException)
 			{
 				var notFoundException = (NotFoundException)exception;
