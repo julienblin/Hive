@@ -101,11 +101,13 @@ namespace Hive.Azure.DocumentDb
 		{
 			var parameters = new SqlParameterCollection();
 
-			return new SqlQuerySpec($"SELECT * FROM ROOT WHERE {await BuildWhere(query, parameters, ct)}", parameters);
+			return new SqlQuerySpec($"SELECT VALUE ROOT FROM ROOT {await BuildWhere(query, parameters, ct)}", parameters);
 		}
 
-		private async Task<string> BuildWhere(DocumentDbQuery query, SqlParameterCollection parameters, CancellationToken ct)
+		private static async Task<string> BuildWhere(DocumentDbQuery query, SqlParameterCollection parameters, CancellationToken ct)
 		{
+			var joins = new List<string>();
+
 			var whereConditions = new List<string>
 			{
 				"ROOT." + DocumentDbConstants.EntityDefinitionProperty + " = @" + DocumentDbConstants.EntityDefinitionProperty
@@ -113,31 +115,39 @@ namespace Hive.Azure.DocumentDb
 
 			parameters.Add(new SqlParameter("@" + DocumentDbConstants.EntityDefinitionProperty, query.EntityDefinition.FullName));
 
-			foreach (var criterion in Criterions)
+			foreach (var criterion in query.Criterions)
 			{
 				string remaining;
 				var leading = criterion.PropertyName.SplitFirst('.', out remaining);
 
 				var propertyDefinition = query.EntityDefinition.Properties.SafeGet(leading);
 				if(propertyDefinition == null)
-					throw new QueryException(this, $"Unable to find a property named {leading} on {query.EntityDefinition}");
+					throw new QueryException(query, $"Unable to find a property named {leading} on {query.EntityDefinition}");
+
+				var criteria = $"ROOT.{criterion.PropertyName}";
+				if (propertyDefinition.PropertyType is ArrayValueType)
+				{
+					var prefix = GetPrefixName(propertyDefinition.Name);
+					joins.Add($" JOIN {prefix} IN ROOT.{propertyDefinition.Name}");
+					criteria = $"{prefix}.{remaining}";
+				}
 
 				switch (criterion.Operator)
 				{
 					case Operators.Eq:
 						var parameterName = GetParameterName(criterion.PropertyName);
-						whereConditions.Add($"ROOT.{criterion.PropertyName} = @{parameterName}");
+						whereConditions.Add($"{criteria} = @{parameterName}");
 						parameters.Add(new SqlParameter($"@{parameterName}", criterion.Value));
 						break;
 					case Operators.In:
-						whereConditions.Add($"ROOT.{criterion.PropertyName} IN ({string.Join(", ", GetInValues(criterion.Value))})");
+						whereConditions.Add($"{criteria} IN ({string.Join(", ", GetInValues(criterion.Value))})");
 						break;
 					default:
-						throw new QueryException(this, $"Unsupported operator {criterion.Operator}.");
+						throw new QueryException(query, $"Unsupported operator {criterion.Operator}.");
 				}
 			}
 
-			foreach (var subQuery in SubQueries)
+			foreach (var subQuery in query.SubQueries)
 			{
 				if (subQuery.Value.IsIdQuery)
 				{
@@ -154,12 +164,17 @@ namespace Hive.Azure.DocumentDb
 				}
 			}
 
-			return string.Join(" AND ", whereConditions);
+			return $"{string.Join(" ", joins)} WHERE {string.Join(" AND ", whereConditions)}";
 		}
 
-		private string GetParameterName(string criterionPropertyName)
+		private static string GetPrefixName(string propertyDefinitionName)
 		{
-			return criterionPropertyName.Replace(".", "_");
+			return $"prefix_{propertyDefinitionName}";
+		}
+
+		private static string GetParameterName(string propertyDefinitionName)
+		{
+			return propertyDefinitionName.Replace(".", "_");
 		}
 
 		private static IEnumerable<object> GetInValues(object values)
