@@ -15,7 +15,7 @@
     {
       "name": "client",
       "type": "relation",
-      "target":  "patient"
+      "target": "client"
     }
   ]
 }

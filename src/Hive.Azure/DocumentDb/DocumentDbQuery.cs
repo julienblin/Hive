@@ -1,14 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Queries;
 using Hive.Telemetry;
+using Hive.ValueTypes;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
@@ -18,10 +21,24 @@ namespace Hive.Azure.DocumentDb
 	public class DocumentDbQuery : Query
 	{
 		private readonly DocumentDbEntityRepository _repository;
+		private static readonly HashSet<Type> UnquotedTypesIn = new HashSet<Type>
+		{
+			typeof(int),
+			typeof(float),
+			typeof(double),
+			typeof(decimal),
+			typeof(bool)
+		};
 
-		public DocumentDbQuery(DocumentDbEntityRepository repository, IEntityDefinition entityDefinition) : base(entityDefinition)
+		public DocumentDbQuery(DocumentDbEntityRepository repository, IEntityDefinition entityDefinition)
+			: base(entityDefinition)
 		{
 			_repository = repository.NotNull(nameof(repository));
+		}
+
+		protected override IQuery InternalCreateSubQuery(IEntityDefinition entityDefinition)
+		{
+			return new DocumentDbQuery(_repository, entityDefinition);
 		}
 
 		public override async Task<IEnumerable> ToEnumerable(CancellationToken ct)
@@ -31,33 +48,33 @@ namespace Hive.Azure.DocumentDb
 				MaxItemCount = 50
 			};
 
-			var querySpec = BuildQuerySpec(this);
+			var querySpec = await BuildQuerySpec(this, ct);
 			var docs = await _repository.Telemetry.TrackAsyncDependency(
-					ct,
-					_ =>
-					{
-						var docQuery = _repository
-							.Client
-							.CreateDocumentQuery<Document>(_repository.CollectionUri, querySpec, options)
-							.AsDocumentQuery();
+				ct,
+				_ =>
+				{
+					var docQuery = _repository
+						.Client
+						.CreateDocumentQuery<Document>(_repository.CollectionUri, querySpec, options)
+						.AsDocumentQuery();
 
-						return docQuery.ListAsync(ct);
-					},
-					DependencyKind.HTTP,
-					_repository.DependencyName,
-					new Dictionary<string, string>
-					{
-						{ "Query", querySpec.QueryText },
-						{ "Parameters", string.Join(", ", querySpec.Parameters.Select(x => $"{x.Name} = {x.Value}")) }
-					}
-				);
+					return docQuery.ListAsync(ct);
+				},
+				DependencyKind.HTTP,
+				_repository.DependencyName,
+				new Dictionary<string, string>
+				{
+					{"Query", querySpec.QueryText},
+					{"Parameters", string.Join(", ", querySpec.Parameters.Select(x => $"{x.Name} = {x.Value}"))}
+				}
+			);
 
 			return docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x));
 		}
 
 		public override async Task<object> UniqueResult(CancellationToken ct)
 		{
-			if(IsIdQuery)
+			if (IsIdQuery)
 			{
 				try
 				{
@@ -80,14 +97,14 @@ namespace Hive.Azure.DocumentDb
 			return (await ToEnumerable(ct)).Cast<object>().First();
 		}
 
-		private SqlQuerySpec BuildQuerySpec(DocumentDbQuery query)
+		private async Task<SqlQuerySpec> BuildQuerySpec(DocumentDbQuery query, CancellationToken ct)
 		{
 			var parameters = new SqlParameterCollection();
 
-			return new SqlQuerySpec($"SELECT * FROM ROOT WHERE {BuildWhere(query, parameters)}", parameters);
+			return new SqlQuerySpec($"SELECT * FROM ROOT WHERE {await BuildWhere(query, parameters, ct)}", parameters);
 		}
 
-		private string BuildWhere(DocumentDbQuery query, SqlParameterCollection parameters)
+		private async Task<string> BuildWhere(DocumentDbQuery query, SqlParameterCollection parameters, CancellationToken ct)
 		{
 			var whereConditions = new List<string>
 			{
@@ -112,22 +129,44 @@ namespace Hive.Azure.DocumentDb
 				}
 			}
 
+			foreach (var subQuery in SubQueries)
+			{
+				if (subQuery.Value.IsIdQuery)
+				{
+					whereConditions.Add($"ROOT.{subQuery.Key}.{MetaConstants.IdProperty} = @{subQuery.Key}");
+					parameters.Add(new SqlParameter($"@{subQuery.Key}", ((DocumentDbQuery) subQuery.Value).Criterions[0].Value));
+				}
+				else
+				{
+					// We actually need to run the subquery at that point
+					var subEntities = await ((DocumentDbQuery) subQuery.Value).ToEnumerable<IEntity>(ct);
+					var subEntitiesIds = subEntities.Safe().Select(x => x.Id);
+					whereConditions.Add(
+						$"ROOT.{subQuery.Key}.{MetaConstants.IdProperty} IN ({string.Join(", ", GetInValues(subEntitiesIds))})");
+				}
+			}
+
 			return string.Join(" AND ", whereConditions);
 		}
 
-		private IEnumerable<object> GetInValues(object values)
+		private static IEnumerable<object> GetInValues(object values)
 		{
 			if (values is IEnumerable)
 			{
 				foreach (var value in (IEnumerable) values)
 				{
-					yield return value is string ? $"\"{value}\"" : value;
+					yield return GetInValue(value);
 				}
 			}
 			else
 			{
-				yield return values is string ? $"\"{values}\"" : values;
+				yield return GetInValue(values);
 			}
+		}
+
+		private static object GetInValue(object value)
+		{
+			return UnquotedTypesIn.Contains(value.GetType()) ? value : $"\"{value}\"";
 		}
 	}
 }

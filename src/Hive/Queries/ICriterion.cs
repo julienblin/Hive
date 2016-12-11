@@ -8,6 +8,6 @@
 
 		string Operator { get; set; }
 
-		bool IsIdCriterion { get; set; }
+		bool IsIdCriterion { get; }
 	}
 }

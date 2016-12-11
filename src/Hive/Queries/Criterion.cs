@@ -12,7 +12,7 @@ namespace Hive.Queries
 
 		public static ICriterion Eq(string propertyName, object value)
 		{
-			return new Criterion(propertyName, Operators.Eq, value, propertyName.SafeOrdinalEquals(MetaConstants.IdProperty));
+			return new Criterion(propertyName, Operators.Eq, value);
 		}
 
 		public static ICriterion In(string propertyName, object[] value)
@@ -20,12 +20,11 @@ namespace Hive.Queries
 			return new Criterion(propertyName, Operators.In, value);
 		}
 
-		public Criterion(string propertyName, string @operator, object value = null, bool isIdCriterion = false)
+		public Criterion(string propertyName, string @operator, object value = null)
 		{
 			PropertyName = propertyName.NotNullOrEmpty(nameof(propertyName));
 			Operator = @operator.NotNull(nameof(@operator));
 			Value = value;
-			IsIdCriterion = isIdCriterion;
 		}
 
 		public string PropertyName { get; set; }
@@ -34,6 +33,7 @@ namespace Hive.Queries
 
 		public object Value { get; set; }
 
-		public bool IsIdCriterion { get; set; }
+		public bool IsIdCriterion
+			=> Operator.SafeOrdinalEquals(Operators.Eq) && PropertyName.SafeOrdinalEquals(MetaConstants.IdProperty);
 	}
 }

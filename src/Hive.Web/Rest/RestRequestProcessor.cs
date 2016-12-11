@@ -161,24 +161,55 @@ namespace Hive.Web.Rest
 			}
 			else
 			{
-				var query = EntityService.CreateQuery(entityDefinition);
-				AddCriterions(query, restQuery);
-
+				var query = CreateQuery(entityDefinition, restQuery);
 				var result = await query.ToEnumerable<IEntity>(ct);
 				Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
 				return;
 			}
 		}
 
-		private void AddCriterions(IQuery query, RestQueryString restQuery)
+		private IQuery CreateQuery(IEntityDefinition entityDefinition, RestQueryString restQuery)
 		{
-			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$")))
+			var query = EntityService.CreateQuery(entityDefinition);
+			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$") && !x.Key.Contains(".")))
 			{
-				if (queryStringValue.Value.Count > 1)
-					query.Add(Criterion.In(queryStringValue.Key, queryStringValue.Value));
-				else
-					query.Add(Criterion.Eq(queryStringValue.Key, queryStringValue.Value.FirstOrDefault()));
+				AddQueryStringCriterion(query, queryStringValue);
 			}
+
+			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$") && x.Key.Contains(".")))
+			{
+				var relationSplit = queryStringValue.Key.Split('.');
+				if (relationSplit.Length != 2)
+					throw new BadRequestException("Multiple relation-level queries are not supported.");
+
+				var subQuery = query.GetOrCreateSubQuery(relationSplit[0]);
+				AddQueryStringCriterion(subQuery, new KeyValuePair<string, StringValues>(relationSplit[1], queryStringValue.Value));
+			}
+
+			foreach (var pathValue in restQuery.PathValues)
+			{
+				var targetEntityDef = entityDefinition.Model.EntitiesByPluralName.SafeGet(pathValue.Key);
+				if(targetEntityDef == null)
+					throw new NotFoundException($"Unable to find an entity definition named {pathValue.Key}");
+
+				// First, let's find by single name
+				var targetPropertyDefinition = entityDefinition.Properties.SafeGet(targetEntityDef.SingleName);
+				if (targetPropertyDefinition != null)
+				{
+					var subQuery = query.GetOrCreateSubQuery(targetPropertyDefinition.Name);
+					AddQueryStringCriterion(subQuery, new KeyValuePair<string, StringValues>(MetaConstants.IdProperty, pathValue.Value));
+				}
+			}
+
+			return query;
+		}
+
+		private static void AddQueryStringCriterion(IQuery query, KeyValuePair<string, StringValues> queryStringValue)
+		{
+			if (queryStringValue.Value.Count > 1)
+				query.Add(Criterion.In(queryStringValue.Key, queryStringValue.Value));
+			else
+				query.Add(Criterion.Eq(queryStringValue.Key, queryStringValue.Value.FirstOrDefault()));
 		}
 
 		private async Task ProcessPostCommand(RestProcessParameters param, CancellationToken ct)

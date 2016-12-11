@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,12 @@ namespace Hive.Queries
 {
 	public interface IQuery
 	{
+		/// <summary>
+		/// Adds a simple property criterion.
+		/// </summary>
 		IQuery Add(ICriterion criterion);
+
+		IQuery GetOrCreateSubQuery(string propertyName);
 
 		IQuery AddOrder(Order order);
 

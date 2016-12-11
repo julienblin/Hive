@@ -27,7 +27,7 @@ namespace Hive.ValueTypes
 			var entityId = bag[MetaConstants.IdProperty];
 			if (entityId == null) return null;
 
-			var entityDefinition = propertyDefinition.AdditionalProperties[PropertyTarget] as IEntityDefinition;
+			var entityDefinition = (IEntityDefinition)propertyDefinition.AdditionalProperties[PropertyTarget];
 
 			var entity = propertyDefinition.EntityDefinition.Model.Factories.Entity.Hydrate(entityDefinition, bag);
 
@@ -75,6 +75,11 @@ namespace Hive.ValueTypes
 
 				propertyDefinition.AdditionalProperties[PropertyInverseOf] = inverseOfPropertyDefinition;
 			}
+		}
+
+		public IEntityDefinition GetTarget(IPropertyDefinition propertyDefinition)
+		{
+			return (IEntityDefinition)propertyDefinition.AdditionalProperties[PropertyTarget];
 		}
 	}
 }
