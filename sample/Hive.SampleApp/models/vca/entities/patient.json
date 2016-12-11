@@ -13,6 +13,10 @@
       ]
     },
     {
+      "name": "foo",
+      "type": "address"  
+    },
+    {
       "name": "client",
       "type": "relation",
       "target": "client"

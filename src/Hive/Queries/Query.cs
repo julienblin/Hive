@@ -26,16 +26,41 @@ namespace Hive.Queries
 		{
 			if (criterion != null)
 			{
-				var propertyDefinition = EntityDefinition.Properties.SafeGet(criterion.PropertyName);
-				if (propertyDefinition == null)
-					throw new QueryException(this, $"Unable to filter by {criterion.PropertyName} because {criterion.PropertyName} is not a valid property of {EntityDefinition}.");
-				if(propertyDefinition.PropertyType is RelationValueType)
-					throw new QueryException(this, $"Unable to filter by {criterion.PropertyName} because {criterion.PropertyName} is a relation of {EntityDefinition}. Use Add(Query) instead.");
+				if(!CheckValidCriterion(EntityDefinition, criterion.PropertyName))
+					throw new QueryException(this, $"Unable to filter by {criterion.PropertyName} because {criterion.PropertyName} is not a valid property of {EntityDefinition} or it includes a relation.");
 
-				criterion.PropertyName = propertyDefinition.Name;
+				criterion.PropertyName = criterion.PropertyName;
 				Criterions.Add(criterion);
 			}
 			return this;
+		}
+
+		private bool CheckValidCriterion(IEntityDefinition entityDefinition, string propertyName)
+		{
+			string remaining = null;
+			var leading = propertyName.SplitFirst('.', out remaining);
+			var propertyDefinition = entityDefinition.Properties.SafeGet(leading);
+			if ((propertyDefinition == null)
+			 || (propertyDefinition.PropertyType.IsRelation && !remaining.SafeOrdinalEquals(MetaConstants.IdProperty)))
+			{
+				return false;
+			}
+
+			if (remaining == null) return true;
+
+			var targetDataType = propertyDefinition.PropertyType;
+			var indirectTargetEntityDefinition =
+				targetDataType.GetTargetValueType(propertyDefinition);
+			IEntityDefinition targetEntityDefinition;
+			if (indirectTargetEntityDefinition != null)
+			{
+				targetEntityDefinition = indirectTargetEntityDefinition as IEntityDefinition;
+			}
+			else
+			{
+				targetEntityDefinition = targetDataType as IEntityDefinition;
+			}
+			return targetEntityDefinition != null && CheckValidCriterion(targetEntityDefinition, remaining);
 		}
 
 		public virtual IQuery GetOrCreateSubQuery(string propertyName)
@@ -49,10 +74,10 @@ namespace Hive.Queries
 			if (propertyDefinition == null)
 				throw new QueryException(this, $"Unable to create sub-query for property {propertyName} because it is not a valid property of {EntityDefinition}.");
 
-			if(!(propertyDefinition.PropertyType is RelationValueType))
+			if(!propertyDefinition.PropertyType.IsRelation)
 				throw new QueryException(this, $"Unable to create sub-query for property {propertyName} because it is not a relation property of {EntityDefinition}.");
 
-			var subquery = InternalCreateSubQuery(((RelationValueType)propertyDefinition.PropertyType).GetTarget(propertyDefinition));
+			var subquery = InternalCreateSubQuery(propertyDefinition.PropertyType.GetTargetValueType(propertyDefinition) as IEntityDefinition);
 			SubQueries[propertyDefinition.Name] = subquery;
 
 			return subquery;
@@ -73,7 +98,7 @@ namespace Hive.Queries
 
 		public abstract Task<object> UniqueResult(CancellationToken ct);
 
-		protected IEntityDefinition EntityDefinition { get; }
+		public IEntityDefinition EntityDefinition { get; }
 
 		protected IDictionary<string, IQuery> SubQueries { get; }
 

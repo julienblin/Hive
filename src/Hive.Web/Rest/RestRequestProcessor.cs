@@ -48,7 +48,7 @@ namespace Hive.Web.Rest
 			if (!request.Path.StartsWithSegments(_options.Value.MountPoint, out partialPath)) return false;
 
 			var pathSegments = partialPath.Value?.Split('/').Where(x => !x.Trim().IsNullOrEmpty()).ToArray();
-			if (pathSegments?.Length < 2) return false;
+			if (pathSegments == null || pathSegments.Length < 2) return false;
 
 			var model = await MetaService.GetModel(pathSegments[0], ct);
 			pathSegments = pathSegments.Skip(1).ToArray();
@@ -157,59 +157,76 @@ namespace Hive.Web.Rest
 				}
 
 				Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
-				return;
 			}
 			else
 			{
 				var query = CreateQuery(entityDefinition, restQuery);
 				var result = await query.ToEnumerable<IEntity>(ct);
 				Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
-				return;
 			}
 		}
 
 		private IQuery CreateQuery(IEntityDefinition entityDefinition, RestQueryString restQuery)
 		{
 			var query = EntityService.CreateQuery(entityDefinition);
-			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$") && !x.Key.Contains(".")))
+			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$")))
 			{
-				AddQueryStringCriterion(query, queryStringValue);
+				RecursiveFillQuery(query, null, queryStringValue.Key, queryStringValue.Value);
 			}
 
-			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$") && x.Key.Contains(".")))
+			if (restQuery.PathValues.Count == 0)
+				return query;
+
+			if (restQuery.PathValues.Count > 1)
+				throw new BadRequestException("Multi-level query expressions in path is not supported.");
+
+			var pathValue = restQuery.PathValues.First();
+
+			var targetEntityDef = entityDefinition.Model.EntitiesByPluralName.SafeGet(pathValue.Key);
+			if (targetEntityDef == null)
+				throw new NotFoundException($"Unable to find an entity definition named {pathValue.Key}");
+
+			var targetPropertyDefinition = entityDefinition.Properties.SafeGet(targetEntityDef.SingleName);
+			if (targetPropertyDefinition != null)
 			{
-				var relationSplit = queryStringValue.Key.Split('.');
-				if (relationSplit.Length != 2)
-					throw new BadRequestException("Multiple relation-level queries are not supported.");
-
-				var subQuery = query.GetOrCreateSubQuery(relationSplit[0]);
-				AddQueryStringCriterion(subQuery, new KeyValuePair<string, StringValues>(relationSplit[1], queryStringValue.Value));
-			}
-
-			foreach (var pathValue in restQuery.PathValues)
-			{
-				var targetEntityDef = entityDefinition.Model.EntitiesByPluralName.SafeGet(pathValue.Key);
-				if(targetEntityDef == null)
-					throw new NotFoundException($"Unable to find an entity definition named {pathValue.Key}");
-
-				// First, let's find by single name
-				var targetPropertyDefinition = entityDefinition.Properties.SafeGet(targetEntityDef.SingleName);
-				if (targetPropertyDefinition != null)
-				{
-					var subQuery = query.GetOrCreateSubQuery(targetPropertyDefinition.Name);
-					AddQueryStringCriterion(subQuery, new KeyValuePair<string, StringValues>(MetaConstants.IdProperty, pathValue.Value));
-				}
+				var subQuery = query.GetOrCreateSubQuery(targetPropertyDefinition.Name);
+				RecursiveFillQuery(subQuery, null, MetaConstants.IdProperty, pathValue.Value);
 			}
 
 			return query;
 		}
 
-		private static void AddQueryStringCriterion(IQuery query, KeyValuePair<string, StringValues> queryStringValue)
+		private void RecursiveFillQuery(IQuery query, string protectedLeading, string selector, StringValues selectorValues)
 		{
-			if (queryStringValue.Value.Count > 1)
-				query.Add(Criterion.In(queryStringValue.Key, queryStringValue.Value));
+			string remaining;
+			var leading = selector.SplitFirst('.', out remaining);
+			if ((remaining == null) || remaining.SafeOrdinalEquals(MetaConstants.IdProperty))
+			{
+				AddCriterion(query, protectedLeading == null ? selector : $"{protectedLeading}.{selector}", selectorValues);
+				return;
+			}
+
+			var propertyDefinition = query.EntityDefinition.Properties.SafeGet(leading);
+			if(propertyDefinition == null)
+				throw new BadRequestException($"Unable to find a property named {leading} on {query.EntityDefinition}");
+
+			if (propertyDefinition.PropertyType.IsRelation)
+			{
+				var subQuery = query.GetOrCreateSubQuery(leading);
+				RecursiveFillQuery(subQuery, null, remaining, selectorValues);
+			}
 			else
-				query.Add(Criterion.Eq(queryStringValue.Key, queryStringValue.Value.FirstOrDefault()));
+			{
+				RecursiveFillQuery(query, leading, remaining, selectorValues);
+			}
+		}
+
+		private static void AddCriterion(IQuery query, string selector, StringValues selectorValues)
+		{
+			if (selectorValues.Count > 1)
+				query.Add(Criterion.In(selector, selectorValues));
+			else
+				query.Add(Criterion.Eq(selector, selectorValues.FirstOrDefault()));
 		}
 
 		private async Task ProcessPostCommand(RestProcessParameters param, CancellationToken ct)

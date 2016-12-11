@@ -115,11 +115,19 @@ namespace Hive.Azure.DocumentDb
 
 			foreach (var criterion in Criterions)
 			{
+				string remaining;
+				var leading = criterion.PropertyName.SplitFirst('.', out remaining);
+
+				var propertyDefinition = query.EntityDefinition.Properties.SafeGet(leading);
+				if(propertyDefinition == null)
+					throw new QueryException(this, $"Unable to find a property named {leading} on {query.EntityDefinition}");
+
 				switch (criterion.Operator)
 				{
 					case Operators.Eq:
-						whereConditions.Add($"ROOT.{criterion.PropertyName} = @{criterion.PropertyName}");
-						parameters.Add(new SqlParameter($"@{criterion.PropertyName}", criterion.Value));
+						var parameterName = GetParameterName(criterion.PropertyName);
+						whereConditions.Add($"ROOT.{criterion.PropertyName} = @{parameterName}");
+						parameters.Add(new SqlParameter($"@{parameterName}", criterion.Value));
 						break;
 					case Operators.In:
 						whereConditions.Add($"ROOT.{criterion.PropertyName} IN ({string.Join(", ", GetInValues(criterion.Value))})");
@@ -147,6 +155,11 @@ namespace Hive.Azure.DocumentDb
 			}
 
 			return string.Join(" AND ", whereConditions);
+		}
+
+		private string GetParameterName(string criterionPropertyName)
+		{
+			return criterionPropertyName.Replace(".", "_");
 		}
 
 		private static IEnumerable<object> GetInValues(object values)

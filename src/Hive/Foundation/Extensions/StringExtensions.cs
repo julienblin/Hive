@@ -10,6 +10,11 @@ namespace Hive.Foundation.Extensions
 			return string.IsNullOrEmpty(value);
 		}
 
+		public static bool IsNullOrWhiteSpace(this string value)
+		{
+			return string.IsNullOrWhiteSpace(value);
+		}
+
 		public static bool SafeOrdinalEquals(this string value, string other)
 		{
 			return string.Equals(value, other, StringComparison.Ordinal);
@@ -34,6 +39,14 @@ namespace Hive.Foundation.Extensions
 				return default(T);
 
 			return (T) Enum.Parse(typeof(T), value, ignoreCase);
+		}
+
+		public static string SplitFirst(this string value, char separator, out string remaining)
+		{
+			value.NotNullOrEmpty(nameof(value));
+			var result = value.Split(new[] { separator }, 2);
+			remaining = (result.Length == 1) || (result[1].IsNullOrWhiteSpace()) ? null : result[1];
+			return result[0];
 		}
 	}
 }

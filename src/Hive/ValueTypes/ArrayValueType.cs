@@ -99,5 +99,7 @@ namespace Hive.ValueTypes
 			throw new ModelLoadingException(
 					$"An array must have an item property that points to either a value type or an entity (on {propertyDefinition}).");
 		}
+
+		public override IDataType GetTargetValueType(IPropertyDefinition propertyDefinition) => ((IPropertyDefinition)propertyDefinition.AdditionalProperties[PropertyItems]).PropertyType;
 	}
 }

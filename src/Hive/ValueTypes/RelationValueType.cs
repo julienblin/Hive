@@ -77,9 +77,8 @@ namespace Hive.ValueTypes
 			}
 		}
 
-		public IEntityDefinition GetTarget(IPropertyDefinition propertyDefinition)
-		{
-			return (IEntityDefinition)propertyDefinition.AdditionalProperties[PropertyTarget];
-		}
+		public override bool IsRelation => true;
+
+		public override IDataType GetTargetValueType(IPropertyDefinition propertyDefinition) => (IEntityDefinition)propertyDefinition.AdditionalProperties[PropertyTarget];
 	}
 }

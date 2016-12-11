@@ -18,5 +18,9 @@ namespace Hive.Meta
 		object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value);
 
 		Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct);
+
+		bool IsRelation { get; }
+
+		IDataType GetTargetValueType(IPropertyDefinition propertyDefinition);
 	}
 }

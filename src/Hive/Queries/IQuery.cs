@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Meta;
 
 namespace Hive.Queries
 {
@@ -21,5 +22,7 @@ namespace Hive.Queries
 		Task<IEnumerable> ToEnumerable(CancellationToken ct);
 
 		Task<object> UniqueResult(CancellationToken ct);
+
+		IEntityDefinition EntityDefinition { get; }
 	}
 }
