@@ -130,16 +130,18 @@ namespace Hive.Web.Rest
 
 		private async Task ProcessQuery(RestProcessParameters param, CancellationToken ct)
 		{
-			var query = BuildQuery(param);
+			var restQuery = new RestQueryString(param);
+			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
+			if (entityDefinition == null)
+				throw new NotFoundException($"Unable to find an entity definition named {restQuery.Root}.");
 
-			if (query is IdQuery)
+			if (!restQuery.AdditionalQualifier.IsNullOrEmpty())
 			{
-				var idQuery = (IdQuery) query;
-				var result = await EntityService.Execute(idQuery, ct);
+				var result = await EntityService.GetById(entityDefinition, restQuery.AdditionalQualifier, ct);
 				if (result == null)
 				{
 					Respond(param,
-						new MessageResponse($"Unable to find a {idQuery.EntityDefinition.SingleName} with id {idQuery.Id}"),
+						new MessageResponse($"Unable to find a {entityDefinition.SingleName} with id {restQuery.AdditionalQualifier}"),
 						StatusCodes.Status404NotFound);
 					return;
 				}
@@ -147,34 +149,26 @@ namespace Hive.Web.Rest
 				Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
 				return;
 			}
-
-			if (query is ListQuery)
+			else
 			{
-				var listQuery = (ListQuery) query;
-				var result = await EntityService.Execute(listQuery, ct);
+				var query = EntityService.CreateQuery(entityDefinition);
+				AddCriterions(query, restQuery);
+
+				var result = await query.ToEnumerable<IEntity>(ct);
 				Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
 				return;
 			}
-
-			throw new NotImplementedException();
 		}
 
-		private static IQuery BuildQuery(RestProcessParameters param)
+		private void AddCriterions(IQuery query, RestQueryString restQuery)
 		{
-			var restQuery = new RestQueryString(param);
-			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
-			if (entityDefinition == null)
-				throw new NotFoundException($"Unable to find an entity definition named {restQuery.Root}.");
-
-			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
+			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$")))
 			{
-				var query = new ListQuery(entityDefinition);
-				if (restQuery.QueryStringValues.ContainsKey("$limit"))
-					query.Limit = restQuery.QueryStringValues["$limit"].FirstOrDefault().IntSafeInvariantParse();
-				return query;
+				if (queryStringValue.Value.Count > 1)
+					query.Add(Criterion.In(queryStringValue.Key, queryStringValue.Value));
+				else
+					query.Add(Criterion.Eq(queryStringValue.Key, queryStringValue.Value.FirstOrDefault()));
 			}
-
-			return new IdQuery(entityDefinition, restQuery.AdditionalQualifier);
 		}
 
 		private async Task ProcessPostCommand(RestProcessParameters param, CancellationToken ct)

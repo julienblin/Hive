@@ -46,7 +46,7 @@ namespace Hive.Telemetry
 
 		private string Format(IDictionary<string, string> properties)
 		{
-			return properties == null ? null : string.Join(",", properties.Select(x => $"{x.Key}: {x.Value}"));
+			return properties == null ? null : string.Join(", ", properties.Select(x => $"{x.Key}: {x.Value}"));
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +10,8 @@ using Hive.Foundation.Lifecycle;
 using Hive.Meta;
 using Hive.Queries;
 using Hive.Telemetry;
-using Hive.ValueTypes;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Options;
 
 namespace Hive.Azure.DocumentDb
@@ -23,7 +20,6 @@ namespace Hive.Azure.DocumentDb
 	{
 		private readonly Lazy<IDocumentClient> _lazyClient;
 		private readonly Lazy<Uri> _lazyCollectionUri;
-		private readonly ITelemetry _telemetry;
 		private readonly IMetaService _metaService;
 		private readonly IEntityFactory _entityFactory;
 		private readonly IOptions<DocumentDbOptions> _options;
@@ -35,8 +31,8 @@ namespace Hive.Azure.DocumentDb
 			IEntityFactory entityFactory)
 		{
 			_options = options.NotNull(nameof(options));
+			Telemetry = telemetry.NotNull(nameof(telemetry));
 			_metaService = metaService.NotNull(nameof(metaService));
-			_telemetry = telemetry.NotNull(nameof(telemetry));
 			_entityFactory = entityFactory.NotNull(nameof(entityFactory));
 			_lazyClient = new Lazy<IDocumentClient>(CreateClient);
 			_lazyCollectionUri = new Lazy<Uri>(CreateCollectionUri);
@@ -44,25 +40,23 @@ namespace Hive.Azure.DocumentDb
 			DependencyName = $"DocumentDb ({_options.Value.Database})";
 		}
 
-		private IDocumentClient Client => _lazyClient.Value;
+		internal IDocumentClient Client => _lazyClient.Value;
 
-		private Uri CollectionUri => _lazyCollectionUri.Value;
+		internal ITelemetry Telemetry { get; }
 
-		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
+		internal Uri CollectionUri => _lazyCollectionUri.Value;
+
+		public IQuery CreateQuery(IEntityDefinition entityDefinition)
 		{
-			if (query is IdQuery)
-				return ExecuteIdQuery<T>(query as IdQuery, ct);
+			entityDefinition.NotNull(nameof(entityDefinition));
 
-			if (query is ListQuery)
-				return ExecuteListQuery<T>(query as ListQuery, ct);
-
-			throw new NotSupportedException($"{query.GetType()}");
+			return new DocumentDbQuery(this, entityDefinition);
 		}
 
 		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
-			var doc = await _telemetry.TrackAsyncDependency(
+			var doc = await Telemetry.TrackAsyncDependency(
 				ct,
 				_ => Client.CreateDocumentAsync(CollectionUri, ConvertToDocument(entity), disableAutomaticIdGeneration: true),
 				DependencyKind.HTTP,
@@ -74,7 +68,7 @@ namespace Hive.Azure.DocumentDb
 		public async Task<IEntity> Update(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
-			var doc = await _telemetry.TrackAsyncDependency(
+			var doc = await Telemetry.TrackAsyncDependency(
 				ct,
 				_ => Client.ReplaceDocumentAsync(GetDocumentUri(entity), ConvertToDocument(entity)),
 				DependencyKind.HTTP,
@@ -90,7 +84,7 @@ namespace Hive.Azure.DocumentDb
 
 			try
 			{
-				await _telemetry.TrackAsyncDependency(
+				await Telemetry.TrackAsyncDependency(
 					ct,
 					_ => Client.DeleteDocumentAsync(GetDocumentUri(entityDefinition, id)),
 					DependencyKind.HTTP,
@@ -112,66 +106,7 @@ namespace Hive.Azure.DocumentDb
 			await CreateCollectionIfNotExists();
 		}
 
-		private async Task<T> ExecuteIdQuery<T>(IdQuery query, CancellationToken ct)
-		{
-			query.NotNull(nameof(query));
-			query.Id.NotNull(nameof(query.Id));
-
-			try
-			{
-				var doc = await _telemetry.TrackAsyncDependency(
-					ct,
-					_ => Client.ReadDocumentAsync(GetDocumentUri(query.EntityDefinition, query.Id)),
-					DependencyKind.HTTP,
-					DependencyName
-				);
-				return (T) ConvertToEntity(query.EntityDefinition, doc);
-			}
-			catch (DocumentClientException ex)
-			{
-				if (ex.StatusCode == HttpStatusCode.NotFound)
-					return default(T);
-				throw;
-			}
-		}
-
-		private async Task<T> ExecuteListQuery<T>(ListQuery query, CancellationToken ct)
-		{
-			query.NotNull(nameof(query));
-
-			try
-			{
-				var queryBuilder = new DocumentDbSqlQueryBuilder<T>(query);
-				var options = new FeedOptions
-				{
-					MaxItemCount = query.Limit
-				};
-
-				var docs = await _telemetry.TrackAsyncDependency(
-					ct,
-					_ =>
-					{
-						var docQuery = Client
-							.CreateDocumentQuery<Document>(CollectionUri, queryBuilder.GetSqlQuerySpec(), options)
-							.AsDocumentQuery();
-
-						return docQuery.ListAsync(ct);
-					},
-					DependencyKind.HTTP,
-					DependencyName
-				);
-
-				return (T) docs.Select(x => ConvertToEntity(query.EntityDefinition, x));
-			}
-			catch (DocumentClientException ex)
-			{
-				if (ex.StatusCode == HttpStatusCode.NotFound)
-					return default(T);
-				throw;
-			}
-		}
-
-		private static object ConvertToDocument(IEntity entity)
+		internal object ConvertToDocument(IEntity entity)
 		{
 			var propertyBag = entity.ToPropertyBag(keepRelationInfo: false);
 			propertyBag[MetaConstants.IdProperty] = GetDocumentId(entity.Definition, propertyBag[MetaConstants.IdProperty]);
@@ -180,7 +115,7 @@ namespace Hive.Azure.DocumentDb
 			return propertyBag;
 		}
 
-		private IEntity ConvertToEntity(IEntityDefinition entityDefinition, Document doc)
+		internal IEntity ConvertToEntity(IEntityDefinition entityDefinition, Document doc)
 		{
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
 			propertyBag[MetaConstants.IdProperty] =
@@ -198,17 +133,17 @@ namespace Hive.Azure.DocumentDb
 			return UriFactory.CreateDocumentCollectionUri(_options.Value.Database, _options.Value.Collection);
 		}
 
-		private Uri GetDocumentUri(IEntity entity)
+		internal Uri GetDocumentUri(IEntity entity)
 		{
 			return GetDocumentUri(entity.Definition, entity.Id);
 		}
 
-		private Uri GetDocumentUri(IEntityDefinition entityDefinition, object id)
+		internal Uri GetDocumentUri(IEntityDefinition entityDefinition, object id)
 		{
 			return GetDocumentUri(GetDocumentId(entityDefinition, id));
 		}
 
-		private Uri GetDocumentUri(string documentId)
+		internal Uri GetDocumentUri(string documentId)
 		{
 			return UriFactory.CreateDocumentUri(_options.Value.Database, _options.Value.Collection, documentId);
 		}
@@ -251,6 +186,6 @@ namespace Hive.Azure.DocumentDb
 			}
 		}
 
-		private string DependencyName { get; } 
+		internal string DependencyName { get; } 
 	}
 }

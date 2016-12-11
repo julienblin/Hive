@@ -7,7 +7,7 @@ namespace Hive.Entities
 {
 	public interface IEntityRepository
 	{
-		Task<T> Execute<T>(Query<T> query, CancellationToken ct);
+		IQuery CreateQuery(IEntityDefinition entityDefinition);
 
 		Task<IEntity> Create(IEntity entity, CancellationToken ct);
 

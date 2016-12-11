@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hive.Commands;
 using Hive.Foundation.Extensions;
+using Hive.Meta;
 using Hive.Queries;
 using Hive.Validation;
 
@@ -19,9 +20,12 @@ namespace Hive.Entities.Impl
 			_entityRepository = entityRepository.NotNull(nameof(entityRepository));
 		}
 
-		public Task<T> Execute<T>(Query<T> query, CancellationToken ct)
+		public IQuery CreateQuery(IEntityDefinition entityDefinition)
 		{
-			return _entityRepository.Execute(query, ct);
+			entityDefinition.NotNull(nameof(entityDefinition));
+
+			//TODO: Might allow security/audit interception capability later...
+			return _entityRepository.CreateQuery(entityDefinition);
 		}
 
 		public Task<T> Execute<T>(Command<T> command, CancellationToken ct)
