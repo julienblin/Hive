@@ -133,7 +133,7 @@ namespace Hive.Azure.DocumentDb
 		{
 			var parameters = new SqlParameterCollection();
 
-			return new SqlQuerySpec($"SELECT VALUE ROOT FROM ROOT {await BuildWhere(query, parameters, ct)}", parameters);
+			return new SqlQuerySpec($"SELECT VALUE ROOT FROM ROOT {await BuildWhere(query, parameters, ct)} {BuildOrder(query)}", parameters);
 		}
 
 		private static async Task<string> BuildWhere(DocumentDbQuery query, SqlParameterCollection parameters, CancellationToken ct)
@@ -197,6 +197,17 @@ namespace Hive.Azure.DocumentDb
 			}
 
 			return $"{string.Join(" ", joins)} WHERE {string.Join(" AND ", whereConditions)}";
+		}
+
+		private static string BuildOrder(DocumentDbQuery query)
+		{
+			if (!query.Orders.Any()) return null;
+
+			if(query.Orders.Count > 1)
+				throw new QueryException(query, "Document db does not support multiple order by.");
+
+			var order = query.Orders[0];
+			return $"ORDER BY ROOT.{order.PropertyName} {(order.Ascending ? "ASC" : "DESC")}";
 		}
 
 		private static string GetPrefixName(string propertyDefinitionName)

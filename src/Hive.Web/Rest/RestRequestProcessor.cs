@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Commands;
@@ -209,12 +210,32 @@ namespace Hive.Web.Rest
 			return query;
 		}
 
+		private static readonly Regex OrderByRegex = new Regex(@"^(?<prop>[^\s]+)\s*(?<asc>asc|desc)?$", RegexOptions.Compiled);
+
 		private static void FillOperators(IQuery query, RestQueryString restQuery, RestProcessParameters param)
 		{
 			if (restQuery.QueryStringValues.ContainsKey(RestConstants.LimitOperator))
 			{
 				var maxResults = restQuery.QueryStringValues[RestConstants.LimitOperator].First().IntSafeInvariantParse();
 				query.SetMaxResults(maxResults);
+			}
+
+			if (restQuery.QueryStringValues.ContainsKey(RestConstants.OrderOperator))
+			{
+				var orderby = restQuery.QueryStringValues[RestConstants.OrderOperator].FirstOrDefault();
+				var orderbyMatch = OrderByRegex.Match(orderby);
+				if (orderbyMatch.Success)
+				{
+					switch (orderbyMatch.Groups["asc"].Value.IsNullOrEmpty() ? "asc" : orderbyMatch.Groups["asc"].Value)
+					{
+						case "asc":
+							query.AddOrder(Order.Asc(orderbyMatch.Groups["prop"].Value));
+							break;
+						case "desc":
+							query.AddOrder(Order.Desc(orderbyMatch.Groups["prop"].Value));
+							break;
+					}
+				}
 			}
 
 			if (param.Context.Request.Headers.ContainsKey(RestConstants.ContinuationTokenHeader))
