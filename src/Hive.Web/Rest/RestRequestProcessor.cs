@@ -238,6 +238,14 @@ namespace Hive.Web.Rest
 				}
 			}
 
+			if (restQuery.QueryStringValues.ContainsKey(RestConstants.IncludeOperator))
+			{
+				foreach (var value in restQuery.QueryStringValues[RestConstants.IncludeOperator])
+				{
+					query.Include(value);
+				}
+			}
+
 			if (param.Context.Request.Headers.ContainsKey(RestConstants.ContinuationTokenHeader))
 			{
 				var continuationToken = param.Context.Request.Headers[RestConstants.ContinuationTokenHeader].FirstOrDefault();

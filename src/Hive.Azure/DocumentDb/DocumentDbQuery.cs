@@ -69,7 +69,9 @@ namespace Hive.Azure.DocumentDb
 				}
 			);
 
-			return docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x));
+			var results = docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x)).ToList();
+			await ProcessIncludes(results, ct);
+			return results;
 		}
 
 		public override async Task<IContinuationEnumerable> ToContinuationEnumerable(CancellationToken ct)
@@ -101,7 +103,39 @@ namespace Hive.Azure.DocumentDb
 				}
 			);
 
-			return new ContinuationEnumerable(docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x)), docs.ContinuationToken);
+			var results = docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x)).ToList();
+			await ProcessIncludes(results, ct);
+			return new ContinuationEnumerable(results, docs.ContinuationToken);
+		}
+
+		private async Task ProcessIncludes(List<IEntity> results, CancellationToken ct)
+		{
+			if (!Includes.Any()) return;
+
+			//TODO: optimize / parallel processing
+			foreach (var propertyDefinition in Includes)
+			{
+				var targetEntityDefinition =
+					(IEntityDefinition) propertyDefinition.PropertyType.GetTargetValueType(propertyDefinition);
+
+				var foreignIds = results
+					.Select(x => x[propertyDefinition.Name])
+					.Where(x => x != null)
+					.Cast<IEntity>()
+					.Select(x => _repository.GetDocumentId(targetEntityDefinition, x.Id))
+					.Distinct();
+
+				var foreignQuery = new DocumentDbQuery(_repository, targetEntityDefinition);
+				foreignQuery.Add(Criterion.In(MetaConstants.IdProperty, foreignIds.ToArray()));
+				var foreignEntities = (await foreignQuery.ToEnumerable<IEntity>(ct)).ToDictionary(x => x.Id);
+				
+				results.ForEach(x =>
+				{
+					var foreignId = ((IEntity) x[propertyDefinition.Name])?.Id;
+					if (foreignId != null && foreignEntities.ContainsKey(foreignId))
+						x[propertyDefinition.Name] = foreignEntities[foreignId];
+				});
+			}
 		}
 
 		public override async Task<object> UniqueResult(CancellationToken ct)

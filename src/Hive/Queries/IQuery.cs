@@ -21,6 +21,8 @@ namespace Hive.Queries
 
 		IQuery AddOrder(Order order);
 
+		IQuery Include(string propertyName);
+
 		IQuery SetMaxResults(int? maxResults);
 
 		IQuery SetContinuationToken(string continuationToken);

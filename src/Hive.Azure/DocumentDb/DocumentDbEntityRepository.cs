@@ -148,7 +148,7 @@ namespace Hive.Azure.DocumentDb
 			return UriFactory.CreateDocumentUri(_options.Value.Database, _options.Value.Collection, documentId);
 		}
 
-		private static string GetDocumentId(IEntityDefinition entityDefinition, object id)
+		internal string GetDocumentId(IEntityDefinition entityDefinition, object id)
 		{
 			return $"{entityDefinition.FullName}_{id}";
 		}

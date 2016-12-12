@@ -20,6 +20,7 @@ namespace Hive.Queries
 			Criterions = new List<ICriterion>();
 			Orders = new List<Order>();
 			SubQueries = new Dictionary<string, IQuery>(StringComparer.OrdinalIgnoreCase);
+			Includes = new HashSet<IPropertyDefinition>();
 		}
 
 		public virtual IQuery Add(ICriterion criterion)
@@ -85,6 +86,24 @@ namespace Hive.Queries
 
 		protected abstract IQuery InternalCreateSubQuery(IEntityDefinition entityDefinition);
 
+		public virtual IQuery Include(string propertyName)
+		{
+			//TODO: recursive include.
+			propertyName.NotNullOrEmpty(nameof(propertyName));
+
+			var propertyDefinition = EntityDefinition.Properties.SafeGet(propertyName);
+			if (propertyDefinition == null)
+				throw new QueryException(this, $"Unable to include property {propertyName} because it is not a valid property of {EntityDefinition}.");
+
+			if (!propertyDefinition.PropertyType.IsRelation)
+				throw new QueryException(this, $"Unable to include property {propertyName} because it is not a relation property of {EntityDefinition}.");
+
+			if (!Includes.Contains(propertyDefinition))
+				Includes.Add(propertyDefinition);
+
+			return this;
+		}
+
 		public virtual IQuery AddOrder(Order order)
 		{
 			if (order != null)
@@ -115,6 +134,8 @@ namespace Hive.Queries
 		public IEntityDefinition EntityDefinition { get; }
 
 		protected IDictionary<string, IQuery> SubQueries { get; }
+
+		protected HashSet<IPropertyDefinition> Includes { get; }
 
 		protected IList<ICriterion> Criterions { get; }
 

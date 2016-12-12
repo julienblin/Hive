@@ -38,15 +38,6 @@
     {
       "name": "detail",
       "type": "clientDetail"
-    },
-    {
-      "name": "patients",
-      "type": "array",
-      "items": {
-        "type": "relation",
-        "target": "patient",
-        "inverseOf": "client"
-      }
     }
   ]
 }
