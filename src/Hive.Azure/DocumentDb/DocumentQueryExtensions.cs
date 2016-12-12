@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hive.Queries;
 using Microsoft.Azure.Documents.Linq;
 
 namespace Hive.Azure.DocumentDb
@@ -14,12 +15,18 @@ namespace Hive.Azure.DocumentDb
 
 			do
 			{
-				var batch = await docQuery.ExecuteNextAsync<T>();
+				var batch = await docQuery.ExecuteNextAsync<T>(ct);
 
 				batches.Add(batch);
 			} while (docQuery.HasMoreResults);
 
 			return batches.SelectMany(x => x);
+		}
+
+		public static async Task<IContinuationEnumerable<T>> ListContinuationAsync<T>(this IDocumentQuery<T> docQuery, CancellationToken ct)
+		{
+			var docs = await docQuery.ExecuteNextAsync<T>(ct);
+			return new ContinuationEnumerable<T>(docs, docs.ResponseContinuation);
 		}
 	}
 }

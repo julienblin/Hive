@@ -160,19 +160,32 @@ namespace Hive.Web.Rest
 			}
 			else
 			{
-				var query = CreateQuery(entityDefinition, restQuery);
-				var result = await query.ToEnumerable<IEntity>(ct);
-				Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
+				var query = CreateQuery(entityDefinition, restQuery, param);
+				if (query.MaxResults.HasValue)
+				{
+					var result = await query.ToContinuationEnumerable<IEntity>(ct);
+					Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK, new Dictionary<string, string>
+					{
+						{ RestConstants.ContinuationTokenHeader, result.ContinuationToken }
+					});
+				}
+				else
+				{
+					var result = await query.ToEnumerable<IEntity>(ct);
+					Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK);
+				}
 			}
 		}
 
-		private IQuery CreateQuery(IEntityDefinition entityDefinition, RestQueryString restQuery)
+		private IQuery CreateQuery(IEntityDefinition entityDefinition, RestQueryString restQuery, RestProcessParameters param)
 		{
 			var query = EntityService.CreateQuery(entityDefinition);
-			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith("$")))
+			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith(RestConstants.ReservedOperatorsPrefix)))
 			{
 				RecursiveFillQuery(query, null, queryStringValue.Key, queryStringValue.Value);
 			}
+
+			FillOperators(query, restQuery, param);
 
 			if (restQuery.PathValues.Count == 0)
 				return query;
@@ -196,7 +209,22 @@ namespace Hive.Web.Rest
 			return query;
 		}
 
-		private void RecursiveFillQuery(IQuery query, string protectedLeading, string selector, StringValues selectorValues)
+		private static void FillOperators(IQuery query, RestQueryString restQuery, RestProcessParameters param)
+		{
+			if (restQuery.QueryStringValues.ContainsKey(RestConstants.LimitOperator))
+			{
+				var maxResults = restQuery.QueryStringValues[RestConstants.LimitOperator].First().IntSafeInvariantParse();
+				query.SetMaxResults(maxResults);
+			}
+
+			if (param.Context.Request.Headers.ContainsKey(RestConstants.ContinuationTokenHeader))
+			{
+				var continuationToken = param.Context.Request.Headers[RestConstants.ContinuationTokenHeader].FirstOrDefault();
+				query.SetContinuationToken(continuationToken);
+			}
+		}
+
+		private static void RecursiveFillQuery(IQuery query, string protectedLeading, string selector, StringValues selectorValues)
 		{
 			string remaining;
 			var leading = selector.SplitFirst('.', out remaining);

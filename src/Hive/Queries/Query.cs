@@ -92,9 +92,23 @@ namespace Hive.Queries
 			return this;
 		}
 
+		public virtual IQuery SetMaxResults(int? maxResults)
+		{
+			MaxResults = maxResults;
+			return this;
+		}
+
+		public virtual IQuery SetContinuationToken(string continuationToken)
+		{
+			ContinuationToken = continuationToken;
+			return this;
+		}
+
 		public bool IsIdQuery => (Criterions.Count == 1) && Criterions[0].IsIdCriterion && !SubQueries.Any();
 
 		public abstract Task<IEnumerable> ToEnumerable(CancellationToken ct);
+
+		public abstract Task<IContinuationEnumerable> ToContinuationEnumerable(CancellationToken ct);
 
 		public abstract Task<object> UniqueResult(CancellationToken ct);
 
@@ -105,5 +119,9 @@ namespace Hive.Queries
 		protected IList<ICriterion> Criterions { get; }
 
 		protected IList<Order> Orders { get; }
+
+		public int? MaxResults { get; private set; }
+
+		protected string ContinuationToken { get; private set; }
 	}
 }

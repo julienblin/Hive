@@ -45,7 +45,7 @@ namespace Hive.Azure.DocumentDb
 		{
 			var options = new FeedOptions
 			{
-				MaxItemCount = 50
+				MaxItemCount = MaxResults
 			};
 
 			var querySpec = await BuildQuerySpec(this, ct);
@@ -70,6 +70,38 @@ namespace Hive.Azure.DocumentDb
 			);
 
 			return docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x));
+		}
+
+		public override async Task<IContinuationEnumerable> ToContinuationEnumerable(CancellationToken ct)
+		{
+			var options = new FeedOptions
+			{
+				MaxItemCount = MaxResults,
+				RequestContinuation = ContinuationToken
+			};
+
+			var querySpec = await BuildQuerySpec(this, ct);
+			var docs = await _repository.Telemetry.TrackAsyncDependency(
+				ct,
+				_ =>
+				{
+					var docQuery = _repository
+						.Client
+						.CreateDocumentQuery<Document>(_repository.CollectionUri, querySpec, options)
+						.AsDocumentQuery();
+
+					return docQuery.ListContinuationAsync(ct);
+				},
+				DependencyKind.HTTP,
+				_repository.DependencyName,
+				new Dictionary<string, string>
+				{
+					{"Query", querySpec.QueryText},
+					{"Parameters", string.Join(", ", querySpec.Parameters.Select(x => $"{x.Name} = {x.Value}"))}
+				}
+			);
+
+			return new ContinuationEnumerable(docs.Select(x => _repository.ConvertToEntity(EntityDefinition, x)), docs.ContinuationToken);
 		}
 
 		public override async Task<object> UniqueResult(CancellationToken ct)
