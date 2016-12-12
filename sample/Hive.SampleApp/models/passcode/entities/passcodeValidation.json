@@ -21,9 +21,9 @@
       "values": [ "notSet", "active", "locked" ]
     },
     {
-      "name": "user",
+      "name": "passcode",
       "type": "relation",
-      "target": "user"
+      "target": "passcode"
     }
   ],
   "handlers": [
