@@ -21,6 +21,10 @@ namespace Hive.Queries
 
 		IQuery AddOrder(Order order);
 
+		IQuery SetQueryAsString(string fullQuery);
+
+		IQuery SetProjection(IProjection projection);
+
 		IQuery Include(string propertyName);
 
 		IQuery SetMaxResults(int? maxResults);

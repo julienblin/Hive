@@ -246,6 +246,11 @@ namespace Hive.Web.Rest
 				}
 			}
 
+			if (restQuery.QueryStringValues.ContainsKey(RestConstants.SelectOperator))
+			{
+				query.SetProjection(Projection.Properties(restQuery.QueryStringValues[RestConstants.SelectOperator]));
+			}
+
 			if (param.Context.Request.Headers.ContainsKey(RestConstants.ContinuationTokenHeader))
 			{
 				var continuationToken = param.Context.Request.Headers[RestConstants.ContinuationTokenHeader].FirstOrDefault();

@@ -86,6 +86,12 @@ namespace Hive.Queries
 
 		protected abstract IQuery InternalCreateSubQuery(IEntityDefinition entityDefinition);
 
+		public virtual IQuery SetProjection(IProjection projection)
+		{
+			Projection = projection;
+			return this;
+		}
+
 		public virtual IQuery Include(string propertyName)
 		{
 			//TODO: recursive include.
@@ -110,6 +116,14 @@ namespace Hive.Queries
 				Orders.Add(order);
 			return this;
 		}
+
+		public virtual IQuery SetQueryAsString(string fullQuery)
+		{
+			FullQuery = fullQuery;
+			return this;
+		}
+
+		protected string FullQuery { get; private set; }
 
 		public virtual IQuery SetMaxResults(int? maxResults)
 		{
@@ -144,5 +158,7 @@ namespace Hive.Queries
 		public int? MaxResults { get; private set; }
 
 		protected string ContinuationToken { get; private set; }
+
+		protected IProjection Projection { get; private set; }
 	}
 }

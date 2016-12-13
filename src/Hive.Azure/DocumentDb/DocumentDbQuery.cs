@@ -125,8 +125,8 @@ namespace Hive.Azure.DocumentDb
 					.Select(x => _repository.GetDocumentId(targetEntityDefinition, x.Id))
 					.Distinct();
 
-				var foreignQuery = new DocumentDbQuery(_repository, targetEntityDefinition);
-				foreignQuery.Add(Criterion.In(MetaConstants.IdProperty, foreignIds.ToArray()));
+				var foreignQuery = new DocumentDbQuery(_repository, targetEntityDefinition)
+					.Add(Criterion.In(MetaConstants.IdProperty, foreignIds.Cast<object>().ToArray()));
 				var foreignEntities = (await foreignQuery.ToEnumerable<IEntity>(ct)).ToDictionary(x => x.Id);
 				
 				results.ForEach(x =>
@@ -165,9 +165,27 @@ namespace Hive.Azure.DocumentDb
 
 		private async Task<SqlQuerySpec> BuildQuerySpec(DocumentDbQuery query, CancellationToken ct)
 		{
+			if(!query.FullQuery.IsNullOrEmpty())
+				return new SqlQuerySpec(query.FullQuery);
+
 			var parameters = new SqlParameterCollection();
 
-			return new SqlQuerySpec($"SELECT VALUE ROOT FROM ROOT {await BuildWhere(query, parameters, ct)} {BuildOrder(query)}", parameters);
+			return new SqlQuerySpec($"SELECT {BuildSelect(query)} FROM ROOT {await BuildWhere(query, parameters, ct)} {BuildOrder(query)}", parameters);
+		}
+
+		private static string BuildSelect(DocumentDbQuery query)
+		{
+			if (query.Projection == null)
+			{
+				return "VALUE ROOT";
+			}
+
+			if (query.Projection.PropertyNames.Safe().Any())
+			{
+				return string.Join(", ", query.Projection.PropertyNames.Select(x => $"ROOT.{x}"));
+			}
+
+			throw new NotSupportedException();
 		}
 
 		private static async Task<string> BuildWhere(DocumentDbQuery query, SqlParameterCollection parameters, CancellationToken ct)
