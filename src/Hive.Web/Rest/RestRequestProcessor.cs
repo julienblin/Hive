@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -342,8 +343,8 @@ namespace Hive.Web.Rest
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
-				{ WebConstants.ETagHeader, entity.Etag },
-				{"Location", $"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}"}
+				{ WebConstants.ETagHeader, result.Etag },
+				{ "Location", param.Context.Request.AbsoluteUri($"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{WebUtility.UrlEncode(result.Id.ToString())}") }
 			});
 		}
 
