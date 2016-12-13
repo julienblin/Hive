@@ -55,7 +55,7 @@ namespace Hive.ValueTypes
 
 		public override void ModelLoaded(IPropertyDefinition propertyDefinition)
 		{
-			var untypedItemsData = propertyDefinition.PropertyBag["items"];
+			var untypedItemsData = propertyDefinition.PropertyBag[PropertyItems];
 
 			if (untypedItemsData is PropertyBag)
 			{
@@ -68,7 +68,7 @@ namespace Hive.ValueTypes
 					throw new ModelLoadingException(
 						$"Unable to find an entity or a value type named {propertyBagItemsData["type"]} (on {propertyDefinition}).");
 
-				propertyBagItemsData["name"] = propertyDefinition.Name + "_items";
+				propertyBagItemsData["name"] = propertyDefinition.Name + "_" + PropertyItems;
 				propertyBagItemsData["description"] = $"Items for {propertyDefinition}";
 				var itemsPropertyDefinition = PropertyDefinitionFactory.Create(propertyDefinition.EntityDefinition, itemsType, propertyBagItemsData);
 				itemsPropertyDefinition.PropertyType.ModelLoaded(itemsPropertyDefinition);
@@ -85,7 +85,7 @@ namespace Hive.ValueTypes
 						$"Unable to find an entity or a value type named {untypedItemsData} (on {propertyDefinition}).");
 				var itemsPropertyBag = new PropertyBag
 				{
-					["name"] = propertyDefinition.Name + "_items",
+					["name"] = propertyDefinition.Name + "_" + PropertyItems,
 					["description"] = $"Items for {propertyDefinition}"
 				};
 
@@ -99,6 +99,8 @@ namespace Hive.ValueTypes
 			throw new ModelLoadingException(
 					$"An array must have an item property that points to either a value type or an entity (on {propertyDefinition}).");
 		}
+
+		public override DataTypeType DataTypeType => DataTypeType.Container;
 
 		public override IDataType GetTargetValueType(IPropertyDefinition propertyDefinition) => ((IPropertyDefinition)propertyDefinition.AdditionalProperties[PropertyItems]).PropertyType;
 	}

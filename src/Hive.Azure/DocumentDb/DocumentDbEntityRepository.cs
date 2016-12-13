@@ -108,6 +108,7 @@ namespace Hive.Azure.DocumentDb
 
 		internal object ConvertToDocument(IEntity entity)
 		{
+			//TODO: Poor man's version. Should implement it's own serialization mechanism.
 			var propertyBag = entity.ToPropertyBag(keepRelationInfo: false);
 			propertyBag[MetaConstants.IdProperty] = GetDocumentId(entity.Definition, propertyBag[MetaConstants.IdProperty]);
 			propertyBag[DocumentDbConstants.EntityDefinitionProperty] = entity.Definition.FullName;

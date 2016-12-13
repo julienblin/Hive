@@ -77,7 +77,7 @@ namespace Hive.ValueTypes
 			}
 		}
 
-		public override bool IsRelation => true;
+		public override DataTypeType DataTypeType => DataTypeType.Relation;
 
 		public override IDataType GetTargetValueType(IPropertyDefinition propertyDefinition) => (IEntityDefinition)propertyDefinition.AdditionalProperties[PropertyTarget];
 	}

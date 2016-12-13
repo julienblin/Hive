@@ -1,0 +1,50 @@
+﻿{
+  "singleName": "device",
+  "pluralName": "devices",
+  "type": "masterdata",
+  "properties": [
+    {
+      "name": "make",
+      "type": "relation",
+      "target": "make",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
+    },
+    {
+      "name": "os",
+      "type": "relation",
+      "target": "os",
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
+    },
+    {
+      "name": "deviceType",
+      "type": "enum",
+      "values": [ "phone", "tablet" ],
+      "validators": [
+        {
+          "type": "required"
+        }
+      ]
+    },
+    {
+      "name": "booking",
+      "type": "booking"
+    }
+  ]
+}

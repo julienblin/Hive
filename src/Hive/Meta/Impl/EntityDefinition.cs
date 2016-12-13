@@ -55,7 +55,7 @@ namespace Hive.Meta.Impl
 
 		internal void ModelLoaded() => Properties?.Values.SafeForEach(x => ((PropertyDefinition)x).ModelLoaded());
 
-		public bool IsRelation => false;
+		public DataTypeType DataTypeType => DataTypeType.Entity;
 
 		public IDataType GetTargetValueType(IPropertyDefinition propertyDefinition) => null;
 

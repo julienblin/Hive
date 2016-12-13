@@ -19,7 +19,7 @@ namespace Hive.Meta
 
 		Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct);
 
-		bool IsRelation { get; }
+		DataTypeType DataTypeType { get; }
 
 		IDataType GetTargetValueType(IPropertyDefinition propertyDefinition);
 	}

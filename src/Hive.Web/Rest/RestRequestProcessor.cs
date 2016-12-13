@@ -267,7 +267,7 @@ namespace Hive.Web.Rest
 			if(propertyDefinition == null)
 				throw new BadRequestException($"Unable to find a property named {leading} on {query.EntityDefinition}");
 
-			if (propertyDefinition.PropertyType.IsRelation)
+			if (propertyDefinition.PropertyType.DataTypeType == DataTypeType.Relation)
 			{
 				var subQuery = query.GetOrCreateSubQuery(leading);
 				RecursiveFillQuery(subQuery, null, remaining, selectorValues);

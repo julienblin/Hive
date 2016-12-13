@@ -41,7 +41,7 @@ namespace Hive.ValueTypes
 			return Task.CompletedTask;
 		}
 
-		public virtual bool IsRelation => false;
+		public virtual DataTypeType DataTypeType => DataTypeType.Other;
 
 		public virtual IDataType GetTargetValueType(IPropertyDefinition propertyDefinition) => null;
 	}

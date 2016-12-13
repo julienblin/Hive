@@ -16,6 +16,7 @@ namespace Hive.Foundation
 		{
 			Converters.Add(new StringEnumConverter());
 			ContractResolver = new CamelCasePropertyNamesContractResolver();
+			DateParseHandling = DateParseHandling.None;
 		}
 
 		public HiveJsonSerializer(params JsonConverter[] converters)

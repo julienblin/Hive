@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Hive.Entities;
 using Hive.Exceptions;
+using Hive.Foundation.Extensions;
 using Hive.Meta;
 using NodaTime;
 using NodaTime.Text;
@@ -8,6 +12,9 @@ namespace Hive.ValueTypes
 {
 	public class DateValueType : ValueType<LocalDate>
 	{
+		//TODO: allow parsing of timezones.
+		private const string TodayDefaultValue = "today()";
+
 		public DateValueType()
 			: base("date")
 		{
@@ -25,24 +32,10 @@ namespace Hive.ValueTypes
 
 		public override object ConvertFromPropertyBagValue(IPropertyDefinition propertyDefinition, object value)
 		{
-			if (value == null) return null;
+			var strValue = value as string;
+			if (strValue == null) return null;
 
-			if (value is LocalDate) return value;
-
-			if (value is DateTime)
-			{
-				var realValue = (DateTime) value;
-				return new LocalDate(realValue.Year, realValue.Month, realValue.Day);
-			}
-
-			if (value is DateTimeOffset)
-			{
-				var realValue = (DateTimeOffset) value;
-
-				return new LocalDate(realValue.Year, realValue.Month, realValue.Day);
-			}
-
-			var parseResult = LocalDatePattern.IsoPattern.Parse(value.ToString());
+			var parseResult = LocalDatePattern.IsoPattern.Parse(strValue);
 			if (parseResult.Success)
 				return parseResult.Value;
 
@@ -50,5 +43,29 @@ namespace Hive.ValueTypes
 				$"Error while parsing value {value} as a local date using pattern {LocalDatePattern.IsoPattern.PatternText}.",
 				parseResult.Exception);
 		}
+
+		public override Task SetDefaultValue(IPropertyDefinition propertyDefinition, IEntity entity, CancellationToken ct)
+		{
+			var defaultValue = propertyDefinition.DefaultValue as string;
+			if (defaultValue.IsNullOrEmpty()) return Task.CompletedTask;
+
+			if (defaultValue.SafeOrdinalEquals(TodayDefaultValue))
+				entity[propertyDefinition.Name] = SystemClock.Instance.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb.GetSystemDefault()).Date;
+			else
+			{
+				var parseResult = LocalDatePattern.IsoPattern.Parse(defaultValue);
+				if (parseResult.Success)
+					entity[propertyDefinition.Name] = parseResult.Value;
+				else
+					throw new ValueTypeException(this,
+					$"Error while parsing value {defaultValue} as a date using pattern {LocalDatePattern.IsoPattern.PatternText}.",
+					parseResult.Exception);
+			}
+
+
+			return Task.CompletedTask;
+		}
+
+		public override DataTypeType DataTypeType => DataTypeType.Date;
 	}
 }

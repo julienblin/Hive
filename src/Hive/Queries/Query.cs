@@ -42,7 +42,7 @@ namespace Hive.Queries
 			var leading = propertyName.SplitFirst('.', out remaining);
 			var propertyDefinition = entityDefinition.Properties.SafeGet(leading);
 			if ((propertyDefinition == null)
-			 || (propertyDefinition.PropertyType.IsRelation && !remaining.SafeOrdinalEquals(MetaConstants.IdProperty)))
+			 || ((propertyDefinition.PropertyType.DataTypeType == DataTypeType.Relation) && !remaining.SafeOrdinalEquals(MetaConstants.IdProperty)))
 			{
 				return false;
 			}
@@ -75,7 +75,7 @@ namespace Hive.Queries
 			if (propertyDefinition == null)
 				throw new QueryException(this, $"Unable to create sub-query for property {propertyName} because it is not a valid property of {EntityDefinition}.");
 
-			if(!propertyDefinition.PropertyType.IsRelation)
+			if(propertyDefinition.PropertyType.DataTypeType != DataTypeType.Relation)
 				throw new QueryException(this, $"Unable to create sub-query for property {propertyName} because it is not a relation property of {EntityDefinition}.");
 
 			var subquery = InternalCreateSubQuery(propertyDefinition.PropertyType.GetTargetValueType(propertyDefinition) as IEntityDefinition);
@@ -95,7 +95,7 @@ namespace Hive.Queries
 			if (propertyDefinition == null)
 				throw new QueryException(this, $"Unable to include property {propertyName} because it is not a valid property of {EntityDefinition}.");
 
-			if (!propertyDefinition.PropertyType.IsRelation)
+			if (propertyDefinition.PropertyType.DataTypeType != DataTypeType.Relation)
 				throw new QueryException(this, $"Unable to include property {propertyName} because it is not a relation property of {EntityDefinition}.");
 
 			if (!Includes.Contains(propertyDefinition))
