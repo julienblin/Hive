@@ -15,5 +15,7 @@ namespace Hive.Meta
 		EntityType EntityType { get; }
 
 		IImmutableDictionary<string, IPropertyDefinition> Properties { get; }
+
+		ConcurrencyHandling ConcurrencyHandling { get; }
 	}
 }

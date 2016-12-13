@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Entities;
+using Hive.Exceptions;
 using Hive.Foundation;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
@@ -70,7 +71,34 @@ namespace Hive.Azure.DocumentDb
 			entity.NotNull(nameof(entity));
 			var doc = await Telemetry.TrackAsyncDependency(
 				ct,
-				_ => Client.ReplaceDocumentAsync(GetDocumentUri(entity), ConvertToDocument(entity)),
+				async _ =>
+				{
+					var options = new RequestOptions();
+					if (entity.Definition.ConcurrencyHandling == ConcurrencyHandling.Optimistic)
+					{
+						if (entity.Etag.IsNullOrEmpty())
+						{
+							throw new MissingETagException(entity);
+						}
+						options.AccessCondition = new AccessCondition
+						{
+							Type = AccessConditionType.IfMatch,
+							Condition = entity.Etag
+						};
+					}
+					;
+
+					try
+					{
+						return await Client.ReplaceDocumentAsync(GetDocumentUri(entity), ConvertToDocument(entity), options);
+					}
+					catch (DocumentClientException clientException)
+					{
+						if (clientException.StatusCode == HttpStatusCode.PreconditionFailed)
+							throw new ConcurrencyException(entity, clientException);
+						throw;
+					}
+				},
 				DependencyKind.HTTP,
 				DependencyName
 			);

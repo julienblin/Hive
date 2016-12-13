@@ -62,7 +62,8 @@ namespace Hive.Meta.Impl
 				PropertyBag = entityDefinitionData,
 				SingleName = entityDefinitionData["singlename"] as string,
 				PluralName = entityDefinitionData["pluralname"] as string,
-				EntityType = (entityDefinitionData["type"] as string).ToEnum<EntityType>()
+				EntityType = (entityDefinitionData["type"] as string).ToEnum<EntityType>(),
+				ConcurrencyHandling = (entityDefinitionData["concurrency"] as string).ToEnum<ConcurrencyHandling>()
 			};
 			entityDefinition.Properties =
 				MapProperties(entityDefinition, entityDefinitionData["properties"] as PropertyBag[])

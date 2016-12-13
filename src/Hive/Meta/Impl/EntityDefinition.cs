@@ -30,6 +30,8 @@ namespace Hive.Meta.Impl
 
 		public IImmutableDictionary<string, IPropertyDefinition> Properties { get; set; }
 
+		public ConcurrencyHandling ConcurrencyHandling { get; set; }
+
 		void IDataType.ModelLoaded(IPropertyDefinition propertyDefinition)
 		{
 		}

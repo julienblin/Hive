@@ -117,6 +117,24 @@ namespace Hive.Web.Rest
 				return Task.CompletedTask;
 			}
 
+			if (exception is MissingETagException)
+			{
+				context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
+				responseSerializer.Serialize(new MessageResponse(exception.Message), context.Response.Body);
+				return Task.CompletedTask;
+			}
+
+			if (exception is ConcurrencyException)
+			{
+				context.Response.StatusCode = StatusCodes.Status409Conflict;
+
+				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
+				responseSerializer.Serialize(new MessageResponse(exception.Message), context.Response.Body);
+				return Task.CompletedTask;
+			}
+
 			if (exception is NotFoundException)
 			{
 				var notFoundException = (NotFoundException)exception;
@@ -324,6 +342,7 @@ namespace Hive.Web.Rest
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
+				{ WebConstants.ETagHeader, entity.Etag },
 				{"Location", $"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{result.Id}"}
 			});
 		}
@@ -341,11 +360,15 @@ namespace Hive.Web.Rest
 			var propertyBag = param.RequestSerializer.Deserialize(param.Context.Request.Body);
 			propertyBag[MetaConstants.IdProperty] = restQuery.AdditionalQualifier;
 			var entity = await EntityFactory.Hydrate(entityDefinition, propertyBag, ct);
+			entity.Etag = param.Headers.IfNoneMatch();
 
 			var cmd = new UpdateCommand(entity);
 			var result = await EntityService.Execute(cmd, ct);
 
-			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
+			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
+			{
+				{ WebConstants.ETagHeader, entity.Etag }
+			});
 		}
 
 		private async Task ProcessDeleteCommand(RestProcessParameters param, CancellationToken ct)

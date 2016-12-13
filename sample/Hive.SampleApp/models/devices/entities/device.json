@@ -2,6 +2,7 @@
   "singleName": "device",
   "pluralName": "devices",
   "type": "masterdata",
+  "concurrency": "optimistic",
   "properties": [
     {
       "name": "make",
