@@ -86,6 +86,8 @@ namespace Hive.Entities.Impl
 			return true;
 		}
 
+		public string Etag { get; set; }
+
 		public override string ToString() => $"{Definition} ({Id})";
 	}
 }

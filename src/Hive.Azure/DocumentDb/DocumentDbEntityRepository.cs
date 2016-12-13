@@ -121,7 +121,9 @@ namespace Hive.Azure.DocumentDb
 			var propertyBag = HiveJsonSerializer.Instance.Deserialize<PropertyBag>(doc.ToString());
 			propertyBag[MetaConstants.IdProperty] =
 				(propertyBag[MetaConstants.IdProperty] as string)?.Substring(entityDefinition.FullName.Length + 1);
-			return _entityFactory.Hydrate(entityDefinition, propertyBag);
+			var entity = _entityFactory.Hydrate(entityDefinition, propertyBag);
+			entity.Etag = doc.ETag;
+			return entity;
 		}
 
 		private IDocumentClient CreateClient()

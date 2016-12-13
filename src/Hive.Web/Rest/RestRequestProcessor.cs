@@ -13,6 +13,7 @@ using Hive.Meta;
 using Hive.Queries;
 using Hive.Telemetry;
 using Hive.Web.Exceptions;
+using Hive.Web.Extensions;
 using Hive.Web.RequestProcessors;
 using Hive.Web.Rest.Responses;
 using Hive.Web.Rest.Serializers;
@@ -157,7 +158,21 @@ namespace Hive.Web.Rest
 					return;
 				}
 
-				Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK);
+				var ifNoneMatch = param.Headers.IfNoneMatch();
+				if (string.Equals(ifNoneMatch, result.Etag, StringComparison.Ordinal))
+				{
+					Respond(param, null, StatusCodes.Status304NotModified, new Dictionary<string, string>
+					{
+						{ WebConstants.ETagHeader, result.Etag }
+					});
+				}
+				else
+				{
+					Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
+					{
+						{ WebConstants.ETagHeader, result.Etag }
+					});
+				}
 			}
 			else
 			{
@@ -362,9 +377,11 @@ namespace Hive.Web.Rest
 			foreach (var responseHeader in responseHeaders.Safe())
 				param.Context.Response.Headers.Add(responseHeader.Key, new StringValues(responseHeader.Value));
 
-			param.Context.Response.Headers["Content-Type"] = param.ResponseSerializer.MediaTypes.First();
 			if (message != null)
+			{
+				param.Context.Response.Headers["Content-Type"] = param.ResponseSerializer.MediaTypes.First();
 				param.ResponseSerializer.Serialize(message, param.Context.Response.Body);
+			}
 		}
 	}
 }
