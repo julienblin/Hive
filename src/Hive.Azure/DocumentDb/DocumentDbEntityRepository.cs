@@ -14,6 +14,7 @@ using Hive.Telemetry;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Options;
+using NodaTime;
 
 namespace Hive.Azure.DocumentDb
 {
@@ -151,6 +152,7 @@ namespace Hive.Azure.DocumentDb
 				(propertyBag[MetaConstants.IdProperty] as string)?.Substring(entityDefinition.FullName.Length + 1);
 			var entity = _entityFactory.Hydrate(entityDefinition, propertyBag);
 			entity.Etag = doc.ETag;
+			entity.LastModified = Instant.FromDateTimeUtc(doc.Timestamp);
 			return entity;
 		}
 

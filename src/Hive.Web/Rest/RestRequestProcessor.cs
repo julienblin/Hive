@@ -21,6 +21,7 @@ using Hive.Web.Rest.Serializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using NodaTime;
 
 namespace Hive.Web.Rest
 {
@@ -182,14 +183,16 @@ namespace Hive.Web.Rest
 				{
 					Respond(param, null, StatusCodes.Status304NotModified, new Dictionary<string, string>
 					{
-						{ WebConstants.ETagHeader, result.Etag }
+						{ WebConstants.ETagHeader, result.Etag },
+						{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) }
 					});
 				}
 				else
 				{
 					Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
 					{
-						{ WebConstants.ETagHeader, result.Etag }
+						{ WebConstants.ETagHeader, result.Etag },
+						{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) }
 					});
 				}
 			}
@@ -344,6 +347,7 @@ namespace Hive.Web.Rest
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
 				{ WebConstants.ETagHeader, result.Etag },
+				{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) },
 				{ "Location", param.Context.Request.AbsoluteUri($"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{WebUtility.UrlEncode(result.Id.ToString())}") }
 			});
 		}
@@ -368,7 +372,8 @@ namespace Hive.Web.Rest
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
 			{
-				{ WebConstants.ETagHeader, entity.Etag }
+				{ WebConstants.ETagHeader, entity.Etag },
+				{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) }
 			});
 		}
 

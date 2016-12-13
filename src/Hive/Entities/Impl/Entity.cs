@@ -6,6 +6,7 @@ using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
+using NodaTime;
 
 namespace Hive.Entities.Impl
 {
@@ -87,6 +88,8 @@ namespace Hive.Entities.Impl
 		}
 
 		public string Etag { get; set; }
+
+		public Instant? LastModified { get; set; }
 
 		public override string ToString() => $"{Definition} ({Id})";
 	}

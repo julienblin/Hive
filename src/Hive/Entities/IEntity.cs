@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hive.Foundation.Entities;
 using Hive.Meta;
+using NodaTime;
 
 namespace Hive.Entities
 {
@@ -17,5 +18,7 @@ namespace Hive.Entities
 		PropertyBag ToPropertyBag(bool keepRelationInfo = true);
 
 		string Etag { get; set; }
+
+		Instant? LastModified { get; set; }
 	}
 }
