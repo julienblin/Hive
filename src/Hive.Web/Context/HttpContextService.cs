@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Hive.Context;
 using Hive.Foundation.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ namespace Hive.Web.Context
 	public class HttpContextService : IContextService
 	{
 		private const string HttpContextItemsKey = "HiveContext";
+		private static readonly Regex UserAgentRegex = new Regex(@"(?<appname>[^/\s]+)\s*/\s*(?<appversion>[^\s,]+)", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 		private readonly IHttpContextAccessor _contextAccessor;
 
@@ -24,10 +26,23 @@ namespace Hive.Web.Context
 			httpContext.TraceIdentifier = operationIdHeader;
 			var context = new HttpContextContext
 			{
-				OperationId = operationIdHeader
+				OperationId = operationIdHeader,
+				ClientApplication = ParseUserAgent(httpContext.Request.Headers[WebConstants.UserAgentHeader].FirstOrDefault())
 			};
 			httpContext.Items[HttpContextItemsKey] = context;
 			return context;
+		}
+
+		private ClientApplication ParseUserAgent(string userAgent)
+		{
+			if(userAgent.IsNullOrWhiteSpace())
+				return ClientApplication.Unknown;
+
+			var match = UserAgentRegex.Match(userAgent);
+			if(match.Success)
+				return new ClientApplication(match.Groups["appname"].Value, match.Groups["appversion"].Value);
+			else
+				return ClientApplication.Unknown;
 		}
 
 		public IContext GetContext()

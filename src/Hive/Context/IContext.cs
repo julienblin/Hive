@@ -3,5 +3,7 @@
 	public interface IContext
 	{
 		string OperationId { get; }
+
+		ClientApplication ClientApplication { get; }
 	}
 }

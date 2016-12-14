@@ -7,6 +7,7 @@
     "Microsoft.Extensions.Configuration.Abstractions": "1.1.0",
     "Microsoft.Extensions.Options": "1.1.0",
     "Microsoft.Extensions.Caching.Memory": "1.1.0",
+    "Microsoft.Extensions.PlatformAbstractions": "1.1.0",
     "NodaTime": "2.0.0-*"
   },
 

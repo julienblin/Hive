@@ -7,5 +7,7 @@
 		public const string ETagHeader = "ETag";
 
 		public const string LastModifiedHeader = "Last-Modified";
+
+		public const string UserAgentHeader = "User-Agent";
 	}
 }
