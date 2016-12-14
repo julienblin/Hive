@@ -6,6 +6,7 @@ using Hive.Entities;
 using Hive.Exceptions;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Handlers.Impl;
 using Hive.Validation;
 using Hive.ValueTypes;
 
@@ -16,15 +17,18 @@ namespace Hive.Meta.Impl
 		private readonly IValueTypeFactory _valueTypeFactory;
 		private readonly IValidatorFactory _validatorFactory;
 		private readonly IEntityFactory _entityFactory;
+		private readonly IEntityRepository _entityRepository;
 
 		public ModelLoader(
 			IValueTypeFactory valueTypeFactory,
 			IValidatorFactory validatorFactory,
-			IEntityFactory entityFactory)
+			IEntityFactory entityFactory,
+			IEntityRepository entityRepository)
 		{
 			_valueTypeFactory = valueTypeFactory.NotNull(nameof(valueTypeFactory));
 			_validatorFactory = validatorFactory.NotNull(nameof(validatorFactory));
 			_entityFactory = entityFactory.NotNull(nameof(entityFactory));
+			_entityRepository = entityRepository.NotNull(nameof(entityRepository));
 		}
 
 		public IModel Load(PropertyBag modelData)
@@ -63,7 +67,10 @@ namespace Hive.Meta.Impl
 				SingleName = entityDefinitionData["singlename"] as string,
 				PluralName = entityDefinitionData["pluralname"] as string,
 				EntityType = (entityDefinitionData["type"] as string).ToEnum<EntityType>(),
-				ConcurrencyHandling = (entityDefinitionData["concurrency"] as string).ToEnum<ConcurrencyHandling>()
+				ConcurrencyHandling = (entityDefinitionData["concurrency"] as string).ToEnum<ConcurrencyHandling>(),
+				CreateHandler = new CreateHandler(_entityRepository),
+				UpdateHandler = new UpdateHandler(_entityRepository),
+				DeleteHandler = new DeleteHandler(_entityRepository)
 			};
 			entityDefinition.Properties =
 				MapProperties(entityDefinition, entityDefinitionData["properties"] as PropertyBag[])

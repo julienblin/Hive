@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Hive.Foundation.Extensions;
+using Hive.Handlers;
 using Hive.Meta;
 using Hive.Queries;
 using Hive.Validation;
@@ -31,14 +32,14 @@ namespace Hive.Entities.Impl
 		{
 			entity.NotNull(nameof(entity));
 			await _validationService.Validate(entity, ct);
-			return await entity.Definition.CreateHandler.Create(entity, ct);
+			return await entity.Definition.CreateHandler.Execute(entity, ct);
 		}
 
 		public async Task<IEntity> Update(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
 			await _validationService.Validate(entity, ct);
-			return await _entityRepository.Update(entity, ct);
+			return await entity.Definition.UpdateHandler.Execute(entity, ct);
 		}
 
 		public Task<bool> Delete(IEntityDefinition entityDefinition, object id, CancellationToken ct)
@@ -46,7 +47,7 @@ namespace Hive.Entities.Impl
 			entityDefinition.NotNull(nameof(entityDefinition));
 			id.NotNull(nameof(id));
 
-			return _entityRepository.Delete(entityDefinition, id, ct);
+			return entityDefinition.DeleteHandler.Execute(new DeleteExecution(entityDefinition, id), ct);
 		}
 	}
 }

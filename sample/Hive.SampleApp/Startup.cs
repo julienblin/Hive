@@ -73,10 +73,6 @@ namespace Hive.SampleApp
 			services.AddSingleton<IValidator, RegexValidator>();
 			services.AddSingleton<IValidatorFactory, ValidatorFactory>();
 
-			services.AddSingleton<ICreateHandler, CreateHandler>();
-			services.AddSingleton<IUpdateHandler, UpdateHandler>();
-			services.AddSingleton<IDeleteHandler, DeleteHandler>();
-
 			if (HostingEnvironment.IsDevelopment())
 				services.AddSingleton<IModelCache, NullModelCache>();
 			else

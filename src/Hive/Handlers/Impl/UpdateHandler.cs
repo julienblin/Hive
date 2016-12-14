@@ -5,7 +5,7 @@ using Hive.Foundation.Extensions;
 
 namespace Hive.Handlers.Impl
 {
-	public class UpdateHandler : IUpdateHandler
+	public class UpdateHandler : IHandler<IEntity, IEntity>
 	{
 		private readonly IEntityRepository _entityRepository;
 
@@ -14,7 +14,7 @@ namespace Hive.Handlers.Impl
 			_entityRepository = entityRepository.NotNull(nameof(entityRepository));
 		}
 
-		public Task<IEntity> Update(IEntity entity, CancellationToken ct)
+		public Task<IEntity> Execute(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
 			return _entityRepository.Update(entity, ct);

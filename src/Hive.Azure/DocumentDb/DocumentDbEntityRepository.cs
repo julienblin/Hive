@@ -22,19 +22,16 @@ namespace Hive.Azure.DocumentDb
 	{
 		private readonly Lazy<IDocumentClient> _lazyClient;
 		private readonly Lazy<Uri> _lazyCollectionUri;
-		private readonly IMetaService _metaService;
 		private readonly IEntityFactory _entityFactory;
 		private readonly IOptions<DocumentDbOptions> _options;
 
 		public DocumentDbEntityRepository(
 			IOptions<DocumentDbOptions> options,
 			ITelemetry telemetry,
-			IMetaService metaService,
 			IEntityFactory entityFactory)
 		{
 			_options = options.NotNull(nameof(options));
 			Telemetry = telemetry.NotNull(nameof(telemetry));
-			_metaService = metaService.NotNull(nameof(metaService));
 			_entityFactory = entityFactory.NotNull(nameof(entityFactory));
 			_lazyClient = new Lazy<IDocumentClient>(CreateClient);
 			_lazyCollectionUri = new Lazy<Uri>(CreateCollectionUri);

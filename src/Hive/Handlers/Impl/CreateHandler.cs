@@ -5,7 +5,7 @@ using Hive.Foundation.Extensions;
 
 namespace Hive.Handlers.Impl
 {
-	public class CreateHandler : ICreateHandler
+	public class CreateHandler : IHandler<IEntity, IEntity>
 	{
 		private readonly IEntityRepository _entityRepository;
 
@@ -14,7 +14,7 @@ namespace Hive.Handlers.Impl
 			_entityRepository = entityRepository.NotNull(nameof(entityRepository));
 		}
 
-		public Task<IEntity> Create(IEntity entity, CancellationToken ct)
+		public Task<IEntity> Execute(IEntity entity, CancellationToken ct)
 		{
 			entity.NotNull(nameof(entity));
 			return _entityRepository.Create(entity, ct);

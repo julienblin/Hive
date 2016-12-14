@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Hive.Entities;
 using Hive.Handlers;
 
 namespace Hive.Meta
@@ -19,10 +20,10 @@ namespace Hive.Meta
 
 		ConcurrencyHandling ConcurrencyHandling { get; }
 
-		ICreateHandler CreateHandler { get; }
+		IHandler<IEntity, IEntity> CreateHandler { get; }
 
-		IUpdateHandler UpdateHandler { get; }
+		IHandler<IEntity, IEntity> UpdateHandler { get; }
 
-		IDeleteHandler DeleteHandler { get; }
+		IHandler<DeleteExecution, bool> DeleteHandler { get; }
 	}
 }

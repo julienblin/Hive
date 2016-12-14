@@ -6,7 +6,7 @@ using Hive.Meta;
 
 namespace Hive.Handlers.Impl
 {
-	public class DeleteHandler : IDeleteHandler
+	public class DeleteHandler : IHandler<DeleteExecution, bool>
 	{
 		private readonly IEntityRepository _entityRepository;
 
@@ -15,12 +15,11 @@ namespace Hive.Handlers.Impl
 			_entityRepository = entityRepository.NotNull(nameof(entityRepository));
 		}
 
-		public Task<bool> Delete(IEntityDefinition entityDefinition, object id, CancellationToken ct)
+		public Task<bool> Execute(DeleteExecution deleteExecution, CancellationToken ct)
 		{
-			entityDefinition.NotNull(nameof(entityDefinition));
-			id.NotNull(nameof(id));
+			deleteExecution.NotNull(nameof(deleteExecution));
 
-			return _entityRepository.Delete(entityDefinition, id, ct);
+			return _entityRepository.Delete(deleteExecution.EntityDefinition, deleteExecution.Id, ct);
 		}
 	}
 }

@@ -33,11 +33,11 @@ namespace Hive.Meta.Impl
 
 		public ConcurrencyHandling ConcurrencyHandling { get; set; }
 
-		public ICreateHandler CreateHandler { get; set; }
+		public IHandler<IEntity, IEntity> CreateHandler { get; set; }
 
-		public IUpdateHandler UpdateHandler { get; set; }
+		public IHandler<IEntity, IEntity> UpdateHandler { get; set; }
 
-		public IDeleteHandler DeleteHandler { get; set; }
+		public IHandler<DeleteExecution, bool> DeleteHandler { get; set; }
 
 		void IDataType.ModelLoaded(IPropertyDefinition propertyDefinition)
 		{
