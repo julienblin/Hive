@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Hive.Commands;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Queries;
@@ -28,35 +27,26 @@ namespace Hive.Entities.Impl
 			return _entityRepository.CreateQuery(entityDefinition);
 		}
 
-		public Task<T> Execute<T>(Command<T> command, CancellationToken ct)
+		public async Task<IEntity> Create(IEntity entity, CancellationToken ct)
 		{
-			if (command is CreateCommand)
-				return Execute<T>(command as CreateCommand, ct);
-
-			if (command is UpdateCommand)
-				return Execute<T>(command as UpdateCommand, ct);
-
-			if (command is DeleteCommand)
-				return Execute<T>(command as DeleteCommand, ct);
-
-			throw new NotImplementedException();
+			entity.NotNull(nameof(entity));
+			await _validationService.Validate(entity, ct);
+			return await _entityRepository.Create(entity, ct);
 		}
 
-		private async Task<T> Execute<T>(CreateCommand command, CancellationToken ct)
+		public async Task<IEntity> Update(IEntity entity, CancellationToken ct)
 		{
-			await _validationService.Validate(command.Entity, ct);
-			return (T) await _entityRepository.Create(command.Entity, ct);
+			entity.NotNull(nameof(entity));
+			await _validationService.Validate(entity, ct);
+			return await _entityRepository.Update(entity, ct);
 		}
 
-		private async Task<T> Execute<T>(UpdateCommand command, CancellationToken ct)
+		public Task<bool> Delete(IEntityDefinition entityDefinition, object id, CancellationToken ct)
 		{
-			await _validationService.Validate(command.Entity, ct);
-			return (T) await _entityRepository.Update(command.Entity, ct);
-		}
+			entityDefinition.NotNull(nameof(entityDefinition));
+			id.NotNull(nameof(id));
 
-		private async Task<T> Execute<T>(DeleteCommand command, CancellationToken ct)
-		{
-			return (T) (object) await _entityRepository.Delete(command.EntityDefinition, command.EntityId, ct);
+			return _entityRepository.Delete(entityDefinition, id, ct);
 		}
 	}
 }

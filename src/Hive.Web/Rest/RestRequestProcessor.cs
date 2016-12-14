@@ -5,7 +5,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Hive.Commands;
 using Hive.Context;
 using Hive.Entities;
 using Hive.Exceptions;
@@ -353,9 +352,7 @@ namespace Hive.Web.Rest
 
 			var propertyBag = param.RequestSerializer.Deserialize(param.Context.Request.Body);
 			var entity = await EntityFactory.Create(entityDefinition, propertyBag, ct);
-
-			var cmd = new CreateCommand(entity);
-			var result = await EntityService.Execute(cmd, ct);
+			var result = await EntityService.Create(entity, ct);
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
@@ -383,9 +380,7 @@ namespace Hive.Web.Rest
 			propertyBag[MetaConstants.IdProperty] = restQuery.AdditionalQualifier;
 			var entity = await EntityFactory.Hydrate(entityDefinition, propertyBag, ct);
 			entity.Etag = param.Headers.IfNoneMatch();
-
-			var cmd = new UpdateCommand(entity);
-			var result = await EntityService.Execute(cmd, ct);
+			var result = await EntityService.Update(entity, ct);
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
 			{
@@ -418,7 +413,6 @@ namespace Hive.Web.Rest
 			}
 
 			var entity = await EntityService.GetById(entityDefinition, restQuery.AdditionalQualifier, ct);
-			entity.Etag = param.Headers.IfNoneMatch();
 			if (entity == null)
 			{
 				Respond(param,
@@ -427,9 +421,8 @@ namespace Hive.Web.Rest
 				return;
 			}
 			jsonPatchDocument.ApplyTo(entity, new EntityPatchObjectAdapter());
-
-			var cmd = new UpdateCommand(entity);
-			var result = await EntityService.Execute(cmd, ct);
+			entity.Etag = param.Headers.IfNoneMatch();
+			var result = await EntityService.Update(entity, ct);
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
 			{
@@ -448,8 +441,7 @@ namespace Hive.Web.Rest
 			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
 				throw new BadRequestException($"A delete request must include an id.");
 
-			var cmd = new DeleteCommand(entityDefinition, restQuery.AdditionalQualifier);
-			var result = await EntityService.Execute(cmd, ct);
+			var result = await EntityService.Delete(entityDefinition, restQuery.AdditionalQualifier, ct);
 			if (!result)
 			{
 				Respond(param,

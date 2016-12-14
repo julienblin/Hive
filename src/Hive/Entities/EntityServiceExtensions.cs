@@ -16,5 +16,13 @@ namespace Hive.Entities
 
 			return entityService.CreateQuery(entityDefinition).Add(Criterion.IdEq(id)).UniqueResult<IEntity>(ct);
 		}
+
+		public static Task<bool> Delete(this IEntityService entityService, IEntity entity, CancellationToken ct)
+		{
+			entityService.NotNull(nameof(entityService));
+			entity.NotNull(nameof(entity));
+
+			return entityService.Delete(entity.Definition, entity.Id, ct);
+		}
 	}
 }

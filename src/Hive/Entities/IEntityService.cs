@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Hive.Commands;
 using Hive.Meta;
 using Hive.Queries;
 
@@ -10,6 +9,10 @@ namespace Hive.Entities
 	{
 		IQuery CreateQuery(IEntityDefinition entityDefinition);
 
-		Task<T> Execute<T>(Command<T> command, CancellationToken ct);
+		Task<IEntity> Create(IEntity entity, CancellationToken ct);
+
+		Task<IEntity> Update(IEntity entity, CancellationToken ct);
+
+		Task<bool> Delete(IEntityDefinition entityDefinition, object id, CancellationToken ct);
 	}
 }
