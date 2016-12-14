@@ -9,6 +9,8 @@ using Hive.Entities;
 using Hive.Entities.Impl;
 using Hive.Foundation.Extensions;
 using Hive.Foundation.Lifecycle;
+using Hive.Handlers;
+using Hive.Handlers.Impl;
 using Hive.Meta;
 using Hive.Meta.Impl;
 using Hive.Telemetry;
@@ -70,6 +72,10 @@ namespace Hive.SampleApp
 			services.AddSingleton<IValidator, RequiredValidator>();
 			services.AddSingleton<IValidator, RegexValidator>();
 			services.AddSingleton<IValidatorFactory, ValidatorFactory>();
+
+			services.AddSingleton<ICreateHandler, CreateHandler>();
+			services.AddSingleton<IUpdateHandler, UpdateHandler>();
+			services.AddSingleton<IDeleteHandler, DeleteHandler>();
 
 			if (HostingEnvironment.IsDevelopment())
 				services.AddSingleton<IModelCache, NullModelCache>();

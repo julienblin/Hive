@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Hive.Handlers;
 
 namespace Hive.Meta
 {
@@ -17,5 +18,11 @@ namespace Hive.Meta
 		IImmutableDictionary<string, IPropertyDefinition> Properties { get; }
 
 		ConcurrencyHandling ConcurrencyHandling { get; }
+
+		ICreateHandler CreateHandler { get; }
+
+		IUpdateHandler UpdateHandler { get; }
+
+		IDeleteHandler DeleteHandler { get; }
 	}
 }

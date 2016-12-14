@@ -31,7 +31,7 @@ namespace Hive.Entities.Impl
 		{
 			entity.NotNull(nameof(entity));
 			await _validationService.Validate(entity, ct);
-			return await _entityRepository.Create(entity, ct);
+			return await entity.Definition.CreateHandler.Create(entity, ct);
 		}
 
 		public async Task<IEntity> Update(IEntity entity, CancellationToken ct)

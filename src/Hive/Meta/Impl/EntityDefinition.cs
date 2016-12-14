@@ -6,6 +6,7 @@ using Hive.Entities;
 using Hive.Entities.Impl;
 using Hive.Foundation.Entities;
 using Hive.Foundation.Extensions;
+using Hive.Handlers;
 using Hive.ValueTypes;
 
 namespace Hive.Meta.Impl
@@ -31,6 +32,12 @@ namespace Hive.Meta.Impl
 		public IImmutableDictionary<string, IPropertyDefinition> Properties { get; set; }
 
 		public ConcurrencyHandling ConcurrencyHandling { get; set; }
+
+		public ICreateHandler CreateHandler { get; set; }
+
+		public IUpdateHandler UpdateHandler { get; set; }
+
+		public IDeleteHandler DeleteHandler { get; set; }
 
 		void IDataType.ModelLoaded(IPropertyDefinition propertyDefinition)
 		{
