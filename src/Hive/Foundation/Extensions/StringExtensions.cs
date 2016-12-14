@@ -44,7 +44,7 @@ namespace Hive.Foundation.Extensions
 		public static string SplitFirst(this string value, char separator, out string remaining)
 		{
 			value.NotNullOrEmpty(nameof(value));
-			var result = value.Split(new[] { separator }, 2);
+			var result = value.Split(new[] { separator }, 2, StringSplitOptions.RemoveEmptyEntries);
 			remaining = (result.Length == 1) || (result[1].IsNullOrWhiteSpace()) ? null : result[1];
 			return result[0];
 		}

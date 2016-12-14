@@ -9,6 +9,7 @@ using Hive.Commands;
 using Hive.Context;
 using Hive.Entities;
 using Hive.Exceptions;
+using Hive.Foundation;
 using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Queries;
@@ -16,12 +17,14 @@ using Hive.Telemetry;
 using Hive.Web.Exceptions;
 using Hive.Web.Extensions;
 using Hive.Web.RequestProcessors;
+using Hive.Web.Rest.Patch;
 using Hive.Web.Rest.Responses;
 using Hive.Web.Rest.Serializers;
+using Hive.Web.Rest.Serializers.Impl;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using NodaTime;
 
 namespace Hive.Web.Rest
 {
@@ -83,6 +86,12 @@ namespace Hive.Web.Rest
 				return true;
 			}
 
+			if (HttpMethods.IsPatch(request.Method))
+			{
+				await ProcessPatchCommand(processParams, ct);
+				return true;
+			}
+
 			if (HttpMethods.IsDelete(request.Method))
 			{
 				await ProcessDeleteCommand(processParams, ct);
@@ -101,7 +110,7 @@ namespace Hive.Web.Rest
 
 			if (exception is BadRequestException)
 			{
-				var badRequestException = (BadRequestException)exception;
+				var badRequestException = (BadRequestException) exception;
 				context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
 				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
@@ -111,7 +120,7 @@ namespace Hive.Web.Rest
 
 			if (exception is QueryException)
 			{
-				var queryException = (QueryException)exception;
+				var queryException = (QueryException) exception;
 				context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
 				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
@@ -139,7 +148,7 @@ namespace Hive.Web.Rest
 
 			if (exception is NotFoundException)
 			{
-				var notFoundException = (NotFoundException)exception;
+				var notFoundException = (NotFoundException) exception;
 				context.Response.StatusCode = StatusCodes.Status404NotFound;
 
 				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
@@ -149,7 +158,7 @@ namespace Hive.Web.Rest
 
 			if (exception is ValidationException)
 			{
-				var validationException = (ValidationException)exception;
+				var validationException = (ValidationException) exception;
 				context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
 
 				context.Response.Headers["Content-Type"] = responseSerializer.MediaTypes.First();
@@ -183,16 +192,16 @@ namespace Hive.Web.Rest
 				{
 					Respond(param, null, StatusCodes.Status304NotModified, new Dictionary<string, string>
 					{
-						{ WebConstants.ETagHeader, result.Etag },
-						{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) }
+						{WebConstants.ETagHeader, result.Etag},
+						{WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601())}
 					});
 				}
 				else
 				{
 					Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
 					{
-						{ WebConstants.ETagHeader, result.Etag },
-						{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) }
+						{WebConstants.ETagHeader, result.Etag},
+						{WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601())}
 					});
 				}
 			}
@@ -202,10 +211,11 @@ namespace Hive.Web.Rest
 				if (query.MaxResults.HasValue)
 				{
 					var result = await query.ToContinuationEnumerable<IEntity>(ct);
-					Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK, new Dictionary<string, string>
-					{
-						{ RestConstants.ContinuationTokenHeader, result.ContinuationToken }
-					});
+					Respond(param, result.Select(x => x.ToPropertyBag()).ToArray(), StatusCodes.Status200OK,
+						new Dictionary<string, string>
+						{
+							{RestConstants.ContinuationTokenHeader, result.ContinuationToken}
+						});
 				}
 				else
 				{
@@ -218,7 +228,9 @@ namespace Hive.Web.Rest
 		private IQuery CreateQuery(IEntityDefinition entityDefinition, RestQueryString restQuery, RestProcessParameters param)
 		{
 			var query = EntityService.CreateQuery(entityDefinition);
-			foreach (var queryStringValue in restQuery.QueryStringValues.Where(x => !x.Key.StartsWith(RestConstants.ReservedOperatorsPrefix)))
+			foreach (
+				var queryStringValue in
+				restQuery.QueryStringValues.Where(x => !x.Key.StartsWith(RestConstants.ReservedOperatorsPrefix)))
 			{
 				RecursiveFillQuery(query, null, queryStringValue.Key, queryStringValue.Value);
 			}
@@ -295,7 +307,8 @@ namespace Hive.Web.Rest
 			}
 		}
 
-		private static void RecursiveFillQuery(IQuery query, string protectedLeading, string selector, StringValues selectorValues)
+		private static void RecursiveFillQuery(IQuery query, string protectedLeading, string selector,
+			StringValues selectorValues)
 		{
 			string remaining;
 			var leading = selector.SplitFirst('.', out remaining);
@@ -306,7 +319,7 @@ namespace Hive.Web.Rest
 			}
 
 			var propertyDefinition = query.EntityDefinition.Properties.SafeGet(leading);
-			if(propertyDefinition == null)
+			if (propertyDefinition == null)
 				throw new BadRequestException($"Unable to find a property named {leading} on {query.EntityDefinition}");
 
 			if (propertyDefinition.PropertyType.DataTypeType == DataTypeType.Relation)
@@ -346,9 +359,13 @@ namespace Hive.Web.Rest
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status201Created, new Dictionary<string, string>
 			{
-				{ WebConstants.ETagHeader, result.Etag },
-				{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) },
-				{ "Location", param.Context.Request.AbsoluteUri($"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{WebUtility.UrlEncode(result.Id.ToString())}") }
+				{WebConstants.ETagHeader, result.Etag},
+				{WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601())},
+				{
+					"Location",
+					param.Context.Request.AbsoluteUri(
+						$"{_options.Value.MountPoint}/{entityDefinition.Model.Name}/{entityDefinition.PluralName}/{WebUtility.UrlEncode(result.Id.ToString())}")
+				}
 			});
 		}
 
@@ -372,8 +389,52 @@ namespace Hive.Web.Rest
 
 			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
 			{
-				{ WebConstants.ETagHeader, entity.Etag },
-				{ WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601()) }
+				{WebConstants.ETagHeader, entity.Etag},
+				{WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601())}
+			});
+		}
+
+		private async Task ProcessPatchCommand(RestProcessParameters param, CancellationToken ct)
+		{
+			var restQuery = new RestQueryString(param);
+			var entityDefinition = param.Model.EntitiesByPluralName.SafeGet(restQuery.Root);
+			if (entityDefinition == null)
+				throw new BadRequestException($"Unable to find an entity definition named {restQuery.Root}.");
+
+			if (restQuery.AdditionalQualifier.IsNullOrEmpty())
+				throw new BadRequestException($"A patch request must apply to a specific id.");
+
+			if (!(param.RequestSerializer is JsonRestSerializer))
+				throw new BadRequestException("Only JSON Patch is supported for patching resources.");
+
+			JsonPatchDocument jsonPatchDocument;
+			try
+			{
+				jsonPatchDocument = HiveJsonSerializer.Instance.Deserialize<JsonPatchDocument>(param.Context.Request.Body);
+			}
+			catch (Exception ex)
+			{
+				throw new BadRequestException("Malformed JSON Patch.", ex);
+			}
+
+			var entity = await EntityService.GetById(entityDefinition, restQuery.AdditionalQualifier, ct);
+			entity.Etag = param.Headers.IfNoneMatch();
+			if (entity == null)
+			{
+				Respond(param,
+						new MessageResponse($"Unable to find a {entityDefinition.SingleName} with id {restQuery.AdditionalQualifier}"),
+						StatusCodes.Status404NotFound);
+				return;
+			}
+			jsonPatchDocument.ApplyTo(entity, new EntityPatchObjectAdapter());
+
+			var cmd = new UpdateCommand(entity);
+			var result = await EntityService.Execute(cmd, ct);
+
+			Respond(param, result.ToPropertyBag(), StatusCodes.Status200OK, new Dictionary<string, string>
+			{
+				{WebConstants.ETagHeader, result.Etag},
+				{WebConstants.LastModifiedHeader, result.LastModified.SelectOrDefault(x => x.ToUtcIso8601())}
 			});
 		}
 

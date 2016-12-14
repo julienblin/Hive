@@ -87,6 +87,11 @@ namespace Hive.Entities.Impl
 			return true;
 		}
 
+		public override IEnumerable<string> GetDynamicMemberNames()
+		{
+			return Definition.Properties.Keys;
+		}
+
 		public string Etag { get; set; }
 
 		public Instant? LastModified { get; set; }
