@@ -1,4 +1,6 @@
 ﻿using System;
+using Hive.DependencyInjection;
+using Hive.SampleApp.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +31,8 @@ namespace Hive.SampleApp
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 			services.AddOptions();
+
+			services.AddDefaultHandlers<OS>();
 		}
 
 		public void Configure(

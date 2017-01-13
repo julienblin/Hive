@@ -3,11 +3,10 @@
 
   "dependencies": {
     "NETStandard.Library": "1.6.1",
-    "Newtonsoft.Json": "9.0.1",
     "Microsoft.Extensions.Configuration.Abstractions": "1.1.0",
     "Microsoft.Extensions.Options": "1.1.0",
     "Microsoft.Extensions.PlatformAbstractions": "1.1.0",
-    "NodaTime": "2.0.0-*"
+    "Microsoft.Extensions.Logging.Abstractions": "1.1.0"
   },
 
   "frameworks": {
