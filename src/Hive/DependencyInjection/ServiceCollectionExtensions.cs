@@ -7,11 +7,24 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Hive.Handlers.Impl;
 using Hive.Entities;
+using Hive.Meta;
+using Hive.Meta.Impl;
 
 namespace Hive.DependencyInjection
 {
 	public static class ServiceCollectionExtensions
 	{
+
+		public static IServiceCollection AddHive(this IServiceCollection serviceCollection)
+		{
+			if(!serviceCollection.Any(x => x.ServiceType == typeof(IServiceCollection)))
+				serviceCollection.Add(new ServiceDescriptor(typeof(IServiceCollection), serviceCollection));
+
+			serviceCollection.AddSingleton<IMetaService, MetaService>();
+
+			return serviceCollection;
+		}
+
 		public static IServiceCollection AddHandler<T>(this IServiceCollection serviceCollection, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
 			where T : class, IHandler
 		{

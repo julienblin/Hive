@@ -48,13 +48,5 @@ namespace Hive.Foundation.Extensions
 			remaining = (result.Length == 1) || (result[1].IsNullOrWhiteSpace()) ? null : result[1];
 			return result[0];
 		}
-
-		public static string FirstCharToLowerInvariant(this string value)
-		{
-			if (value.IsNullOrEmpty() || char.IsLower(value, 0))
-				return value;
-
-			return char.ToLowerInvariant(value[0]) + value.Substring(1);
-		}
 	}
 }
