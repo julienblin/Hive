@@ -6,7 +6,7 @@ using Hive.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Hive.Handlers.Impl;
-using Hive.Models;
+using Hive.Entities;
 
 namespace Hive.DependencyInjection
 {
@@ -26,13 +26,13 @@ namespace Hive.DependencyInjection
 		}
 
 		public static IServiceCollection AddDefaultHandlers<T>(this IServiceCollection serviceCollection)
-			where T : class, IModel
+			where T : class, IEntity
 		{
 			return AddDefaultHandlers<T>(serviceCollection, HandlerTypes.All);
 		}
 
 		public static IServiceCollection AddDefaultHandlers<T>(this IServiceCollection serviceCollection, HandlerTypes handlerTypes)
-			where T : class, IModel
+			where T : class, IEntity
 		{
 			if (handlerTypes.HasFlag(HandlerTypes.Get))
 			{

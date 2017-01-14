@@ -1,9 +1,9 @@
 ﻿using System;
-using Hive.Models;
+using Hive.Entities;
 
 namespace Hive.SampleApp.Models
 {
-	public class OS : IModel<Guid>
+	public class OS : IEntity<Guid>
 	{
 		public Guid Id { get; set; }
 

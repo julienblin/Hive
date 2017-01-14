@@ -5,6 +5,7 @@
     "Microsoft.AspNetCore.Http": "1.1.0",
     "Microsoft.AspNetCore.Http.Extensions": "1.1.0",
     "Microsoft.AspNetCore.JsonPatch": "1.1.0",
+    "Microsoft.AspNetCore.Routing": "1.1.0",
     "Hive": "*",
     "NETStandard.Library": "1.6.1"
   },
