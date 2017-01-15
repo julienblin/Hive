@@ -11,6 +11,7 @@ namespace Hive.Web
 		{
 			var restRouteBuilder = new RestRouteBuilder(
 				app,
+				app.ApplicationServices,
 				app.ApplicationServices.GetRequiredService<IMetaService>(),
 				prefix
 			);

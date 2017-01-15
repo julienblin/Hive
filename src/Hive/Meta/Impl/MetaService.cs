@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Hive.DependencyInjection;
+using Hive.Entities;
 using Hive.Foundation.Extensions;
 using Hive.Handlers;
 using Humanizer;
@@ -41,10 +42,20 @@ namespace Hive.Meta.Impl
 				yield return new HandlerInfo(
 					handlerInterface.AsType(),
 					handlerInterface.GetGenericArguments()[0],
+					GetKnownIdTypeIfPossible(handlerInterface.GetGenericArguments()[0]),
 					GetResourceDescription(handlerInterface.GetGenericArguments()[0]),
 					GetHandlerType(handlerInterface)
 				);
 			}
+		}
+
+		private static Type GetKnownIdTypeIfPossible(Type resourceType)
+		{
+			var resourceTypeInfo = resourceType.GetTypeInfo();
+			var entityInterfaceType = resourceTypeInfo.GetInterfaces()
+				.Select(x => x.GetTypeInfo())
+				.FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntity<>));
+			return entityInterfaceType?.GetGenericArguments()[0];
 		}
 
 		private HandlerTypes GetHandlerType(TypeInfo handlerInterfaceTypeInfo)

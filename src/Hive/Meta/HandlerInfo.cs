@@ -9,11 +9,13 @@ namespace Hive.Meta
 		public HandlerInfo(
 			Type handlerInterfaceType,
 			Type resourceType,
+			Type knownIdType,
 			ResourceDescription resourceDescription,
 			HandlerTypes handlerType)
 		{
 			HandlerInterfaceType = handlerInterfaceType.NotNull(nameof(handlerInterfaceType));
 			ResourceType = resourceType.NotNull(nameof(resourceType));
+			KnownIdType = knownIdType;
 			ResourceDescription = resourceDescription.NotNull(nameof(resourceDescription));
 			HandlerType = handlerType;
 		}
@@ -21,6 +23,8 @@ namespace Hive.Meta
 		public Type HandlerInterfaceType { get; }
 
 		public Type ResourceType { get; }
+
+		public Type KnownIdType { get; }
 
 		public ResourceDescription ResourceDescription { get; }
 

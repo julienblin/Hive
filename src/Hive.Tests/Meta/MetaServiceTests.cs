@@ -5,6 +5,7 @@ using Hive.Meta.Impl;
 using Xunit;
 using FluentAssertions;
 using Hive.DependencyInjection;
+using Hive.Entities;
 using Hive.Handlers;
 using Hive.Meta;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,22 +43,28 @@ namespace Hive.Tests.Meta
 				.Contain(x => (x.HandlerType == HandlerTypes.Get)
 							&& x.HandlerInterfaceType == typeof(IHandleGet<User>)
 							&& x.ResourceDescription != null
-							&& x.ResourceType == typeof(User))
+							&& x.ResourceType == typeof(User)
+							&& x.KnownIdType == null)
 				.And
 				.Contain(x => (x.HandlerType == HandlerTypes.Delete)
 							&& x.HandlerInterfaceType == typeof(IHandleDelete<User>)
 							&& x.ResourceDescription != null
-							&& x.ResourceType == typeof(User))
+							&& x.ResourceType == typeof(User)
+							&& x.KnownIdType == null)
 				.And
 				.Contain(x => (x.HandlerType == HandlerTypes.Update)
 							&& x.HandlerInterfaceType == typeof(IHandleUpdate<Man>)
 							&& x.ResourceDescription != null
-							&& x.ResourceType == typeof(Man));
+							&& x.ResourceType == typeof(Man)
+							&& x.KnownIdType == typeof(Guid));
 		}
 
 		private class User { }
 
-		private class Man { }
+		private class Man : IEntity<Guid>
+		{
+			public Guid Id { get; }
+		}
 
 		[Name(SingleName = "Custom1", PluralName = "Custom2")]
 		private class Custom { }
