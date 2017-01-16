@@ -38,13 +38,13 @@ namespace Hive.DependencyInjection
 			return serviceCollection;
 		}
 
-		public static IServiceCollection AddDefaultHandlers<T>(this IServiceCollection serviceCollection)
+		public static IServiceCollection AddEntityRepositoryHandlers<T>(this IServiceCollection serviceCollection)
 			where T : class, IEntity
 		{
-			return AddDefaultHandlers<T>(serviceCollection, HandlerTypes.All);
+			return AddEntityRepositoryHandlers<T>(serviceCollection, HandlerTypes.All);
 		}
 
-		public static IServiceCollection AddDefaultHandlers<T>(this IServiceCollection serviceCollection, HandlerTypes handlerTypes)
+		public static IServiceCollection AddEntityRepositoryHandlers<T>(this IServiceCollection serviceCollection, HandlerTypes handlerTypes)
 			where T : class, IEntity
 		{
 			if (handlerTypes.HasFlag(HandlerTypes.Get))
@@ -52,7 +52,7 @@ namespace Hive.DependencyInjection
 				serviceCollection.Add(
 					new ServiceDescriptor(
 						typeof(IHandleGet<>).MakeGenericType(typeof(T)),
-						typeof(DefaultModelGetHandler<>).MakeGenericType(typeof(T)),
+						typeof(EntityRepositoryGetHandler<>).MakeGenericType(typeof(T)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -63,7 +63,7 @@ namespace Hive.DependencyInjection
 				serviceCollection.Add(
 					new ServiceDescriptor(
 						typeof(IHandleCreate<>).MakeGenericType(typeof(T)),
-						typeof(DefaultModelCreateHandler<>).MakeGenericType(typeof(T)),
+						typeof(EntityRepositoryCreateHandler<>).MakeGenericType(typeof(T)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -74,7 +74,7 @@ namespace Hive.DependencyInjection
 				serviceCollection.Add(
 					new ServiceDescriptor(
 						typeof(IHandleUpdate<>).MakeGenericType(typeof(T)),
-						typeof(DefaultModelUpdateHandler<>).MakeGenericType(typeof(T)),
+						typeof(EntityRepositoryUpdateHandler<>).MakeGenericType(typeof(T)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -85,7 +85,7 @@ namespace Hive.DependencyInjection
 				serviceCollection.Add(
 					new ServiceDescriptor(
 						typeof(IHandleDelete<>).MakeGenericType(typeof(T)),
-						typeof(DefaultModelDeleteHandler<>).MakeGenericType(typeof(T)),
+						typeof(EntityRepositoryDeleteHandler<>).MakeGenericType(typeof(T)),
 						ServiceLifetime.Singleton
 					)
 				);

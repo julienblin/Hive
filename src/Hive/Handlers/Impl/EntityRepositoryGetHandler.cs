@@ -4,7 +4,7 @@ using Hive.Entities;
 
 namespace Hive.Handlers.Impl
 {
-	public class DefaultModelGetHandler<T> : IHandleGet<T>
+	public class EntityRepositoryGetHandler<T> : IHandleGet<T>
 		where T: class, IEntity
 	{
 		public async Task<IHandlerResult> Get(object id, CancellationToken ct)

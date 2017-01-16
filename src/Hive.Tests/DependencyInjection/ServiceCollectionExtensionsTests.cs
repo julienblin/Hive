@@ -25,29 +25,29 @@ namespace Hive.Tests.DependencyInjection
 		}
 
 		[Fact]
-		public void ItShouldRegisterAllDefaultHandlers()
+		public void ItShouldRegisterAllEntityRepositoryHandlers()
 		{
 			var servicesCollections = new ServiceCollection();
-			servicesCollections.AddDefaultHandlers<TestEntity>();
+			servicesCollections.AddEntityRepositoryHandlers<TestEntity>();
 
 			var serviceProvider = servicesCollections.BuildServiceProvider(true);
 
-			serviceProvider.GetRequiredService<IHandleGet<TestEntity>>().Should().BeOfType<DefaultModelGetHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<DefaultModelCreateHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleUpdate<TestEntity>>().Should().BeOfType<DefaultModelUpdateHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleDelete<TestEntity>>().Should().BeOfType<DefaultModelDeleteHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleGet<TestEntity>>().Should().BeOfType<EntityRepositoryGetHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<EntityRepositoryCreateHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleUpdate<TestEntity>>().Should().BeOfType<EntityRepositoryUpdateHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleDelete<TestEntity>>().Should().BeOfType<EntityRepositoryDeleteHandler<TestEntity>>();
 		}
 
 		[Fact]
-		public void ItShouldRegisterDefaultHandlersSelectively()
+		public void ItShouldRegisterEntityRepositoryHandlersSelectively()
 		{
 			var servicesCollections = new ServiceCollection();
-			servicesCollections.AddDefaultHandlers<TestEntity>(HandlerTypes.Create | HandlerTypes.Delete);
+			servicesCollections.AddEntityRepositoryHandlers<TestEntity>(HandlerTypes.Create | HandlerTypes.Delete);
 
 			var serviceProvider = servicesCollections.BuildServiceProvider(true);
 
-			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<DefaultModelCreateHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleDelete<TestEntity>>().Should().BeOfType<DefaultModelDeleteHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<EntityRepositoryCreateHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleDelete<TestEntity>>().Should().BeOfType<EntityRepositoryDeleteHandler<TestEntity>>();
 
 			serviceProvider.GetService<IHandleGet<TestEntity>>().Should().BeNull();
 			serviceProvider.GetService<IHandleUpdate<TestEntity>>().Should().BeNull();

@@ -38,7 +38,7 @@ namespace Hive.SampleApp
 			services.AddRouting();
 			services.AddHive();
 
-			services.AddDefaultHandlers<OS>();
+			services.AddEntityRepositoryHandlers<OS>();
 		}
 
 		public void Configure(IApplicationBuilder app)

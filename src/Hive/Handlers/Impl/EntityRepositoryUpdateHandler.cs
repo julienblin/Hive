@@ -4,7 +4,7 @@ using Hive.Entities;
 
 namespace Hive.Handlers.Impl
 {
-	public class DefaultModelUpdateHandler<T> : IHandleUpdate<T>
+	public class EntityRepositoryUpdateHandler<T> : IHandleUpdate<T>
 		where T: class, IEntity
 	{
 		public Task<IHandlerResult> Update(T resource, CancellationToken ct)
