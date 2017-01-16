@@ -1,11 +1,6 @@
 ﻿namespace Hive.Entities
 {
-	public interface IEntity
+	public interface IEntity<out TId> : IIdentifiable<TId>
 	{
-	}
-
-	public interface IEntity<out T> : IEntity
-	{
-		T Id { get; }
 	}
 }

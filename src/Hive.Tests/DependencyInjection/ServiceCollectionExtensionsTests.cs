@@ -20,7 +20,7 @@ namespace Hive.Tests.DependencyInjection
 
 			var serviceProvider = servicesCollections.BuildServiceProvider(true);
 
-			serviceProvider.GetRequiredService<IHandleGet<TestEntity>>().Should().BeOfType<TestHandler>();
+			serviceProvider.GetRequiredService<IHandleGet<TestEntity, int>>().Should().BeOfType<TestHandler>();
 			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<TestHandler>();
 		}
 
@@ -28,28 +28,28 @@ namespace Hive.Tests.DependencyInjection
 		public void ItShouldRegisterAllEntityRepositoryHandlers()
 		{
 			var servicesCollections = new ServiceCollection();
-			servicesCollections.AddEntityRepositoryHandlers<TestEntity>();
+			servicesCollections.AddEntityRepositoryHandlers<TestEntity, int>();
 
 			var serviceProvider = servicesCollections.BuildServiceProvider(true);
 
-			serviceProvider.GetRequiredService<IHandleGet<TestEntity>>().Should().BeOfType<EntityRepositoryGetHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<EntityRepositoryCreateHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleUpdate<TestEntity>>().Should().BeOfType<EntityRepositoryUpdateHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleDelete<TestEntity>>().Should().BeOfType<EntityRepositoryDeleteHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleGet<TestEntity, int>>().Should().BeOfType<EntityRepositoryGetHandler<TestEntity, int>>();
+			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<EntityRepositoryCreateHandler<TestEntity, int>>();
+			serviceProvider.GetRequiredService<IHandleUpdate<TestEntity>>().Should().BeOfType<EntityRepositoryUpdateHandler<TestEntity, int>>();
+			serviceProvider.GetRequiredService<IHandleDelete<TestEntity, int>>().Should().BeOfType<EntityRepositoryDeleteHandler<TestEntity, int>>();
 		}
 
 		[Fact]
 		public void ItShouldRegisterEntityRepositoryHandlersSelectively()
 		{
 			var servicesCollections = new ServiceCollection();
-			servicesCollections.AddEntityRepositoryHandlers<TestEntity>(HandlerTypes.Create | HandlerTypes.Delete);
+			servicesCollections.AddEntityRepositoryHandlers<TestEntity, int>(HandlerTypes.Create | HandlerTypes.Delete);
 
 			var serviceProvider = servicesCollections.BuildServiceProvider(true);
 
-			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<EntityRepositoryCreateHandler<TestEntity>>();
-			serviceProvider.GetRequiredService<IHandleDelete<TestEntity>>().Should().BeOfType<EntityRepositoryDeleteHandler<TestEntity>>();
+			serviceProvider.GetRequiredService<IHandleCreate<TestEntity>>().Should().BeOfType<EntityRepositoryCreateHandler<TestEntity, int>>();
+			serviceProvider.GetRequiredService<IHandleDelete<TestEntity, int>>().Should().BeOfType<EntityRepositoryDeleteHandler<TestEntity, int>>();
 
-			serviceProvider.GetService<IHandleGet<TestEntity>>().Should().BeNull();
+			serviceProvider.GetService<IHandleGet<TestEntity, int>>().Should().BeNull();
 			serviceProvider.GetService<IHandleUpdate<TestEntity>>().Should().BeNull();
 		}
 
@@ -58,9 +58,9 @@ namespace Hive.Tests.DependencyInjection
 			public int Id { get; }
 		}
 
-		private class TestHandler : IHandleGet<TestEntity>, IHandleCreate<TestEntity>
+		private class TestHandler : IHandleGet<TestEntity, int>, IHandleCreate<TestEntity>
 		{
-			public Task<IHandlerResult> Get(object id, CancellationToken ct)
+			public Task<IHandlerResult> Get(int id, CancellationToken ct)
 			{
 				throw new System.NotImplementedException();
 			}

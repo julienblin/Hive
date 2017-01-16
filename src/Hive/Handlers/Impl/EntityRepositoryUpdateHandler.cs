@@ -4,10 +4,10 @@ using Hive.Entities;
 
 namespace Hive.Handlers.Impl
 {
-	public class EntityRepositoryUpdateHandler<T> : IHandleUpdate<T>
-		where T: class, IEntity
+	public class EntityRepositoryUpdateHandler<TEntity, TId> : IHandleUpdate<TEntity>
+		where TEntity : class, IEntity<TId>
 	{
-		public Task<IHandlerResult> Update(T resource, CancellationToken ct)
+		public Task<IHandlerResult> Update(TEntity resource, CancellationToken ct)
 		{
 			throw new System.NotImplementedException();
 		}

@@ -7,10 +7,13 @@ namespace Hive.Data
 {
 	public interface IEntityRepository
 	{
-		Task<IEntity> Create(IEntity entity, CancellationToken ct);
+		Task<TEntity> Create<TEntity, TId>(TEntity entity, CancellationToken ct)
+			where TEntity : class, IEntity<TId>;
 
-		Task<IEntity> Update(IEntity entity, CancellationToken ct);
+		Task<TEntity> Update<TEntity, TId>(TEntity entity, CancellationToken ct)
+			where TEntity : class, IEntity<TId>;
 
-		Task<bool> Delete(Type modelType, object id, CancellationToken ct);
+		Task<bool> Delete<TEntity, TId>(TId id, CancellationToken ct)
+			where TEntity : class, IEntity<TId>;
 	}
 }

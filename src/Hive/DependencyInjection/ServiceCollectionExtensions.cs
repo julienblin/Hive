@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Hive.Handlers;
-using Hive.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Hive.Handlers.Impl;
@@ -26,33 +25,33 @@ namespace Hive.DependencyInjection
 		}
 
 		public static IServiceCollection AddHandler<T>(this IServiceCollection serviceCollection, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
-			where T : class, IHandler
+			where T : class
 		{
 			var typeInterfaces = typeof(T).GetInterfaces().Select(x => x.GetTypeInfo()).ToList();
 
-			AddHandler<T>(serviceCollection, typeInterfaces, typeof(IHandleGet<>), serviceLifetime);
+			AddHandler<T>(serviceCollection, typeInterfaces, typeof(IHandleGet<,>), serviceLifetime);
 			AddHandler<T>(serviceCollection, typeInterfaces, typeof(IHandleCreate<>), serviceLifetime);
 			AddHandler<T>(serviceCollection, typeInterfaces, typeof(IHandleUpdate<>), serviceLifetime);
-			AddHandler<T>(serviceCollection, typeInterfaces, typeof(IHandleDelete<>), serviceLifetime);
+			AddHandler<T>(serviceCollection, typeInterfaces, typeof(IHandleDelete<,>), serviceLifetime);
 
 			return serviceCollection;
 		}
 
-		public static IServiceCollection AddEntityRepositoryHandlers<T>(this IServiceCollection serviceCollection)
-			where T : class, IEntity
+		public static IServiceCollection AddEntityRepositoryHandlers<TEntity, TId>(this IServiceCollection serviceCollection)
+			where TEntity : class, IEntity<TId>
 		{
-			return AddEntityRepositoryHandlers<T>(serviceCollection, HandlerTypes.All);
+			return AddEntityRepositoryHandlers<TEntity, TId>(serviceCollection, HandlerTypes.All);
 		}
 
-		public static IServiceCollection AddEntityRepositoryHandlers<T>(this IServiceCollection serviceCollection, HandlerTypes handlerTypes)
-			where T : class, IEntity
+		public static IServiceCollection AddEntityRepositoryHandlers<TEntity, TId>(this IServiceCollection serviceCollection, HandlerTypes handlerTypes)
+			where TEntity : class, IEntity<TId>
 		{
 			if (handlerTypes.HasFlag(HandlerTypes.Get))
 			{
 				serviceCollection.Add(
 					new ServiceDescriptor(
-						typeof(IHandleGet<>).MakeGenericType(typeof(T)),
-						typeof(EntityRepositoryGetHandler<>).MakeGenericType(typeof(T)),
+						typeof(IHandleGet<,>).MakeGenericType(typeof(TEntity), typeof(TId)),
+						typeof(EntityRepositoryGetHandler<,>).MakeGenericType(typeof(TEntity), typeof(TId)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -62,8 +61,8 @@ namespace Hive.DependencyInjection
 			{
 				serviceCollection.Add(
 					new ServiceDescriptor(
-						typeof(IHandleCreate<>).MakeGenericType(typeof(T)),
-						typeof(EntityRepositoryCreateHandler<>).MakeGenericType(typeof(T)),
+						typeof(IHandleCreate<>).MakeGenericType(typeof(TEntity)),
+						typeof(EntityRepositoryCreateHandler<,>).MakeGenericType(typeof(TEntity), typeof(TId)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -73,8 +72,8 @@ namespace Hive.DependencyInjection
 			{
 				serviceCollection.Add(
 					new ServiceDescriptor(
-						typeof(IHandleUpdate<>).MakeGenericType(typeof(T)),
-						typeof(EntityRepositoryUpdateHandler<>).MakeGenericType(typeof(T)),
+						typeof(IHandleUpdate<>).MakeGenericType(typeof(TEntity)),
+						typeof(EntityRepositoryUpdateHandler<,>).MakeGenericType(typeof(TEntity), typeof(TId)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -84,8 +83,8 @@ namespace Hive.DependencyInjection
 			{
 				serviceCollection.Add(
 					new ServiceDescriptor(
-						typeof(IHandleDelete<>).MakeGenericType(typeof(T)),
-						typeof(EntityRepositoryDeleteHandler<>).MakeGenericType(typeof(T)),
+						typeof(IHandleDelete<,>).MakeGenericType(typeof(TEntity), typeof(TId)),
+						typeof(EntityRepositoryDeleteHandler<,>).MakeGenericType(typeof(TEntity), typeof(TId)),
 						ServiceLifetime.Singleton
 					)
 				);
@@ -99,7 +98,7 @@ namespace Hive.DependencyInjection
 			IEnumerable<TypeInfo> typeInterfaces,
 			Type handlerType,
 			ServiceLifetime serviceLifetime)
-			where TImplementation : class, IHandler
+			where TImplementation : class
 		{
 			var handlerInterface =
 				typeInterfaces.FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == handlerType);

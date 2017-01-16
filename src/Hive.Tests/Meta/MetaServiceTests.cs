@@ -41,16 +41,16 @@ namespace Hive.Tests.Meta
 			result
 				.Should()
 				.Contain(x => (x.HandlerType == HandlerTypes.Get)
-							&& x.HandlerInterfaceType == typeof(IHandleGet<User>)
+							&& x.HandlerInterfaceType == typeof(IHandleGet<User, int>)
 							&& x.ResourceDescription != null
 							&& x.ResourceType == typeof(User)
-							&& x.KnownIdType == null)
+							&& x.KnownIdType == typeof(int))
 				.And
 				.Contain(x => (x.HandlerType == HandlerTypes.Delete)
-							&& x.HandlerInterfaceType == typeof(IHandleDelete<User>)
+							&& x.HandlerInterfaceType == typeof(IHandleDelete<User, int>)
 							&& x.ResourceDescription != null
 							&& x.ResourceType == typeof(User)
-							&& x.KnownIdType == null)
+							&& x.KnownIdType == typeof(int))
 				.And
 				.Contain(x => (x.HandlerType == HandlerTypes.Update)
 							&& x.HandlerInterfaceType == typeof(IHandleUpdate<Man>)
@@ -59,7 +59,10 @@ namespace Hive.Tests.Meta
 							&& x.KnownIdType == typeof(Guid));
 		}
 
-		private class User { }
+		private class User : IIdentifiable<int>
+		{
+			public int Id { get; }
+		}
 
 		private class Man : IEntity<Guid>
 		{
@@ -69,14 +72,14 @@ namespace Hive.Tests.Meta
 		[Name(SingleName = "Custom1", PluralName = "Custom2")]
 		private class Custom { }
 
-		private class TestUserHandler : IHandleGet<User>, IHandleDelete<User>
+		private class TestUserHandler : IHandleGet<User, int>, IHandleDelete<User, int>
 		{
-			public Task<IHandlerResult> Get(object id, CancellationToken ct)
+			public Task<IHandlerResult> Get(int id, CancellationToken ct)
 			{
 				throw new NotImplementedException();
 			}
 
-			public Task<IHandlerResult> Delete(User resource, CancellationToken ct)
+			public Task<IHandlerResult> Delete(int id, CancellationToken ct)
 			{
 				throw new NotImplementedException();
 			}

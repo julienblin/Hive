@@ -8,6 +8,10 @@ using Hive.Foundation.Extensions;
 using Hive.Meta;
 using Hive.Web.Rest.RouteHandlers;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Internal;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Routing;
 
 namespace Hive.Web.Rest
@@ -17,17 +21,29 @@ namespace Hive.Web.Rest
 		private readonly IApplicationBuilder _applicationBuilder;
 		private readonly IServiceProvider _serviceprovider;
 		private readonly IMetaService _metaService;
+		private readonly IEnumerable<IInputFormatter> _inputFormatters;
+		private readonly IHttpRequestStreamReaderFactory _readerFactory;
+		private readonly IModelMetadataProvider _modelMetadataProvider;
+		private readonly ICompositeMetadataDetailsProvider _compositeMetadataDetailsProvider;
 		private readonly string _prefix;
 
 		public RestRouteBuilder(
 			IApplicationBuilder applicationBuilder,
 			IServiceProvider serviceprovider,
 			IMetaService metaService,
+			IEnumerable<IInputFormatter> inputFormatters,
+			IHttpRequestStreamReaderFactory readerFactory,
+			IModelMetadataProvider modelMetadataProvider,
+			ICompositeMetadataDetailsProvider compositeMetadataDetailsProvider,
 			string prefix)
 		{
 			_applicationBuilder = applicationBuilder.NotNull(nameof(applicationBuilder));
 			_serviceprovider = serviceprovider.NotNull(nameof(serviceprovider));
 			_metaService = metaService.NotNull(nameof(metaService));
+			_inputFormatters = inputFormatters.NotNull(nameof(inputFormatters));
+			_readerFactory = readerFactory.NotNull(nameof(readerFactory));
+			_modelMetadataProvider = modelMetadataProvider.NotNull(nameof(modelMetadataProvider));
+			_compositeMetadataDetailsProvider = compositeMetadataDetailsProvider.NotNull(nameof(compositeMetadataDetailsProvider));
 			_prefix = prefix;
 		}
 
@@ -41,22 +57,24 @@ namespace Hive.Web.Rest
 				switch (handlerInfo.HandlerType)
 				{
 					case HandlerTypes.Get:
-						var routeHandlerType = typeof(GetRouteHandler<>)
+						var getRouteHandlerType = typeof(GetRouteHandler<,>)
 							.GetTypeInfo()
-							.MakeGenericType(handlerInfo.ResourceType);
+							.MakeGenericType(handlerInfo.ResourceType, handlerInfo.KnownIdType);
 
-						var routeHandler = (RouteHandlers.IRouteHandler) Activator.CreateInstance(routeHandlerType, _serviceprovider, handlerInfo);
+						var getRouteHandler = (RouteHandlers.IRouteHandler) Activator.CreateInstance(getRouteHandlerType, _serviceprovider, handlerInfo);
 						builder.MapGet(
 							$"{_prefix}/{handlerInfo.ResourceDescription.PluralName}/{{{RestConstants.RouteData.Id}{GetTypeConstraint(handlerInfo.KnownIdType)}}}",
-							context => routeHandler.Handle(context));
+							context => getRouteHandler.Handle(context));
 						break;
 					case HandlerTypes.Create:
+						var createRouteHandlerType = typeof(CreateRouteHandler<>)
+							.GetTypeInfo()
+							.MakeGenericType(handlerInfo.ResourceType);
+						var createRouteHandler = (RouteHandlers.IRouteHandler)
+							Activator.CreateInstance(createRouteHandlerType, _serviceprovider, _inputFormatters, _readerFactory, handlerInfo, GetModelMetadata(handlerInfo.ResourceType));
 						builder.MapPost(
 							$"{_prefix}/{handlerInfo.ResourceDescription.PluralName}",
-							context =>
-							{
-								return Task.CompletedTask;
-							}
+							context => createRouteHandler.Handle(context)
 						);
 						break;
 					case HandlerTypes.Update:
@@ -83,6 +101,16 @@ namespace Hive.Web.Rest
 			}
 
 			return builder.Build();
+		}
+
+		private ModelMetadata GetModelMetadata(Type resourceType)
+		{
+
+			return new DefaultModelMetadata(
+				_modelMetadataProvider,
+				_compositeMetadataDetailsProvider,
+				new DefaultMetadataDetails(ModelMetadataIdentity.ForType(resourceType), ModelAttributes.GetAttributesForType(resourceType))
+			);
 		}
 
 		// See https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing#route-constraint-reference

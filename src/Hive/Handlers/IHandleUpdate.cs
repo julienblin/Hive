@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace Hive.Handlers
 {
-	public interface IHandleUpdate<in T> : IHandler
+	public interface IHandleUpdate<in TResource>
 	{
-		Task<IHandlerResult> Update(T resource, CancellationToken ct);
+		Task<IHandlerResult> Update(TResource resource, CancellationToken ct);
 	}
 }

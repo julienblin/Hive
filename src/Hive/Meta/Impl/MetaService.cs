@@ -54,14 +54,14 @@ namespace Hive.Meta.Impl
 			var resourceTypeInfo = resourceType.GetTypeInfo();
 			var entityInterfaceType = resourceTypeInfo.GetInterfaces()
 				.Select(x => x.GetTypeInfo())
-				.FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntity<>));
+				.FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IIdentifiable<>));
 			return entityInterfaceType?.GetGenericArguments()[0];
 		}
 
 		private HandlerTypes GetHandlerType(TypeInfo handlerInterfaceTypeInfo)
 		{
 			var genericHandlerInterface = handlerInterfaceTypeInfo.GetGenericTypeDefinition();
-			if (genericHandlerInterface == typeof(IHandleGet<>))
+			if (genericHandlerInterface == typeof(IHandleGet<,>))
 			{
 				return HandlerTypes.Get;
 			}
@@ -76,7 +76,7 @@ namespace Hive.Meta.Impl
 				return HandlerTypes.Update;
 			}
 
-			if (genericHandlerInterface == typeof(IHandleDelete<>))
+			if (genericHandlerInterface == typeof(IHandleDelete<,>))
 			{
 				return HandlerTypes.Delete;
 			}
@@ -90,10 +90,10 @@ namespace Hive.Meta.Impl
 				.Select(x => x.ServiceType.GetTypeInfo())
 				.Where(x => x.IsGenericType)
 				.Select(x => new { handlerInterfaceTypeInfo = x, handlerTypeGenericDefinition = x.GetGenericTypeDefinition()})
-				.Where(x => (x.handlerTypeGenericDefinition == typeof(IHandleGet<>))
+				.Where(x => (x.handlerTypeGenericDefinition == typeof(IHandleGet<,>))
 				         || (x.handlerTypeGenericDefinition == typeof(IHandleCreate<>))
 				         || (x.handlerTypeGenericDefinition == typeof(IHandleUpdate<>))
-				         || (x.handlerTypeGenericDefinition == typeof(IHandleDelete<>)))
+				         || (x.handlerTypeGenericDefinition == typeof(IHandleDelete<,>)))
 				.Select(x => x.handlerInterfaceTypeInfo)
 				.ToList();
 		}

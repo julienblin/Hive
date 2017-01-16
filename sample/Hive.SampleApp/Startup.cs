@@ -1,4 +1,6 @@
 ﻿using System;
+using Hive.Azure.DocumentDb;
+using Hive.Data;
 using Hive.DependencyInjection;
 using Hive.Meta;
 using Hive.Meta.Impl;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Hive.Web;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Hive.SampleApp
 {
@@ -35,16 +38,21 @@ namespace Hive.SampleApp
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 			services.AddOptions();
-			services.AddRouting();
+			services.Configure<DocumentDbOptions>(Configuration.GetSection("documentdb"));
+
+			services.AddSingleton<IEntityRepository, DocumentDbEntityRepository>();
 			services.AddHive();
 
-			services.AddEntityRepositoryHandlers<OS>();
+			services.AddMvc();
+
+			services.AddEntityRepositoryHandlers<OS, Guid>();
 		}
 
 		public void Configure(IApplicationBuilder app)
 		{
 			app.UseResponseCompression();
 			app.UseRestRoutes("api");
+			app.UseMvcWithDefaultRoute();
 		}
 	}
 }

@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 
 namespace Hive.Handlers
 {
-	public interface IHandleCreate<in T> : IHandler
+	public interface IHandleCreate<in TResource>
+		where TResource : class
 	{
-		Task<IHandlerResult> Create(T resource, CancellationToken ct);
+		Task<IHandlerResult> Create(TResource resource, CancellationToken ct);
 	}
 }

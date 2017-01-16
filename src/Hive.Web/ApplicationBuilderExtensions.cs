@@ -1,7 +1,14 @@
-﻿using Hive.Meta;
+﻿using System.Collections.Generic;
+using Hive.Meta;
 using Hive.Web.Rest;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Internal;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Hive.Web
 {
@@ -13,6 +20,10 @@ namespace Hive.Web
 				app,
 				app.ApplicationServices,
 				app.ApplicationServices.GetRequiredService<IMetaService>(),
+				app.ApplicationServices.GetService<IOptions<MvcOptions>>().Value.InputFormatters,
+				app.ApplicationServices.GetRequiredService<IHttpRequestStreamReaderFactory>(),
+				app.ApplicationServices.GetRequiredService<IModelMetadataProvider>(),
+				app.ApplicationServices.GetRequiredService<ICompositeMetadataDetailsProvider>(),
 				prefix
 			);
 

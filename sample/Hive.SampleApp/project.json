@@ -13,9 +13,11 @@
     "Microsoft.Extensions.Configuration.Json": "1.1.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
     "Microsoft.AspNetCore.Routing": "1.1.0",
+    "Microsoft.AspNetCore.Mvc.Formatters.Json": "1.1.0",
     "Hive": "*",
     "Hive.Web": "*",
-    "Hive.Azure": "*"
+    "Hive.Azure": "*",
+    "microsoft.aspnetcore.mvc": "1.1.0"
   },
 
   "frameworks": {

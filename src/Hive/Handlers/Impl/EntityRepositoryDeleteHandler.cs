@@ -4,10 +4,10 @@ using Hive.Entities;
 
 namespace Hive.Handlers.Impl
 {
-	public class EntityRepositoryDeleteHandler<T> : IHandleDelete<T>
-		where T: class, IEntity
+	public class EntityRepositoryDeleteHandler<TEntity, TId> : IHandleDelete<TEntity, TId>
+		where TEntity : class, IEntity<TId>
 	{
-		public Task<IHandlerResult> Delete(T resource, CancellationToken ct)
+		public Task<IHandlerResult> Delete(TId id, CancellationToken ct)
 		{
 			throw new System.NotImplementedException();
 		}
